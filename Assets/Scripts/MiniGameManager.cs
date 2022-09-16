@@ -11,6 +11,7 @@ namespace demo
         public static MiniGameManager Instance { get; private set; }
 
         [SerializeField] private CardLayout cardLayout;
+        [SerializeField] private Button backBtn;
 
         public Transform enemyTransform;
         public Transform attackTransform;
@@ -29,14 +30,29 @@ namespace demo
 
             cardAssetDeck = new List<CardAsset>();
         }
-        
 
-        
+        private void OnEnable()
+        {
+            backBtn.onClick.AddListener(BackToMenu);
+        }
+
+        private void OnDisable()
+        {
+
+            backBtn.onClick.RemoveListener(BackToMenu);
+        }
+
         public void StartGame()
         {
             
             cardLayout.Init();
 
+        }
+
+        public void BackToMenu()
+        {
+            cardAssetDeck.Clear();
+            //game manager control what panel to show
         }
 
         public void AddCardToDeck(CardAsset cardAsset)

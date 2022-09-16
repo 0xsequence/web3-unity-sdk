@@ -21,7 +21,7 @@ namespace demo
 
         private CardProperties cardProperties;
         private string _currentAccountAddress;
-
+        private List<CardAsset> cardAssets;
         private void OnDisable()
         {
             submitBtn.onClick.RemoveListener(OnSubmitPressed);
@@ -32,7 +32,11 @@ namespace demo
             submitBtn.onClick.AddListener(OnSubmitPressed);
         }
 
-        void Update()
+        private void Awake()
+        {
+            cardAssets = new List<CardAsset>();
+        }
+        private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Return))
             {
@@ -180,6 +184,11 @@ namespace demo
             //newCard.cardProperties = cardProperties;
 
             //m_currentDeck.Add(newCard);
+
+            if(!cardAssets.Contains(newCard))
+            {
+                cardAssets.Add(newCard);
+            }
         }
 
         private void OnSubmitPressed()

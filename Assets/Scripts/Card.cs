@@ -35,7 +35,7 @@ namespace demo
         public void Attack()
         {
             isAttacking = true;
-            Sequence attacksq = DOTween.Sequence();
+            DG.Tweening.Sequence attacksq = DOTween.Sequence();
             attacksq.Append(
                 transform.DOMove(MiniGameManager.Instance.attackTransform.position, 0.1f)
             );
