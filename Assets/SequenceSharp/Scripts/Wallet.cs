@@ -12,9 +12,10 @@ public class Wallet : MonoBehaviour
     [SerializeField] private CanvasWebViewPrefab walletWindow;
     private IWebView internalWebView;
 
-    private void OnEnable()
+    private void Awake()
     {
         Web.EnableRemoteDebugging();
+        Web.SetUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36 UnitySequence");
     }
 
     private async void Start()
@@ -34,7 +35,6 @@ public class Wallet : MonoBehaviour
         internalWebViewWithPopups.SetPopupMode(PopupMode.NotifyWithoutLoading);
         internalWebViewWithPopups.PopupRequested += (sender, eventArgs) =>
         {
-            Debug.Log("main window requested a a popup with url" + eventArgs.Url);
             walletWindow.WebView.LoadUrl(eventArgs.Url);
             walletWindow.Visible = true;
 
@@ -50,7 +50,7 @@ public class Wallet : MonoBehaviour
                     errorfromjs: console.error
                 }
             };
-            window.vuplex.addEventListener('message', event => window.ue.sequencewallettransport.onmessagefromwallet(event.data));
+            window.vuplex.addEventListener('message', event => window.ue.sequencewallettransport.onmessagefromwallet(JSON.parse(event.data)));
 
             window.seq = window.sequence.sequence;
             window.seq.initWallet(
@@ -64,7 +64,7 @@ public class Wallet : MonoBehaviour
 
         internalWebView.MessageEmitted += (sender, eventArgs) =>
         {
-            Debug.Log("got message from internal: " + eventArgs.Value);
+            Debug.Log("sending message from sequence.js to wallet" + eventArgs.Value);
             walletWindow.WebView.PostMessage(eventArgs.Value);
         };
 
@@ -79,7 +79,7 @@ public class Wallet : MonoBehaviour
         walletWithPopups.SetPopupMode(PopupMode.NotifyWithoutLoading);
         walletWithPopups.PopupRequested += (sender, eventArgs) =>
         {
-            //todo open real browser window at that URL
+            Application.OpenURL(eventArgs.Url);
         };
         walletWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) =>
         {
@@ -97,12 +97,13 @@ public class Wallet : MonoBehaviour
                     errorfromjs: console.error
                 }
             };
-            window.vuplex.addEventListener('message', event => window.ue.sequencewallettransport.onmessagefromsequencejs(event.data));
+            window.vuplex.addEventListener('message', event => window.ue.sequencewallettransport.onmessagefromsequencejs(JSON.parse(event.data)));
+            window.startWalletWebapp();
         ");
 
         walletWindow.WebView.MessageEmitted += (sender, eventArgs) =>
         {
-            Debug.Log("got message from wallet: " + eventArgs.Value);
+            Debug.Log("sending message from wallet to sequence.js" + eventArgs.Value);
             internalWebView.PostMessage(eventArgs.Value);
         };
 

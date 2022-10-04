@@ -4143,7 +4143,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   providerConfig:
-    walletAppURL: https://sequence.app/
+    walletAppURL: http://localhost:3333/
     defaultNetworkId: polygon
   walletWindow: {fileID: 1071765235}
 --- !u!1 &1092999389
@@ -4441,7 +4441,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 114949863196309792, guid: 3e10f3b6a733e441c8352020cff2f1f6, type: 3}
       propertyPath: InitialUrl
-      value: https://sequence.app
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 114949863196309792, guid: 3e10f3b6a733e441c8352020cff2f1f6, type: 3}
       propertyPath: Native2DModeEnabled
