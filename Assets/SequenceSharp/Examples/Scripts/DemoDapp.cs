@@ -48,39 +48,58 @@ public class DemoDapp : MonoBehaviour
         //connection
         connectBtn.onClick.AddListener(async () =>
         {
-            var connectDetails = await wallet.ExecuteSequenceJS(@"
-                seq.getWallet().connect({
-                    app: 'Demo Unity Dapp',
-                })
-            ");
+            var connectDetails = await wallet.Connect(new ConnectOptions
+            {
+                app = "Demo Unity Dapp"
+            });
             Debug.Log("[DemoDapp] Connect Details:  " + connectDetails);
         });
 
-                connectAndAuthBtn.onClick.AddListener(async () => {
-                    var connectDetails = await wallet.ExecuteSequenceJS(@"
-                seq.getWallet().connect({
-                    app: 'Demo Unity Dapp',
-                    authenticate: true
-                })
-            ");
-                    Debug.Log("[DemoDapp] Connect Details:  " + connectDetails);
-                });
-                connectWithSettingsBtn.onClick.AddListener(Sequence.Instance.Connect); */
-        disconnectBtn.onClick.AddListener(() => wallet.ExecuteSequenceJS(@"
-                    seq.getWallet().disconnect()
-                "));
+        connectAndAuthBtn.onClick.AddListener(async () =>
+        {
+            var connectDetails = await wallet.Connect(new ConnectOptions
+            {
+                app = "Demo Unity Dapp",
+                authorize = true
+            });
+            Debug.Log("[DemoDapp] Connect and Auth Details:  " + connectDetails);
+        });
+        connectWithSettingsBtn.onClick.AddListener(async () =>
+        {
+            var connectDetails = await wallet.Connect(new ConnectOptions
+            {
+                app = "Demo Unity Dapp",
+                settings = new WalletSettings
+                {
+                    theme = "indigoDark",
+                    bannerURL = "https://placekitten.com/1200/400",
+                    includedPaymentProviders = new string[] { PaymentProviderOption.Moonpay },
+                    defaultFundingCurrency = CurrencyOption.Matic,
+                    defaultPurchaseAmount = 111
+                }
+            });
+            Debug.Log("[DemoDapp] Connect With Settings Details:  " + connectDetails);
+        });
+
+        disconnectBtn.onClick.AddListener(() =>
+        {
+            wallet.Disconnect();
+            Debug.Log("[DemoDapp] Disconnected.");
+        });
+
         /*
                 openWalletBtn.onClick.AddListener(Sequence.Instance.OpenWallet);
                 openWalletWithSettingsBtn.onClick.AddListener(Sequence.Instance.OpenWalletWithSettings);
                 closeWalletBtn.onClick.AddListener(Sequence.Instance.CloseWallet);
                 */
+
         isConnectedBtn.onClick.AddListener(async () =>
         {
-            var isConnected = await wallet.ExecuteSequenceJS(@"
-                seq.getWallet().isConnected()
-            ");
+            var isConnected = await wallet.IsConnected();
             Debug.Log("[DemoDapp] Is connected? " + isConnected);
-        }); /*
+        });
+
+        /*
                 isOpenedBtn.onClick.AddListener(Sequence.Instance.IsOpened);
                 defaultChainBtn.onClick.AddListener(Sequence.Instance.GetDefaultChainID);
                 authChainBtn.onClick.AddListener(Sequence.Instance.GetAuthChainID);*/
