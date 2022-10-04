@@ -26,13 +26,86 @@ public class Wallet : MonoBehaviour
         internalWebView.LoadUrl("streaming-assets://sequence/sequence.html");
         await internalWebView.WaitForNextPageLoadToFinish();
 
-        ExecuteSequenceJS("window.seq = window.sequence.sequence; window.seq.initWallet('" +
-                                 providerConfig.defaultNetworkId + "', { walletAppURL:'" +
-                                 providerConfig.walletAppURL + "', transports: { unrealTransport: { enabled: true } } });" +
-                                 "window.seq.getWallet().on('close', () => window.ue.sequencewallettransport.callbackfromjs(0, 'wallet_closed')); window.ue.sequencewallettransport.callbackfromjs(0, 'initialized');");
+        var internalWebViewWithPopups = internalWebView as IWithPopups;
+        if (internalWebViewWithPopups == null)
+        {
+            throw new IOException("Broken!");
+        }
+        internalWebViewWithPopups.SetPopupMode(PopupMode.NotifyWithoutLoading);
+        internalWebViewWithPopups.PopupRequested += (sender, eventArgs) =>
+        {
+            Debug.Log("main window requested a a popup with url" + eventArgs.Url);
+            walletWindow.WebView.LoadUrl(eventArgs.Url);
+            walletWindow.Visible = true;
+
+        };
+
+        await ExecuteSequenceJS(@"
+            window.ue = {
+                sequencewallettransport: {
+                    onmessagefromwallet: () => { /* will be overwritten by transport! */ },
+                    sendmessagetowallet: (message) => {debugger;window.vuplex.postMessage(message)},
+                    logfromjs: console.log,
+                    warnfromjs: console.warn,
+                    errorfromjs: console.error
+                }
+            };
+            window.vuplex.addEventListener('message', event => window.ue.sequencewallettransport.onmessagefromwallet(event.data));
+
+            window.seq = window.sequence.sequence;
+            window.seq.initWallet(
+                '" + providerConfig.defaultNetworkId + @"',
+                {
+                    walletAppURL:'" + providerConfig.walletAppURL + @"',
+                    transports: { unrealTransport: { enabled: true } }
+                }
+            );
+        ");
+
+        internalWebView.MessageEmitted += (sender, eventArgs) =>
+        {
+            Debug.Log("got message from internal: " + eventArgs.Value);
+            walletWindow.WebView.PostMessage(eventArgs.Value);
+        };
 
 
+        await walletWindow.WaitUntilInitialized();
+
+        var walletWithPopups = walletWindow.WebView as IWithPopups;
+        if (walletWithPopups == null)
+        {
+            throw new IOException("Broken!");
+        }
+        walletWithPopups.SetPopupMode(PopupMode.NotifyWithoutLoading);
+        walletWithPopups.PopupRequested += (sender, eventArgs) =>
+        {
+            //todo open real browser window at that URL
+        };
+        walletWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) =>
+        {
+            walletWindow.Visible = false;
+        };
         walletWindow.Visible = false;
+
+        walletWindow.WebView.PageLoadScripts.Add(@"
+            window.ue = {
+                sequencewallettransport: {
+                    onmessagefromsequencejs: () => { /* will be overwritten by transport! */ },
+                    sendmessagetosequencejs: (message) => window.vuplex.postMessage(message),
+                    logfromjs: console.log,
+                    warnfromjs: console.warn,
+                    errorfromjs: console.error
+                }
+            };
+            window.vuplex.addEventListener('message', event => window.ue.sequencewallettransport.onmessagefromsequencejs(event.data));
+        ");
+
+        walletWindow.WebView.MessageEmitted += (sender, eventArgs) =>
+        {
+            Debug.Log("got message from wallet: " + eventArgs.Value);
+            internalWebView.PostMessage(eventArgs.Value);
+        };
+
 
         var hardwareKeyboardListener = HardwareKeyboardListener.Instantiate();
         hardwareKeyboardListener.KeyDownReceived += (sender, eventArgs) =>
@@ -40,9 +113,10 @@ public class Wallet : MonoBehaviour
             walletWindow.WebView.SendKey(eventArgs.Value);
         };
     }
-    public void ExecuteSequenceJS(string js)
+
+    public Task<string> ExecuteSequenceJS(string js)
     {
-        internalWebView.ExecuteJavaScript(js);
+        return internalWebView.ExecuteJavaScript(js);
     }
 }
 

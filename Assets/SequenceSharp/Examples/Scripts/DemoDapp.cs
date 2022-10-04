@@ -46,7 +46,11 @@ public class DemoDapp : MonoBehaviour
     private void Start()
     {
         //connection
-        connectBtn.onClick.AddListener(() => wallet.ExecuteSequenceJS(""));
+        connectBtn.onClick.AddListener(() => wallet.ExecuteSequenceJS(@"
+            seq.getWallet().connect({
+                app: 'Demo Unity Dapp',
+            })
+        "));
         /*        connectAndAuthBtn.onClick.AddListener(Sequence.Instance.Connect);
                 connectWithSettingsBtn.onClick.AddListener(Sequence.Instance.Connect);
                 disconnectBtn.onClick.AddListener(Sequence.Instance.Disconnect);
