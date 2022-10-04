@@ -46,18 +46,41 @@ public class DemoDapp : MonoBehaviour
     private void Start()
     {
         //connection
-        connectBtn.onClick.AddListener(() => wallet.ExecuteSequenceJS(@"
-            seq.getWallet().connect({
-                app: 'Demo Unity Dapp',
-            })
-        "));
-        /*        connectAndAuthBtn.onClick.AddListener(Sequence.Instance.Connect);
-                connectWithSettingsBtn.onClick.AddListener(Sequence.Instance.Connect);
-                disconnectBtn.onClick.AddListener(Sequence.Instance.Disconnect);
+        connectBtn.onClick.AddListener(async () =>
+        {
+            var connectDetails = await wallet.ExecuteSequenceJS(@"
+                seq.getWallet().connect({
+                    app: 'Demo Unity Dapp',
+                })
+            ");
+            Debug.Log("[DemoDapp] Connect Details:  " + connectDetails);
+        });
+
+                connectAndAuthBtn.onClick.AddListener(async () => {
+                    var connectDetails = await wallet.ExecuteSequenceJS(@"
+                seq.getWallet().connect({
+                    app: 'Demo Unity Dapp',
+                    authenticate: true
+                })
+            ");
+                    Debug.Log("[DemoDapp] Connect Details:  " + connectDetails);
+                });
+                connectWithSettingsBtn.onClick.AddListener(Sequence.Instance.Connect); */
+        disconnectBtn.onClick.AddListener(() => wallet.ExecuteSequenceJS(@"
+                    seq.getWallet().disconnect()
+                "));
+        /*
                 openWalletBtn.onClick.AddListener(Sequence.Instance.OpenWallet);
                 openWalletWithSettingsBtn.onClick.AddListener(Sequence.Instance.OpenWalletWithSettings);
                 closeWalletBtn.onClick.AddListener(Sequence.Instance.CloseWallet);
-                isConnectedBtn.onClick.AddListener(Sequence.Instance.IsConnected);
+                */
+        isConnectedBtn.onClick.AddListener(async () =>
+        {
+            var isConnected = await wallet.ExecuteSequenceJS(@"
+                seq.getWallet().isConnected()
+            ");
+            Debug.Log("[DemoDapp] Is connected? " + isConnected);
+        }); /*
                 isOpenedBtn.onClick.AddListener(Sequence.Instance.IsOpened);
                 defaultChainBtn.onClick.AddListener(Sequence.Instance.GetDefaultChainID);
                 authChainBtn.onClick.AddListener(Sequence.Instance.GetAuthChainID);*/

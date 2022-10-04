@@ -37,7 +37,6 @@ public class Wallet : MonoBehaviour
         {
             walletWindow.WebView.LoadUrl(eventArgs.Url);
             walletWindow.Visible = true;
-
         };
 
         await ExecuteSequenceJS(@"
@@ -60,12 +59,27 @@ public class Wallet : MonoBehaviour
                     transports: { unrealTransport: { enabled: true } }
                 }
             );
+            window.seq.getWallet().on('close', () => {
+                window.ue.sequencewallettransport.callbackfromjs(0, 'wallet_closed')
+            });
+            window.ue.sequencewallettransport.callbackfromjs(0, 'initialized');
         ");
 
         internalWebView.MessageEmitted += (sender, eventArgs) =>
         {
-            Debug.Log("sending message from sequence.js to wallet" + eventArgs.Value);
-            walletWindow.WebView.PostMessage(eventArgs.Value);
+            if (eventArgs.Value == "wallet_closed")
+            {
+                walletWindow.Visible = false;
+            }
+            else if (eventArgs.Value == "initialized")
+            {
+                Debug.Log("Sequence wallet initialized!");
+            }
+            else
+            {
+                //Debug.Log("sending message from sequence.js to wallet" + eventArgs.Value);
+                walletWindow.WebView.PostMessage(eventArgs.Value);
+            }
         };
 
 
@@ -103,7 +117,7 @@ public class Wallet : MonoBehaviour
 
         walletWindow.WebView.MessageEmitted += (sender, eventArgs) =>
         {
-            Debug.Log("sending message from wallet to sequence.js" + eventArgs.Value);
+            //Debug.Log("sending message from wallet to sequence.js" + eventArgs.Value);
             internalWebView.PostMessage(eventArgs.Value);
         };
 
