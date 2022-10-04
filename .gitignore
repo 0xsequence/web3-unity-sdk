@@ -64,6 +64,10 @@ sysinfo.txt
 *.unitypackage
 *.app
 
+# Proprietary packages
+Vuplex/
+
+
 # Crashlytics generated file
 crashlytics-build.properties
 
