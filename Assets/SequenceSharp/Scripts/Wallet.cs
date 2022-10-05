@@ -200,6 +200,12 @@ namespace SequenceSharp
             await ExecuteSequenceJS("return seq.getWallet().disconnect();");
         }
 
+        public async Task<string> GetAccountAddress()
+        {
+            var accountAddress = await ExecuteSequenceJS("return seq.getWallet().getSigner().getAddress();");
+            return accountAddress;
+        }
+
 #nullable enable
         public Task<WalletSession?> GetSession()
         {
