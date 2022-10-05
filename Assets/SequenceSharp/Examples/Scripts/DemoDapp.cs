@@ -90,9 +90,32 @@ public class DemoDapp : MonoBehaviour
             Debug.Log("[DemoDapp] Disconnected.");
         });
 
+        openWalletBtn.onClick.AddListener(async () =>
+        {
+            await wallet.OpenWallet(null, null, null);
+            Debug.Log("[DemoDapp] Wallet Opened.");
+        });
+
+        openWalletWithSettingsBtn.onClick.AddListener(async () =>
+        {
+            await wallet.OpenWallet("wallet/add-funds", new ConnectOptions
+            {
+                settings = new WalletSettings
+                {
+                    theme = "goldDark",
+                    includedPaymentProviders = new string[] { PaymentProviderOption.Moonpay, PaymentProviderOption.Ramp, PaymentProviderOption.Wyre },
+                    defaultFundingCurrency = CurrencyOption.Ether,
+                    defaultPurchaseAmount = 400,
+                    lockFundingCurrencyToDefault = false
+
+                }
+            }, null);
+            Debug.Log("[DemoDapp] Wallet Opened with settings.");
+
+        });
+
+
         /*
-                openWalletBtn.onClick.AddListener(Sequence.Instance.OpenWallet);
-                openWalletWithSettingsBtn.onClick.AddListener(Sequence.Instance.OpenWalletWithSettings);
                 closeWalletBtn.onClick.AddListener(Sequence.Instance.CloseWallet);
                 */
 
@@ -100,6 +123,13 @@ public class DemoDapp : MonoBehaviour
         {
             var isConnected = await wallet.IsConnected();
             Debug.Log("[DemoDapp] Is connected? " + isConnected);
+        });
+
+
+        isOpenedBtn.onClick.AddListener(async () =>
+        {
+            var isOpened = await wallet.IsOpened();
+            Debug.Log("[DemoDapp] Is opened? " + isOpened);
         });
 
         /*
@@ -132,7 +162,9 @@ public class DemoDapp : MonoBehaviour
 
         fetchTokenBalanceAndMetadataBtn.onClick.AddListener(async () =>
         {
-            string accountAddress = await wallet.GetAccountAddress();
+            
+            string accountAddress = await wallet.GetAddress();
+            Debug.Log("[DemoDapp] accountAddress " + accountAddress);
 
             GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, "", true);
             BlockChainType blockChainType = BlockChainType.Polygon;
