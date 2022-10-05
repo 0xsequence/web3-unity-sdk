@@ -181,6 +181,7 @@ namespace SequenceSharp
         public async Task<T> ExecuteSequenceJSAndParseJSON<T>(string js)
         {
             var jsonString = await ExecuteSequenceJS(js);
+            Debug.Log(jsonString);
             return JsonConvert.DeserializeObject<T>(jsonString);
         }
 
@@ -204,31 +205,10 @@ namespace SequenceSharp
             return ExecuteSequenceJS("return seq.getWallet().getSigner().getAddress();");
         }
         
-        public async Task<string> ContractExample()
+        public Task<string[]> ContractExample(string contractExampleJsCode)
         {
-             
-            string contractExampleReturn = await ExecuteSequenceJS(@"
-                
-                const abi = [
-                'function balanceOf(address owner) view returns (uint256)',
-                'function decimals() view returns (uint8)',
-                'function symbol() view returns (string)',
+            return ExecuteSequenceJSAndParseJSON<string[]>(contractExampleJsCode);
 
-                'function transfer(address to, uint amount) returns (bool)',
-
-                'event Transfer(address indexed from, address indexed to, uint amount)'
-                ]
-                var signer = seq.getWallet().getSigner();
-                address = '0x2791bca1f2de4661ed88a30c99a7a9449aa84174';
-                const usdc = new ethers.Contract(address, abi, signer);
-
-                console.log('Token symbol:', await usdc.symbol());
-
-                const balance = await usdc.balanceOf(await signer.getAddress());
-                console.log('Token Balance', balance.toString());
-                return balance;
-            ");
-            return contractExampleReturn;
         }
 
         

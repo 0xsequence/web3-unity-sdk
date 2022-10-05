@@ -201,8 +201,30 @@ public class DemoDapp : MonoBehaviour
         //various
         contractExampleBtn.onClick.AddListener(async () =>
         {
-            string signer = await wallet.ContractExample();
-            Debug.Log("contract example" + signer);
+            string[] signer = await wallet.ContractExample(@"
+                
+                const abi = [
+                'function balanceOf(address owner) view returns (uint256)',
+                'function decimals() view returns (uint8)',
+                'function symbol() view returns (string)',
+
+                'function transfer(address to, uint amount) returns (bool)',
+
+                'event Transfer(address indexed from, address indexed to, uint amount)'
+                ]
+                var signer = seq.getWallet().getSigner();
+                address = '0x2791bca1f2de4661ed88a30c99a7a9449aa84174';
+                const usdc = new ethers.Contract(address, abi, signer);
+
+                
+                const symbol = await usdc.symbol();
+                console.log('Token symbol:',symbol);
+                const balance = await usdc.balanceOf(await signer.getAddress());
+                console.log('Token Balance', balance.toString());
+                contractExample =  [symbol, balance.toString()];
+                return contractExample;
+            ");
+            Debug.Log("contract example: " + "symbol: "+ signer[0]+ "balance: "+signer[1]);
 
         });
 
