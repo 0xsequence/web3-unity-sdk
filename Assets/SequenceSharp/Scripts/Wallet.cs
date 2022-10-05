@@ -64,8 +64,8 @@ namespace SequenceSharp
                 }
                 else
                 {
-                //Debug.Log("sending message from sequence.js to wallet" + eventArgs.Value);
-                walletWindow.WebView.PostMessage(eventArgs.Value);
+                    //Debug.Log("sending message from sequence.js to wallet" + eventArgs.Value);
+                    walletWindow.WebView.PostMessage(eventArgs.Value);
                 }
             };
 
@@ -131,8 +131,8 @@ namespace SequenceSharp
 
             walletWindow.WebView.MessageEmitted += (sender, eventArgs) =>
             {
-            //Debug.Log("sending message from wallet to sequence.js" + eventArgs.Value);
-            internalWebView.PostMessage(eventArgs.Value);
+                //Debug.Log("sending message from wallet to sequence.js" + eventArgs.Value);
+                internalWebView.PostMessage(eventArgs.Value);
             };
 
 
@@ -189,10 +189,9 @@ namespace SequenceSharp
             return ExecuteSequenceJSAndParseJSON<ConnectDetails>("return seq.getWallet().connect(" + ObjectToJson(options) + ");");
         }
 
-        public async Task<bool> IsConnected()
+        public Task<bool> IsConnected()
         {
-            var isConnected = await ExecuteSequenceJS("return seq.getWallet().isConnected();");
-            return isConnected == "true";
+            return ExecuteSequenceJSAndParseJSON<bool>("return seq.getWallet().isConnected();");
         }
 
         public async Task Disconnect()
@@ -200,11 +199,52 @@ namespace SequenceSharp
             await ExecuteSequenceJS("return seq.getWallet().disconnect();");
         }
 
-        public async Task<string> GetAccountAddress()
+        public Task<string> GetAddress()
         {
-            var accountAddress = await ExecuteSequenceJS("return seq.getWallet().getSigner().getAddress();");
-            return accountAddress;
+            return ExecuteSequenceJS("return seq.getWallet().getSigner().getAddress();");
         }
+
+#nullable enable
+        public Task<NetworkConfig[]> GetNetworks(string? chainId)
+        {
+            return ExecuteSequenceJSAndParseJSON<NetworkConfig[]>(@"return seq
+                .getWallet()
+                .getNetworks(" +
+                    chainId == null ? "'" + chainId + "'" : "" +
+                ");");
+        }
+#nullable disable
+
+        public Task<ulong> GetChainId()
+        {
+            return ExecuteSequenceJSAndParseJSON<ulong>("return seq.getWallet().getChainId();");
+        }
+
+        public Task<ulong> GetAuthChainId()
+        {
+            return ExecuteSequenceJSAndParseJSON<ulong>("return seq.getWallet().getAuthChainId();");
+        }
+
+        public Task<bool> IsOpened()
+        {
+            return ExecuteSequenceJSAndParseJSON<bool>("return seq.getWallet().isOpened();");
+        }
+
+#nullable enable
+        public Task<bool> OpenWallet(string? path, ConnectOptions? options, string? networkId)
+        {
+            var pathJson = path == null ? "undefined" : "'" + path + "'";
+            var optionsJson = options == null ? "undefined" : "{ type: 'openWithOptions', options: " + ObjectToJson(options) + "}";
+            var networkIdJson = networkId == null ? "undefined" : networkId;
+            Debug.Log(optionsJson);
+            return ExecuteSequenceJSAndParseJSON<bool>("return seq.getWallet().openWallet("
+                + pathJson + ","
+                + optionsJson + ","
+                + networkIdJson +
+            ");");
+        }
+#nullable disable
+
 
 #nullable enable
         public Task<WalletSession?> GetSession()
