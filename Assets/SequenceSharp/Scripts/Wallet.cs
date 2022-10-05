@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System;
+using Newtonsoft.Json;
 
 public class Wallet : MonoBehaviour
 {
@@ -54,7 +55,8 @@ public class Wallet : MonoBehaviour
             else if (eventArgs.Value == "initialized")
             {
                 Debug.Log("Sequence wallet initialized!");
-            } else if(eventArgs.Value.Contains("vuplexFunctionReturn"))
+            }
+            else if (eventArgs.Value.Contains("vuplexFunctionReturn"))
             {
                 var promiseReturn = JsonUtility.FromJson<PromiseReturn>(eventArgs.Value);
 
@@ -180,9 +182,7 @@ console.log('about to return' + returnValue);
 
     public Task<string> Connect(ConnectOptions options)
     {
-      var json = JsonUtility.ToJson(options);
-        Debug.Log(json);
-      return ExecuteSequenceJS("return seq.getWallet().connect(" + json + ");");
+        return ExecuteSequenceJS("return seq.getWallet().connect(" + ObjectToJson(options) + ");");
     }
 
     public async Task<bool> IsConnected()
@@ -193,7 +193,15 @@ console.log('about to return' + returnValue);
 
     public void Disconnect()
     {
-         internalWebView.ExecuteJavaScript("return seq.getWallet().disconnect();");
+        internalWebView.ExecuteJavaScript("return seq.getWallet().disconnect();");
+    }
+
+    public string ObjectToJson(object? value)
+    {
+        return JsonConvert.SerializeObject(value, Formatting.None, new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore
+        });
     }
 }
 
@@ -238,7 +246,6 @@ public class ProviderConfig
     */
 }
 
-[System.Serializable]
 public class ConnectOptions
 {
 #nullable enable
@@ -295,7 +302,6 @@ public class ConnectOptions
 #nullable disable
 }
 
-[System.Serializable]
 public class WalletSettings
 {
 #nullable enable
