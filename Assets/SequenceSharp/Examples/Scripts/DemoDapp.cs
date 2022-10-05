@@ -123,19 +123,25 @@ public class DemoDapp : MonoBehaviour
                 sendERC1155Btn.onClick.AddListener(Sequence.Instance.Send1155Tokens);
                 sendOnRinkebyBtn.onClick.AddListener(Sequence.Instance.SendRinkebyUSDC);*/
         //various
-        //        contractExampleBtn.onClick.AddListener(Sequence.Instance.ContractExample);
+        contractExampleBtn.onClick.AddListener(async () =>
+        {
+            string signer = await wallet.ContractExample();
+            Debug.Log("contract example" + signer);
+
+        });
+
         fetchTokenBalanceAndMetadataBtn.onClick.AddListener(async () =>
         {
             string accountAddress = await wallet.GetAccountAddress();
-            Debug.Log("[DemoDapp] accountAddress " + accountAddress);
+
             GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, "", true);
             BlockChainType blockChainType = BlockChainType.Polygon;
-            Debug.Log(tokenBalancesArgs.accountAddress);
+
             Indexer.GetTokenBalances(blockChainType, tokenBalancesArgs, (tokenBalances) =>
             {
                 Debug.Log(tokenBalances);
             });
-            
+
 
         });
     }
