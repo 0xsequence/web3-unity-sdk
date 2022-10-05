@@ -114,10 +114,12 @@ public class DemoDapp : MonoBehaviour
 
         });
 
+        closeWalletBtn.onClick.AddListener(async () =>
+        {
+            await wallet.CloseWallet();
+            Debug.Log("[DemoDapp] Wallet Closed!");
 
-        /*
-                closeWalletBtn.onClick.AddListener(Sequence.Instance.CloseWallet);
-                */
+        });
 
         isConnectedBtn.onClick.AddListener(async () =>
         {
@@ -132,16 +134,60 @@ public class DemoDapp : MonoBehaviour
             Debug.Log("[DemoDapp] Is opened? " + isOpened);
         });
 
-        /*
-                isOpenedBtn.onClick.AddListener(Sequence.Instance.IsOpened);
-                defaultChainBtn.onClick.AddListener(Sequence.Instance.GetDefaultChainID);
-                authChainBtn.onClick.AddListener(Sequence.Instance.GetAuthChainID);*/
+        defaultChainBtn.onClick.AddListener(() =>
+        {
+            Debug.Log("TODO");
+        });
+
+
+        authChainBtn.onClick.AddListener(async () =>
+        {
+            var authChainId = await wallet.GetAuthChainId();
+            Debug.Log("[DemoDapp] Auth Chain ID:  " + authChainId);
+        });
+
+        chainIDBtn.onClick.AddListener(async () =>
+        {
+            var chainId = await wallet.GetChainId();
+            Debug.Log("[DemoDapp] Chain ID:  " + chainId);
+        });
 
         //signing
-        /*        chainIDBtn.onClick.AddListener(Sequence.Instance.GetChainID);
-                networksBtn.onClick.AddListener(Sequence.Instance.GetNetworks);
-                getAccountsBtn.onClick.AddListener(Sequence.Instance.GetAccounts);
-                getBalanceBtn.onClick.AddListener(Sequence.Instance.GetBalance);
+        networksBtn.onClick.AddListener(async () =>
+        {
+            var networks = await wallet.GetNetworks(null);
+            Debug.Log("[DemoDapp] Networks :  " + JsonConvert.SerializeObject(networks, Formatting.Indented, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            }));
+        });
+
+        getAccountsBtn.onClick.AddListener(async () =>
+        {
+            var accounts = await wallet.ExecuteSequenceJSAndParseJSON<string[]>("return seq.getWallet().getProvider().listAccounts();");
+            Debug.Log("[DemoDapp] Accounts :  " + string.Join(", ", accounts));
+        });
+
+        getBalanceBtn.onClick.AddListener(async () =>
+        {
+            var balanceChk1 = await wallet.ExecuteSequenceJS(@"
+                const wallet = seq.getWallet();
+                const provider = wallet.getProvider();
+                const account = await wallet.getAddress();
+                const bal = await provider.getBalance(account)
+                return bal.toString();
+            ");
+            Debug.Log("[DemoDapp] Balance Check 1 " + balanceChk1);
+
+            var balanceChk2 = await wallet.ExecuteSequenceJS(@"
+                const wallet = seq.getWallet();
+                const signer = wallet.getSigner();
+                const bal = await signer.getBalance().toString();
+                return bal.toString();
+            ");
+            Debug.Log("[DemoDapp] Balance Check 2 " + balanceChk2);
+        });
+        /*
                 getWalletStateBtn.onClick.AddListener(Sequence.Instance.GetWalletState);*/
 
         //simulation

@@ -53,7 +53,7 @@ namespace SequenceSharp
                 }
                 else if (eventArgs.Value == "initialized")
                 {
-                    Debug.Log("Sequence wallet initialized!");
+                    Debug.Log("Sequence Wallet Initialized!");
                 }
                 else if (eventArgs.Value.Contains("vuplexFunctionReturn"))
                 {
@@ -267,7 +267,6 @@ namespace SequenceSharp
             var pathJson = path == null ? "undefined" : "'" + path + "'";
             var optionsJson = options == null ? "undefined" : "{ type: 'openWithOptions', options: " + ObjectToJson(options) + "}";
             var networkIdJson = networkId == null ? "undefined" : networkId;
-            Debug.Log(optionsJson);
             return ExecuteSequenceJSAndParseJSON<bool>("return seq.getWallet().openWallet("
                 + pathJson + ","
                 + optionsJson + ","
@@ -276,6 +275,9 @@ namespace SequenceSharp
         }
 #nullable disable
 
+        public async Task CloseWallet() {
+            await ExecuteSequenceJS("return seq.getWallet().closeWallet();");
+        }
 
 #nullable enable
         public Task<WalletSession?> GetSession()
