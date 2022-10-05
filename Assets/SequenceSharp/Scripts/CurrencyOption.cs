@@ -1,7 +1,9 @@
-﻿[System.Serializable]
-public static class CurrencyOption
+﻿namespace SequenceSharp
 {
-    public const string USDC = "usdc";
-    public const string Ether = "eth";
-    public const string Matic = "matic";
+    public static class CurrencyOption
+    {
+        public const string USDC = "usdc";
+        public const string Ether = "eth";
+        public const string Matic = "matic";
+    }
 }

@@ -1,5 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
+using Newtonsoft.Json;
+using SequenceSharp;
 using UnityEngine;
 using UnityEngine.UI;
 public class DemoDapp : MonoBehaviour
@@ -52,7 +52,10 @@ public class DemoDapp : MonoBehaviour
             {
                 app = "Demo Unity Dapp"
             });
-            Debug.Log("[DemoDapp] Connect Details:  " + connectDetails);
+            Debug.Log("[DemoDapp] Connect Details:  " + JsonConvert.SerializeObject(connectDetails, Formatting.Indented, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            }));
         });
 
         connectAndAuthBtn.onClick.AddListener(async () =>

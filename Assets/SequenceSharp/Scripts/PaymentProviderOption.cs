@@ -1,7 +1,9 @@
-﻿[System.Serializable]
-public static class PaymentProviderOption
+﻿namespace SequenceSharp
 {
-    public const string Moonpay = "moonpay";
-    public const string Wyre = "wyre";
-    public const string Ramp = "ramp";
+    public static class PaymentProviderOption
+    {
+        public const string Moonpay = "moonpay";
+        public const string Wyre = "wyre";
+        public const string Ramp = "ramp";
+    }
 }
