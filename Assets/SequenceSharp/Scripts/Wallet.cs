@@ -5,12 +5,17 @@ using System.IO;
 using UnityEngine.Networking;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System;
 
 public class Wallet : MonoBehaviour
 {
     [SerializeField] private ProviderConfig providerConfig;
     [SerializeField] private CanvasWebViewPrefab walletWindow;
     private IWebView internalWebView;
+
+    private ulong callbackIndex;
+    private IDictionary<ulong, Action<string>> callbackDict = new Dictionary<ulong, Action<string>>();
 
     private void Awake()
     {
@@ -39,11 +44,35 @@ public class Wallet : MonoBehaviour
             walletWindow.Visible = true;
         };
 
+        internalWebView.MessageEmitted += (sender, eventArgs) =>
+        {
+            Debug.Log("message emitted" + eventArgs.Value);
+            if (eventArgs.Value == "wallet_closed")
+            {
+                walletWindow.Visible = false;
+            }
+            else if (eventArgs.Value == "initialized")
+            {
+                Debug.Log("Sequence wallet initialized!");
+            } else if(eventArgs.Value.Contains("vuplexFunctionReturn"))
+            {
+                var promiseReturn = JsonUtility.FromJson<PromiseReturn>(eventArgs.Value);
+
+                callbackDict[promiseReturn.callbackNumber](promiseReturn.returnValue);
+                callbackDict.Remove(promiseReturn.callbackNumber);
+            }
+            else
+            {
+                //Debug.Log("sending message from sequence.js to wallet" + eventArgs.Value);
+                walletWindow.WebView.PostMessage(eventArgs.Value);
+            }
+        };
+
         await ExecuteSequenceJS(@"
             window.ue = {
                 sequencewallettransport: {
                     onmessagefromwallet: () => { /* will be overwritten by transport! */ },
-                    sendmessagetowallet: (message) => {debugger;window.vuplex.postMessage(message)},
+                    sendmessagetowallet: (message) => window.vuplex.postMessage(message),
                     logfromjs: console.log,
                     warnfromjs: console.warn,
                     errorfromjs: console.error
@@ -65,23 +94,6 @@ public class Wallet : MonoBehaviour
             window.ue.sequencewallettransport.sendmessagetowallet('initialized');
         ");
 
-        internalWebView.MessageEmitted += (sender, eventArgs) =>
-        {
-            if (eventArgs.Value == "wallet_closed")
-            {
-                walletWindow.Visible = false;
-            }
-            else if (eventArgs.Value == "initialized")
-            {
-                Debug.Log("Sequence wallet initialized!");
-            }
-            else
-            {
-                //Debug.Log("sending message from sequence.js to wallet" + eventArgs.Value);
-                walletWindow.WebView.PostMessage(eventArgs.Value);
-            }
-        };
-
 
         await walletWindow.WaitUntilInitialized();
 
@@ -99,6 +111,7 @@ public class Wallet : MonoBehaviour
         {
             walletWindow.Visible = false;
         };
+
         walletWindow.Visible = false;
 
         walletWindow.WebView.PageLoadScripts.Add(@"
@@ -129,28 +142,70 @@ public class Wallet : MonoBehaviour
         };
     }
 
+    /// <summary>
+    /// Execute JS in a context with Sequence.js and Ethers.js
+    /// You have a global named `seq`. To get the wallet, use `seq.getWallet()`.
+    /// See https://docs.sequence.xyz for more information
+    /// </summary>
+    /// <param name="js">The javascript to run. Use `return` to return a value. Returned Promises are automatically awaited.</param>
+    /// <returns>A stringified version of your return value.</returns>
     public Task<string> ExecuteSequenceJS(string js)
     {
-        return internalWebView.ExecuteJavaScript(js);
+        var thisCallbackIndex = callbackIndex;
+        callbackIndex += 1;
+
+        var jsPromiseResolved = new TaskCompletionSource<string>();
+        Action<string> resolvePromiseCallback = (string value) => jsPromiseResolved.TrySetResult(value);
+
+        callbackDict.Add(thisCallbackIndex, resolvePromiseCallback);
+
+        var jsToRun = @"
+            const codeToRun = async () => {
+                " + js + @"
+            };
+            (async () => {
+                const returnValue = await codeToRun();
+console.log('about to return' + returnValue);
+                window.vuplex.postMessage({
+                    type: 'vuplexFunctionReturn',
+                    callbackNumber: " + thisCallbackIndex + @",
+                    returnValue: JSON.stringify(returnValue)
+                });
+            })()
+        ";
+        internalWebView.ExecuteJavaScript(jsToRun);
+
+        return jsPromiseResolved.Task;
     }
 
     public Task<string> Connect(ConnectOptions options)
     {
-        var json = JsonUtility.ToJson(options);
+      var json = JsonUtility.ToJson(options);
         Debug.Log(json);
-        return internalWebView.ExecuteJavaScript("seq.getWallet().connect(" + json + ")");
+      return ExecuteSequenceJS("return seq.getWallet().connect(" + json + ");");
     }
 
     public async Task<bool> IsConnected()
     {
-        var isConnected = await internalWebView.ExecuteJavaScript("seq.getWallet().isConnected()");
+        var isConnected = await ExecuteSequenceJS("return seq.getWallet().isConnected();");
         return isConnected == "true";
     }
 
     public void Disconnect()
     {
-         internalWebView.ExecuteJavaScript("seq.getWallet().disconnect()");
+         internalWebView.ExecuteJavaScript("return seq.getWallet().disconnect();");
     }
+}
+
+
+[Serializable]
+class PromiseReturn
+{
+
+    public string type;
+    public ulong callbackNumber;
+    public string returnValue;
+
 }
 
 
