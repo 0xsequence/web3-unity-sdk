@@ -47,7 +47,6 @@ public class Wallet : MonoBehaviour
 
         internalWebView.MessageEmitted += (sender, eventArgs) =>
         {
-            Debug.Log("message emitted" + eventArgs.Value);
             if (eventArgs.Value == "wallet_closed")
             {
                 walletWindow.Visible = false;
@@ -167,7 +166,6 @@ public class Wallet : MonoBehaviour
             };
             (async () => {
                 const returnValue = await codeToRun();
-console.log('about to return' + returnValue);
                 window.vuplex.postMessage({
                     type: 'vuplexFunctionReturn',
                     callbackNumber: " + thisCallbackIndex + @",
@@ -191,11 +189,12 @@ console.log('about to return' + returnValue);
         return isConnected == "true";
     }
 
-    public void Disconnect()
+    public async Task Disconnect()
     {
-        internalWebView.ExecuteJavaScript("return seq.getWallet().disconnect();");
+        await ExecuteSequenceJS("return seq.getWallet().disconnect();");
     }
 
+#nullable enable
     public string ObjectToJson(object? value)
     {
         return JsonConvert.SerializeObject(value, Formatting.None, new JsonSerializerSettings
@@ -203,6 +202,7 @@ console.log('about to return' + returnValue);
             NullValueHandling = NullValueHandling.Ignore
         });
     }
+#nullable disable
 }
 
 
