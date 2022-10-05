@@ -187,9 +187,13 @@ public class DemoDapp : MonoBehaviour
             ");
             Debug.Log("[DemoDapp] Balance Check 2 " + balanceChk2);
         });
-        /*
-                getWalletStateBtn.onClick.AddListener(Sequence.Instance.GetWalletState);*/
 
+        getWalletStateBtn.onClick.AddListener(async () =>
+        {
+            var walletState = await wallet.ExecuteSequenceJS("return seq.getWallet().getSigner().getWalletState();");
+            Debug.Log("[DemoDapp] Wallet State: " + walletState);
+        });
+        /*
         //simulation
         /*        estimateUnwrapGasBtn.onClick.AddListener(Sequence.Instance.EstimateUnwrapGas);*/
         //transaction

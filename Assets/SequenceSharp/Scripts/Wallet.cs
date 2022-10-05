@@ -16,7 +16,7 @@ namespace SequenceSharp
         private IWebView internalWebView;
 
         private ulong callbackIndex;
-        private IDictionary<ulong, Action<string>> callbackDict = new Dictionary<ulong, Action<string>>();
+        private IDictionary<ulong, TaskCompletionSource<string>> callbackDict = new Dictionary<ulong, TaskCompletionSource<string>>();
 
         private void Awake()
         {
@@ -59,7 +59,14 @@ namespace SequenceSharp
                 {
                     var promiseReturn = JsonUtility.FromJson<PromiseReturn>(eventArgs.Value);
 
-                    callbackDict[promiseReturn.callbackNumber](promiseReturn.returnValue);
+                    callbackDict[promiseReturn.callbackNumber].TrySetResult(promiseReturn.returnValue);
+                    callbackDict.Remove(promiseReturn.callbackNumber);
+                }
+                else if (eventArgs.Value.Contains("vuplexFunctionError"))
+                {
+                    var promiseReturn = JsonUtility.FromJson<PromiseReturn>(eventArgs.Value);
+
+                    callbackDict[promiseReturn.callbackNumber].TrySetException(new JSExecutionException(promiseReturn.returnValue));
                     callbackDict.Remove(promiseReturn.callbackNumber);
                 }
                 else
@@ -156,21 +163,28 @@ namespace SequenceSharp
             callbackIndex += 1;
 
             var jsPromiseResolved = new TaskCompletionSource<string>();
-            Action<string> resolvePromiseCallback = (string value) => jsPromiseResolved.TrySetResult(value);
 
-            callbackDict.Add(thisCallbackIndex, resolvePromiseCallback);
+            callbackDict.Add(thisCallbackIndex, jsPromiseResolved);
 
             var jsToRun = @"
             const codeToRun = async () => {
                 " + js + @"
             };
             (async () => {
-                const returnValue = await codeToRun();
-                window.vuplex.postMessage({
-                    type: 'vuplexFunctionReturn',
-                    callbackNumber: " + thisCallbackIndex + @",
-                    returnValue: JSON.stringify(returnValue)
-                });
+                try {
+                    const returnValue = await codeToRun();
+                    window.vuplex.postMessage({
+                        type: 'vuplexFunctionReturn',
+                        callbackNumber: " + thisCallbackIndex + @",
+                        returnValue: JSON.stringify(returnValue)
+                    });
+                 } catch(err) {
+                    window.vuplex.postMessage({
+                        type: 'vuplexFunctionError',
+                        callbackNumber: " + thisCallbackIndex + @",
+                        returnValue: JSON.stringify(err, Object.getOwnPropertyNames(err))
+                    });
+                 }              
             })()
         ";
             internalWebView.ExecuteJavaScript(jsToRun);
@@ -282,6 +296,13 @@ namespace SequenceSharp
         public string type;
         public ulong callbackNumber;
         public string returnValue;
+
+        public PromiseReturn(string type, ulong callbackNumber, string returnValue)
+        {
+            this.type = type;
+            this.callbackNumber = callbackNumber;
+            this.returnValue = returnValue;
+        }
     }
 
     public static class ExtensionMethods
