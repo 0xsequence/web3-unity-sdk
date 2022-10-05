@@ -81,9 +81,9 @@ public class DemoDapp : MonoBehaviour
             Debug.Log("[DemoDapp] Connect With Settings Details:  " + connectDetails);
         });
 
-        disconnectBtn.onClick.AddListener(() =>
+        disconnectBtn.onClick.AddListener(async () =>
         {
-            wallet.Disconnect();
+            await wallet.Disconnect();
             Debug.Log("[DemoDapp] Disconnected.");
         });
 
