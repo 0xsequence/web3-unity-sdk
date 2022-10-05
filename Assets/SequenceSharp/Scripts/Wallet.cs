@@ -201,6 +201,11 @@ namespace SequenceSharp
         }
 
 #nullable enable
+        public Task<WalletSession?> GetSession()
+        {
+            return ExecuteSequenceJSAndParseJSON<WalletSession?>("return seq.getWallet().getSession();");
+        }
+
         public string ObjectToJson(object? value)
         {
             return JsonConvert.SerializeObject(value, Formatting.None, new JsonSerializerSettings
