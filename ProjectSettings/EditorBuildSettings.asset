@@ -5,7 +5,7 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
+  - enabled: 1
+    path: Assets/SequenceSharp/Examples/Scenes/SequenceSharpDemoDappScene.unity
+    guid: 2b10296f664d35a45bbf5ec06b4eef62
   m_configObjects: {}
