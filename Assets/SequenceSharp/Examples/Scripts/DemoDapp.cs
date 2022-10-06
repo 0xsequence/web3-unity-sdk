@@ -193,15 +193,222 @@ public class DemoDapp : MonoBehaviour
             var walletState = await wallet.ExecuteSequenceJS("return seq.getWallet().getSigner().getWalletState();");
             Debug.Log("[DemoDapp] Wallet State: " + walletState);
         });
-        /*
+        
         //simulation
-        /*        estimateUnwrapGasBtn.onClick.AddListener(Sequence.Instance.EstimateUnwrapGas);*/
+        estimateUnwrapGasBtn.onClick.AddListener(async() =>
+        {
+            var estimate = await wallet.ExecuteSequenceJS(@"
+                const wallet = seq.getWallet()
+
+                const wmaticContractAddress = '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270'
+                const wmaticInterface = new ethers.utils.Interface(['function withdraw(uint256 amount)'])
+                // tx :  sequence.transactions.Transaction 
+                const tx= {
+                  to: wmaticContractAddress,
+                  data: wmaticInterface.encodeFunctionData('withdraw', ['1000000000000000000'])
+                }
+
+                const provider = wallet.getProvider()
+                if(provider)
+                {
+                    const estimate = await provider.estimateGas(tx);                   
+                    return estimate.toString();
+                }
+            ");
+
+            Debug.Log("[DemoDapp] estimated gas needed for wmatic withdrawal: " + estimate);
+        });
         //transaction
-        /*        sendOnDefaultChainBtn.onClick.AddListener(Sequence.Instance.SendETH);
-                sendOnAuthChainBtn.onClick.AddListener(Sequence.Instance.SendETHSidechain);
-                sendDAIBtn.onClick.AddListener(Sequence.Instance.SendDAI);
-                sendERC1155Btn.onClick.AddListener(Sequence.Instance.Send1155Tokens);
-                sendOnRinkebyBtn.onClick.AddListener(Sequence.Instance.SendRinkebyUSDC);*/
+        sendOnDefaultChainBtn.onClick.AddListener(async () =>
+        {
+            var txnResponse = await wallet.ExecuteSequenceJS(@"
+
+
+                const signer = seq.getWallet().getSigner();
+
+                const toAddress =ethers.Wallet.createRandom().address;
+
+                    //tx1 : sequence.transactions.Transaction
+                const tx1 = {
+                    delegateCall: false,
+                    revertOnError: false,
+                    gasLimit: '0x55555',
+                    to: toAddress,
+                    value: ethers.utils.parseEther('1.234'),
+                    data: '0x'
+                }
+                //tx2 : sequence.transactions.Transaction
+                const tx2 = {
+                    delegateCall: false,
+                    revertOnError: false,
+                    gasLimit: '0x55555',
+                    to: toAddress,
+                    value: ethers.utils.parseEther('0.4242'),
+                    data: '0x'
+                }
+                        
+                const provider = signer.provider;
+                console.log(`balance of ${toAddress}, before:`, await provider.getBalance(toAddress))
+                const txnResponse = await signer.sendTransactionBatch([tx1, tx2])
+                console.log(`balance of ${toAddress}, after:`, await provider.getBalance(toAddress))
+                return txnResponse;
+
+                    ");
+            Debug.Log("[DemoDapp] txnResponse: " + txnResponse);
+            });
+
+        sendOnAuthChainBtn.onClick.AddListener(async () =>
+        {
+            var txnResponse = await wallet.ExecuteSequenceJS(@"
+     
+                const wallet = seq.getWallet();
+                const networks = await wallet.getNetworks()
+                const n = networks.find(n => n.isAuthChain)
+                const signer = wallet.getSigner(n)
+
+                const toAddress = ethers.Wallet.createRandom().address
+                //tx1 : sequence.transactions.Transaction
+                const tx1 = {
+                    delegateCall: false,
+                    revertOnError: false,
+                    gasLimit: '0x55555',
+                    to: toAddress,
+                    value: ethers.utils.parseEther('1.234'),
+                    data: '0x'
+                }
+                //tx2 : sequence.transactions.Transaction
+                const tx2 = {
+                    delegateCall: false,
+                    revertOnError: false,
+                    gasLimit: '0x55555',
+                    to: toAddress,
+                    value: ethers.utils.parseEther('0.4242'),
+                    data: '0x'
+                }
+                        
+                const provider = signer.provider;
+                console.log(`balance of ${toAddress}, before:`, await provider.getBalance(toAddress))
+                const txnResponse = await signer.sendTransactionBatch([tx1, tx2])
+                console.log(`balance of ${toAddress}, after:`, await provider.getBalance(toAddress))
+
+                return txnResponse;
+
+                    ");
+            Debug.Log("[DemoDapp] txnResponse: " + txnResponse);
+        });
+        sendDAIBtn.onClick.AddListener(async () =>
+        {
+            var txnResponse = await wallet.ExecuteSequenceJS(@"
+                const ERC_20_ABI = [
+                {
+                    constant: false,
+                    inputs: [
+                            {
+                                internalType: 'address',
+                                name: 'recipient',
+                                type: 'address'
+                            },
+                            {
+                                internalType: 'uint256',
+                                name: 'amount',
+                                type: 'uint256'
+                            }
+                            ],
+                    name: 'transfer',
+                    outputs: [
+                            {
+                                internalType: 'bool',
+                                name: '',
+                                type: 'bool'
+                            }
+                            ],
+                    payable: false,
+                    stateMutability: 'nonpayable',
+                    type: 'function'
+                }
+                ]
+                const signer = seq.getWallet().getSigner();
+
+                const toAddress = ethers.Wallet.createRandom().address;
+
+                const amount = ethers.utils.parseUnits('5', 18);
+
+                const daiContractAddress = '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063'; // (DAI address on Polygon)
+    
+                const tx = {
+                    delegateCall: false,
+                    revertOnError: false,
+                    gasLimit: '0x55555',
+                    to: daiContractAddress,
+                    value: 0,
+                    data: new ethers.utils.Interface(ERC_20_ABI).encodeFunctionData('transfer', [toAddress, amount.toHexString()])
+                }
+
+                const txnResponse = await signer.sendTransactionBatch([tx]);
+
+                return txnResponse;
+
+                ");
+                Debug.Log("[DemoDapp] txnResponse: " + txnResponse);
+        });
+
+        sendERC1155Btn.onClick.AddListener(async () => 
+        {
+            //todo
+            Debug.Log("Todo");
+        });
+        sendOnRinkebyBtn.onClick.AddListener(async () =>
+        {
+            await wallet.ExecuteSequenceJS(@"
+            const ERC_20_ABI = [
+            {
+                constant: false,
+                inputs: [
+                {
+                    internalType: 'address',
+                    name: 'recipient',
+                    type: 'address'
+                },
+                {
+                    internalType: 'uint256',
+                    name: 'amount',
+                    type: 'uint256'
+                }
+                ],
+                name: 'transfer',
+                outputs: [
+                {
+                    internalType: 'bool',
+                    name: '',
+                    type: 'bool'
+                }
+                ],
+                payable: false,
+                stateMutability: 'nonpayable',
+                type: 'function'
+            }];
+                const signer = seq.getWallet().getSigner();
+
+                const toAddress = ethers.Wallet.createRandom().address;
+
+                const amount = ethers.utils.parseUnits('1', 1);
+
+                const daiContractAddress = '0x4DBCdF9B62e891a7cec5A2568C3F4FAF9E8Abe2b'; // (USDC address on Rinkeby)
+                //tx : sequence.transactions.Transaction
+                const tx = {
+                    delegateCall: false,
+                    revertOnError: false,
+                    gasLimit: '0x55555',
+                    to: daiContractAddress,
+                    value: 0,
+                    data: new ethers.utils.Interface(ERC_20_ABI).encodeFunctionData('transfer', [toAddress, amount.toHexString()])
+                }
+
+                const txnResp = await signer.sendTransactionBatch([tx], 4);
+
+                return txnResponse;");
+                   
+        });
         //various
         contractExampleBtn.onClick.AddListener(async () =>
         {
