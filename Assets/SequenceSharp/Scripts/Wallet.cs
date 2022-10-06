@@ -5,13 +5,14 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using System.IO;
 
 #if UNITY_WEBGL
-    using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
+using UnityEngine.Networking;
 #else
     using Vuplex.WebView;
     using Vuplex.WebView.Demos;
-    using System.IO;
 #endif
 
 namespace SequenceSharp
@@ -52,9 +53,6 @@ namespace SequenceSharp
         [SerializeField] private bool native2DMode;
 
 #if UNITY_WEBGL
-        [DllImport("__Internal")]
-        private static extern void Sequence_InitJSLibraries();
-
         [DllImport("__Internal")]
         private static extern void Sequence_ExecuteJSInBrowserContext(string js);
 #else
@@ -156,24 +154,29 @@ namespace SequenceSharp
                     }
                 };
                 window.vuplex.addEventListener('message', event => window.ue.sequencewallettransport.onmessagefromwallet(JSON.parse(event.data)));
-                window.seq = window.sequence.sequence;
             ");
 #else
             // We're in a WebGL build, inject Sequence.js and ethers.js
-            await ExecuteSequenceJS(@"
-                window.seq = '';
-                window.ethers = '';
-            ");
+            var sequenceJSRequest = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "sequence/sequence.js"));
+            await sequenceJSRequest.SendWebRequest();
+            var sequenceJS = sequenceJSRequest.downloadHandler.text;
+
+            var ethersJSRequest = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "sequence/ethers.js"));
+            await ethersJSRequest.SendWebRequest();
+            var ethersJS = ethersJSRequest.downloadHandler.text;
+            await ExecuteSequenceJS(sequenceJS + ";" + ethersJS);
 #endif
 
-
             await ExecuteSequenceJS(@"
+                window.seq = window.sequence.sequence;
                 window.seq.initWallet(
                     '" + providerConfig.defaultNetworkId + @"',
                     {
-                        walletAppURL: '" + providerConfig.walletAppURL + @"',
-                        transports: { unrealTransport: { enabled: true } }
-                    }
+                        walletAppURL: '" + providerConfig.walletAppURL + "'," +
+#if !UNITY_WEBGL
+                        "transports: { unrealTransport: { enabled: true } } " +
+#endif
+                    @"}
                 );
             ");
 
@@ -264,14 +267,14 @@ namespace SequenceSharp
                         callbackNumber: " + thisCallbackIndex + @",
                         returnValue: JSON.stringify(returnValue)
                     });
-                    SendMessage(" + this.name + @", 'JSFunctionReturn', returnString);
+                    SendMessage('" + this.name + @"', 'JSFunctionReturn', returnString);
                  } catch(err) {
                     const returnString = JSON.stringify({
                         type: 'error',
                         callbackNumber: " + thisCallbackIndex + @",
-                        returnValue: JSON.stringify(err, Object.getOwnPropertyNames(err))
+                        returnValue: JSON.stringify(err, Object.getOwnPropertyNames(err).map(prop => JSON.stringify(prop))
                     })
-                    SendMessage(" + this.name + @", 'JSFunctionError', returnString);
+                    SendMessage('" + this.name + @"', 'JSFunctionError', returnString);
                  }
             })()
         ";
@@ -293,7 +296,7 @@ namespace SequenceSharp
                     window.vuplex.postMessage({
                         type: 'vuplexFunctionError',
                         callbackNumber: " + thisCallbackIndex + @",
-                        returnValue: JSON.stringify(err, Object.getOwnPropertyNames(err))
+                        returnValue: JSON.stringify(err, Object.getOwnPropertyNames(err).map(prop => JSON.stringify(prop))
                     });
                  }              
             })()
