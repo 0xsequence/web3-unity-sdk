@@ -272,7 +272,7 @@ namespace SequenceSharp
                     const returnString = JSON.stringify({
                         type: 'error',
                         callbackNumber: " + thisCallbackIndex + @",
-                        returnValue: JSON.stringify(err, Object.getOwnPropertyNames(err).map(prop => JSON.stringify(prop))
+                        returnValue: JSON.stringify(err, Object.getOwnPropertyNames(err).map(prop => JSON.stringify(prop)))
                     })
                     SendMessage('" + this.name + @"', 'JSFunctionError', returnString);
                  }
