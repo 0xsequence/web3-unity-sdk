@@ -262,6 +262,13 @@ namespace SequenceSharp
             {
                 internalWebView.PostMessage(eventArgs.Value);
             };
+
+
+            var hardwareKeyboardListener = HardwareKeyboardListener.Instantiate();
+            hardwareKeyboardListener.KeyDownReceived += (sender, eventArgs) =>
+            {
+                walletWindow.WebView.SendKey(eventArgs.Value);
+            };
 #endif
         }
 
