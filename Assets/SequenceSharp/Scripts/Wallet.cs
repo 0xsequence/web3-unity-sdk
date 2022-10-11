@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.IO;
+using UnityEngine.Networking;
+using System.Linq;
 
 #if UNITY_WEBGL
 using System.Runtime.InteropServices;
-using UnityEngine.Networking;
 #else
-    using Vuplex.WebView;
-    using Vuplex.WebView.Demos;
+using Vuplex.WebView;
+using Vuplex.WebView.Demos;
 #endif
 
 namespace SequenceSharp
@@ -65,9 +66,7 @@ namespace SequenceSharp
 
         private void Awake()
         {
-#if UNITY_WEBGL
-
-#else
+#if !UNITY_WEBGL
             Web.EnableRemoteDebugging();
             Web.SetUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36 UnitySequence ");
 
@@ -83,6 +82,7 @@ namespace SequenceSharp
             rect.localPosition = Vector3.zero;
 
             walletWindow.Native2DModeEnabled = native2DMode;
+            walletWindow.Visible = false;
 
             internalWebView = Web.CreateWebView();
 #endif
@@ -120,25 +120,24 @@ namespace SequenceSharp
                 }
                 else if (eventArgs.Value == "initialized")
                 {
-                    Debug.Log("Sequence Wallet Initialized!");
+                    SequenceDebugLog("Wallet Initialized!");
                 }
                 else if (eventArgs.Value.Contains("vuplexFunctionReturn"))
                 {
-                    var promiseReturn = JsonUtility.FromJson<PromiseReturn>(eventArgs.Value);
+                    var promiseReturn = JsonConvert.DeserializeObject<PromiseReturn>(eventArgs.Value);
 
                     callbackDict[promiseReturn.callbackNumber].TrySetResult(promiseReturn.returnValue);
                     callbackDict.Remove(promiseReturn.callbackNumber);
                 }
                 else if (eventArgs.Value.Contains("vuplexFunctionError"))
                 {
-                    var promiseReturn = JsonUtility.FromJson<PromiseReturn>(eventArgs.Value);
+                    var promiseReturn = JsonConvert.DeserializeObject<PromiseReturn>(eventArgs.Value);
 
                     callbackDict[promiseReturn.callbackNumber].TrySetException(new JSExecutionException(promiseReturn.returnValue));
                     callbackDict.Remove(promiseReturn.callbackNumber);
                 }
                 else
                 {
-                    //Debug.Log("sending message from sequence.js to wallet" + eventArgs.Value);
                     walletWindow.WebView.PostMessage(eventArgs.Value);
                 }
             };
@@ -191,6 +190,44 @@ namespace SequenceSharp
 
             await walletWindow.WaitUntilInitialized();
 
+#if UNITY_STANDALONE || UNITY_EDITOR
+            var credsRequest = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "sequence/httpBasicAuth.json"));
+            await credsRequest.SendWebRequest();
+#nullable enable
+            Dictionary<string, HttpBasicAuthCreds>? creds = null;
+
+            creds = JsonConvert.DeserializeObject<Dictionary<string, HttpBasicAuthCreds>>(credsRequest.downloadHandler.text);
+            if (creds != null)
+            {
+                SequenceDebugLog("Loaded HTTP Basic Auth credentials for domains " + string.Join(",", creds.Keys.Select(x => x.ToString())));
+            }
+            var standaloneWebView = walletWindow.WebView as StandaloneWebView;
+            if (standaloneWebView == null)
+            {
+                throw new System.Exception("Failed to cast webview to StandaloneWebView");
+            }
+            standaloneWebView.AuthRequested += (sender, eventArgs) =>
+            {
+                if (creds == null)
+                {
+                    SequenceDebugLogError("[Sequence] HTTP Basic Auth requested by " + eventArgs.Host + " , but no creds file is loaded.");
+                    eventArgs.Cancel();
+                    return;
+                }
+                if (!creds.ContainsKey(eventArgs.Host))
+                {
+                    SequenceDebugLogError("[Sequence] HTTP Basic Auth requested by " + eventArgs.Host + " , but no creds for that host are in creds file.");
+                    eventArgs.Cancel();
+                    return;
+                }
+                SequenceDebugLog("HTTP Basic Auth executed for" + eventArgs.Host);
+                var matchingCreds = creds[eventArgs.Host];
+                eventArgs.Continue(matchingCreds.username, matchingCreds.password);
+            };
+
+#nullable disable
+#endif
+
             var walletWithPopups = walletWindow.WebView as IWithPopups;
             if (walletWithPopups == null)
             {
@@ -207,8 +244,6 @@ namespace SequenceSharp
                 walletWindow.Visible = false;
             };
 
-            walletWindow.Visible = false;
-
             walletWindow.WebView.PageLoadScripts.Add(@"
                 window.ue = {
                     sequencewallettransport: {
@@ -220,12 +255,11 @@ namespace SequenceSharp
                     }
                 };
                 window.vuplex.addEventListener('message', event => window.ue.sequencewallettransport.onmessagefromsequencejs(JSON.parse(event.data)));
-                window.startWalletWebapp();
+                window.sequenceStartWalletWebapp();
             ");
 
             walletWindow.WebView.MessageEmitted += (sender, eventArgs) =>
             {
-                //Debug.Log("sending message from wallet to sequence.js" + eventArgs.Value);
                 internalWebView.PostMessage(eventArgs.Value);
             };
 
@@ -272,7 +306,7 @@ namespace SequenceSharp
                     const returnString = JSON.stringify({
                         type: 'error',
                         callbackNumber: " + thisCallbackIndex + @",
-                        returnValue: JSON.stringify(err, Object.getOwnPropertyNames(err).map(prop => JSON.stringify(prop)))
+                        returnValue: JSON.stringify(Object.fromEntries(Object.getOwnPropertyNames(err).map(prop => [JSON.stringify(prop), JSON.stringify(err[prop])])))
                     })
                     SendMessage('" + this.name + @"', 'JSFunctionError', returnString);
                  }
@@ -296,7 +330,7 @@ namespace SequenceSharp
                     window.vuplex.postMessage({
                         type: 'vuplexFunctionError',
                         callbackNumber: " + thisCallbackIndex + @",
-                        returnValue: JSON.stringify(err, Object.getOwnPropertyNames(err).map(prop => JSON.stringify(prop))
+                        returnValue: JSON.stringify(Object.fromEntries(Object.getOwnPropertyNames(err).map(prop => [JSON.stringify(prop), JSON.stringify(err[prop])])))
                     });
                  }              
             })()
@@ -310,7 +344,7 @@ namespace SequenceSharp
         public void JSFunctionReturn(string returnVal)
         {
             {
-                var promiseReturn = JsonUtility.FromJson<PromiseReturn>(returnVal);
+                var promiseReturn = JsonConvert.DeserializeObject<PromiseReturn>(returnVal);
 
                 callbackDict[promiseReturn.callbackNumber].TrySetResult(promiseReturn.returnValue);
                 callbackDict.Remove(promiseReturn.callbackNumber);
@@ -318,7 +352,7 @@ namespace SequenceSharp
         }
         public void JSFunctionError(string returnVal)
         {
-                var promiseReturn = JsonUtility.FromJson<PromiseReturn>(returnVal);
+                var promiseReturn = JsonConvert.DeserializeObject<PromiseReturn>(returnVal);
 
                 callbackDict[promiseReturn.callbackNumber].TrySetException(new JSExecutionException(promiseReturn.returnValue));
                 callbackDict.Remove(promiseReturn.callbackNumber);
@@ -329,7 +363,6 @@ namespace SequenceSharp
         public async Task<T> ExecuteSequenceJSAndParseJSON<T>(string js)
         {
             var jsonString = await ExecuteSequenceJS(js);
-            Debug.Log(jsonString);
             return JsonConvert.DeserializeObject<T>(jsonString);
         }
 
@@ -352,7 +385,7 @@ namespace SequenceSharp
         {
             return ExecuteSequenceJS("return seq.getWallet().getSigner().getAddress();");
         }
-        
+
         public Task<string[]> ContractExample(string contractExampleJsCode)
         {
             return ExecuteSequenceJSAndParseJSON<string[]>(contractExampleJsCode);
@@ -365,7 +398,7 @@ namespace SequenceSharp
             return ExecuteSequenceJSAndParseJSON<NetworkConfig[]>(@"return seq
                 .getWallet()
                 .getNetworks(" +
-                    chainId == null ? "'" + chainId + "'" : "" +
+                   (chainId == null ? "'" + chainId + "'" : "") +
                 ");");
         }
 #nullable disable
@@ -399,7 +432,8 @@ namespace SequenceSharp
         }
 #nullable disable
 
-        public async Task CloseWallet() {
+        public async Task CloseWallet()
+        {
             await ExecuteSequenceJS("return seq.getWallet().closeWallet();");
         }
 
@@ -417,10 +451,17 @@ namespace SequenceSharp
             });
         }
 #nullable disable
+        private void SequenceDebugLog(string message)
+        {
+            Debug.Log("[Sequence] " + message);
+        }
+        private void SequenceDebugLogError(string message)
+        {
+            Debug.LogError("[Sequence] " + message);
+        }
     }
 
 
-    [System.Serializable]
     class PromiseReturn
     {
         public string type;

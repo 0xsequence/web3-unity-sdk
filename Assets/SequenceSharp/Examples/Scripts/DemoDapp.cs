@@ -75,7 +75,7 @@ public class DemoDapp : MonoBehaviour
                 settings = new WalletSettings
                 {
                     theme = "indigoDark",
-                    bannerURL = "https://placekitten.com/1200/400",
+                    bannerURL = "https://placekitten.com/1200/400.jpg",
                     includedPaymentProviders = new string[] { PaymentProviderOption.Moonpay },
                     defaultFundingCurrency = CurrencyOption.Matic,
                     defaultPurchaseAmount = 111
@@ -445,7 +445,7 @@ public class DemoDapp : MonoBehaviour
             string accountAddress = await wallet.GetAddress();
             Debug.Log("[DemoDapp] accountAddress " + accountAddress);
 
-            GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, "", true);
+            GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, true);
             BlockChainType blockChainType = BlockChainType.Polygon;
 
             Indexer.GetTokenBalances(blockChainType, tokenBalancesArgs, (tokenBalances) =>
