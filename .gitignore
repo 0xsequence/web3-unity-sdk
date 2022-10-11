@@ -80,4 +80,4 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
 # Credentials files
-# /[Aa]ssets/[Ss]treaming[Aa]ssets/sequence/httpBasicAuth.json
+/[Aa]ssets/[Ss]treaming[Aa]ssets/sequence/httpBasicAuth.json
