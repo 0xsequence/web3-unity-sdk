@@ -81,3 +81,5 @@ crashlytics-build.properties
 
 # Credentials files
 /[Aa]ssets/[Ss]treaming[Aa]ssets/sequence/httpBasicAuth.json
+
+.DS_Store
