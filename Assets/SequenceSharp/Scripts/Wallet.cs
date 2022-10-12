@@ -72,8 +72,6 @@ namespace SequenceSharp
         [DllImport("__Internal")]
         private static extern void Sequence_ExecuteJSInBrowserContext(string js);
 #else
-        private CanvasWebViewPrefab walletWindow;
-        private IWebView internalWebView;
         private CanvasWebViewPrefab _walletWindow;
         private IWebView _internalWebView;
         private CanvasWebViewPrefab authWindow;
@@ -87,16 +85,7 @@ namespace SequenceSharp
         private void Awake()
         {
 #if !UNITY_WEBGL
-            
-            if (enableRemoteDebugging) {
-                Web.EnableRemoteDebugging();
-            }
-            Web.SetUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36 UnitySequence ");
-            
-            walletWindow = CanvasWebViewPrefab.Instantiate();
-            
-            walletWindow.transform.SetParent(this.transform);
-            walletWindow.Visible = false;
+   
             Debug.Log("[Android Build Debugging] Awake");
             if (enableRemoteDebugging)
             {
@@ -288,7 +277,7 @@ namespace SequenceSharp
                 //Application.OpenURL(eventArgs.Url);
                 Debug.Log("Popup opened with URL: " + eventArgs.Url);
                 authWindow = CanvasWebViewPrefab.Instantiate(eventArgs.WebView);
-                authWindow.transform.parent = transform;
+                authWindow.transform.SetParent(transform);
                 //popupPrefab.transform.localPosition = Vector3.zero;
                 //popupPrefab.transform.localEulerAngles = new Vector3(0, 180, 0);
                 var rect = authWindow.GetComponent<RectTransform>();
@@ -306,7 +295,7 @@ namespace SequenceSharp
                 //eventArgs.WebView.LoadUrl(eventArgs.Url);
             };
 
-            walletWindow.WebView.UrlChanged += (sender, eventArgs) => {
+            _walletWindow.WebView.UrlChanged += (sender, eventArgs) => {
                 // Replace myapp:// with your custom scheme
                 Debug.Log("url chagned:" + eventArgs.Url);
 
