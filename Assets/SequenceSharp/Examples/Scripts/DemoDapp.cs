@@ -488,6 +488,13 @@ public class DemoDapp : MonoBehaviour
         });
     }
 
+    private void Start()
+    {
+#if UNITY_STANDALONE_WIN || UNITY_ANDROID || UNITY_WEBGL
+        Canvas canvas = GetComponentInParent<Canvas>();
+        canvas.scaleFactor = 1.0f;
+#endif
+    }
     void ShowButtons(bool show)
     {
         var buttons = GetComponentsInChildren<Button>();

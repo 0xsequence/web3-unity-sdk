@@ -8327,6 +8327,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1699350055}
     m_Modifications:
+    - target: {fileID: 1185229546643505893, guid: f16c10dd27546e44a8dd181994e459b0, type: 3}
+      propertyPath: providerConfig.walletAppURL
+      value: https://dev.sequence.app
+      objectReference: {fileID: 0}
     - target: {fileID: 1400256527652218485, guid: f16c10dd27546e44a8dd181994e459b0, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

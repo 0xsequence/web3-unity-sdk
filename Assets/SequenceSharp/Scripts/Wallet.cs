@@ -303,11 +303,7 @@ namespace SequenceSharp
             };
 
             _walletWindow.WebView.UrlChanged += (sender, eventArgs) => {
-                // Replace myapp:// with your custom scheme
                 Debug.Log("url chagned:" + eventArgs.Url);
-
-               // walletWindow.WebView.LoadUrl(eventArgs.Url);
-
             };
             _walletWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) =>
             {
