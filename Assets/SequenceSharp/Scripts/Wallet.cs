@@ -400,20 +400,18 @@ namespace SequenceSharp
 #if UNITY_WEBGL
         public void JSFunctionReturn(string returnVal)
         {
-            {
-                var promiseReturn = JsonConvert.DeserializeObject<PromiseReturn>(returnVal);
+            var promiseReturn = JsonConvert.DeserializeObject<PromiseReturn>(returnVal);
 
-                callbackDict[promiseReturn.callbackNumber].TrySetResult(promiseReturn.returnValue);
-                callbackDict.Remove(promiseReturn.callbackNumber);
-            }
+            _callbackDict[promiseReturn.callbackNumber].TrySetResult(promiseReturn.returnValue);
+            _callbackDict.Remove(promiseReturn.callbackNumber);
         }
         public void JSFunctionError(string returnVal)
         {
-                var promiseReturn = JsonConvert.DeserializeObject<PromiseReturn>(returnVal);
+            var promiseReturn = JsonConvert.DeserializeObject<PromiseReturn>(returnVal);
 
-                callbackDict[promiseReturn.callbackNumber].TrySetException(new JSExecutionException(promiseReturn.returnValue));
-                callbackDict.Remove(promiseReturn.callbackNumber);
-            
+            _callbackDict[promiseReturn.callbackNumber].TrySetException(new JSExecutionException(promiseReturn.returnValue));
+            _callbackDict.Remove(promiseReturn.callbackNumber);
+
         }
 #endif
 
@@ -492,7 +490,7 @@ namespace SequenceSharp
         public async Task CloseWallet()
         {
             await ExecuteSequenceJS("return seq.getWallet().closeWallet();");
-            if(_walletVisible)
+            if (_walletVisible)
             {
                 _HideWallet();
             }
