@@ -222,8 +222,8 @@ namespace SequenceSharp
             ");
 
             await _walletWindow.WaitUntilInitialized();
-
-
+            _walletWindow.WebView.LoadHtml("<style>*{background:black;}</style>");
+// Doesn't work in mobile webviews :D
 #if UNITY_STANDALONE || UNITY_EDITOR
             var credsRequest = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "sequence/httpBasicAuth.json"));
             await credsRequest.SendWebRequest();
@@ -527,6 +527,13 @@ namespace SequenceSharp
             {
                 onWalletClosed.Invoke();
                 _walletVisible = false;
+#if !UNITY_WEBGL
+                // blank it out!
+                if (_walletWindow.WebView != null)
+                {
+                    _walletWindow.WebView.LoadHtml("<style>*{background:black;}</style>");
+                }
+#endif
             }
         }
 
