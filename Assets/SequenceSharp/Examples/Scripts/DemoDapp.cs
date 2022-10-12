@@ -43,8 +43,17 @@ public class DemoDapp : MonoBehaviour
     [SerializeField] private Button contractExampleBtn;
     [SerializeField] private Button fetchTokenBalanceAndMetadataBtn;
 
+    //Exit
+    [Header("Exit")]
+    [SerializeField] private Button exitBtn;
+
     private void Start()
     {
+        //exit 
+        exitBtn.onClick.AddListener(() =>
+        {
+            Application.Quit();
+        });
         //connection
         connectBtn.onClick.AddListener(async () =>
         {

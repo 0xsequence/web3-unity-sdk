@@ -60,6 +60,7 @@ namespace SequenceSharp
 #else
         private CanvasWebViewPrefab walletWindow;
         private IWebView internalWebView;
+        private CanvasWebViewPrefab authWindow;
 #endif
 
         private ulong callbackIndex;
@@ -68,14 +69,14 @@ namespace SequenceSharp
         private void Awake()
         {
 #if !UNITY_WEBGL
-            Debug.Log("[Android Build Debugging] Awake");
+            
             if (enableRemoteDebugging) {
                 Web.EnableRemoteDebugging();
             }
             Web.SetUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36 UnitySequence ");
-            Debug.Log("[Android Build Debugging] after Web.SetUserAgent");
+            
             walletWindow = CanvasWebViewPrefab.Instantiate();
-            Debug.Log("[Android Build Debugging] walletWindow"+walletWindow.ToString());
+            
             walletWindow.transform.SetParent(this.transform);
             walletWindow.Visible = false;
             // set Widget to full-size of parent
@@ -90,7 +91,7 @@ namespace SequenceSharp
             walletWindow.Visible = false;
 
             internalWebView = Web.CreateWebView();
-            Debug.Log("[Android Build Debugging] internalWebView"+ internalWebView.ToString());
+            
 #endif
         }
 
@@ -103,7 +104,7 @@ namespace SequenceSharp
 
             internalWebView.LoadUrl("streaming-assets://sequence/sequence.html");
             await internalWebView.WaitForNextPageLoadToFinish();
-            Debug.Log("[Android Build Debugging] internalWebviwe Url"+ internalWebView.Url.ToString());
+  
 
             var internalWebViewWithPopups = internalWebView as IWithPopups;
             if (internalWebViewWithPopups == null)
@@ -242,11 +243,42 @@ namespace SequenceSharp
             {
                 throw new IOException("Broken!");
             }
+
             walletWithPopups.SetPopupMode(PopupMode.LoadInNewWebView);
-            walletWithPopups.PopupRequested += (sender, eventArgs) =>
+            walletWithPopups.PopupRequested += async (sender, eventArgs) =>
             {
+
                 // TODO signal that we've opened a social login window,
                 // so games can make it fullscreen
+
+                //Application.OpenURL(eventArgs.Url);
+                Debug.Log("Popup opened with URL: " + eventArgs.Url);
+                authWindow = CanvasWebViewPrefab.Instantiate(eventArgs.WebView);
+                authWindow.transform.parent = transform;
+                //popupPrefab.transform.localPosition = Vector3.zero;
+                //popupPrefab.transform.localEulerAngles = new Vector3(0, 180, 0);
+                var rect = authWindow.GetComponent<RectTransform>();
+                rect.sizeDelta = new Vector2(0, 0);
+                rect.anchorMin = new Vector2(0, 0);
+                rect.anchorMax = new Vector2(1, 1);
+                rect.pivot = new Vector2(0.5f, 0.5f);
+                rect.localPosition = Vector3.zero;
+                await authWindow.WaitUntilInitialized();
+
+                authWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) => {
+                    Debug.Log("Closing the popup");
+                    authWindow.Destroy();
+
+                };
+                //eventArgs.WebView.LoadUrl(eventArgs.Url);
+            };
+
+            walletWindow.WebView.UrlChanged += (sender, eventArgs) => {
+                // Replace myapp:// with your custom scheme
+                Debug.Log("url chagned:" + eventArgs.Url);
+
+               // walletWindow.WebView.LoadUrl(eventArgs.Url);
+
             };
             walletWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) =>
             {
@@ -271,6 +303,7 @@ namespace SequenceSharp
             walletWindow.WebView.MessageEmitted += (sender, eventArgs) =>
             {
                 internalWebView.PostMessage(eventArgs.Value);
+               
             };
 
 
@@ -278,6 +311,9 @@ namespace SequenceSharp
             hardwareKeyboardListener.KeyDownReceived += (sender, eventArgs) =>
             {
                 walletWindow.WebView.SendKey(eventArgs.Value);
+                authWindow.WebView.SendKey(eventArgs.Value);
+                
+
             };
 #endif
         }
@@ -299,7 +335,7 @@ namespace SequenceSharp
             callbackDict.Add(thisCallbackIndex, jsPromiseResolved);
 
 #if UNITY_WEBGL
-            var jsToRun = @"
+            var jsToRun = @"{
             const codeToRun = async () => {
                 " + js + @"
             };
@@ -321,6 +357,7 @@ namespace SequenceSharp
                     SendMessage('" + this.name + @"', 'JSFunctionError', returnString);
                  }
             })()
+            }
         ";
             Sequence_ExecuteJSInBrowserContext(jsToRun);
 #else
