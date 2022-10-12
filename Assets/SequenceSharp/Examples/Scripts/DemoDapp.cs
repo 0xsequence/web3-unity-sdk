@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public class DemoDapp : MonoBehaviour
 {
     [SerializeField] private Wallet wallet;
+    [SerializeField] private CanvasGroup walletContainer;
 
     //Connection
     [Header("Connection")]
@@ -47,13 +48,27 @@ public class DemoDapp : MonoBehaviour
     [Header("Exit")]
     [SerializeField] private Button exitBtn;
 
-    private void Start()
+    private void Awake()
     {
         //exit 
         exitBtn.onClick.AddListener(() =>
         {
             Application.Quit();
         });
+            wallet.onWalletOpened.AddListener(() =>
+        {
+            walletContainer.alpha = 1f;
+            walletContainer.interactable = true;
+            walletContainer.blocksRaycasts = true;
+        });
+        wallet.onWalletClosed.AddListener(() =>
+        {
+
+            walletContainer.alpha = 0f;
+            walletContainer.interactable = false;
+            walletContainer.blocksRaycasts = false;
+        });
+
         //connection
         connectBtn.onClick.AddListener(async () =>
         {
@@ -127,7 +142,6 @@ public class DemoDapp : MonoBehaviour
         {
             await wallet.CloseWallet();
             Debug.Log("[DemoDapp] Wallet Closed!");
-
         });
 
         isConnectedBtn.onClick.AddListener(async () =>
@@ -202,9 +216,9 @@ public class DemoDapp : MonoBehaviour
             var walletState = await wallet.ExecuteSequenceJS("return seq.getWallet().getSigner().getWalletState();");
             Debug.Log("[DemoDapp] Wallet State: " + walletState);
         });
-        
+
         //simulation
-        estimateUnwrapGasBtn.onClick.AddListener(async() =>
+        estimateUnwrapGasBtn.onClick.AddListener(async () =>
         {
             var estimate = await wallet.ExecuteSequenceJS(@"
                 const wallet = seq.getWallet()
@@ -264,7 +278,7 @@ public class DemoDapp : MonoBehaviour
 
                     ");
             Debug.Log("[DemoDapp] txnResponse: " + txnResponse);
-            });
+        });
 
         sendOnAuthChainBtn.onClick.AddListener(async () =>
         {
@@ -358,14 +372,14 @@ public class DemoDapp : MonoBehaviour
                 return txnResponse;
 
                 ");
-                Debug.Log("[DemoDapp] txnResponse: " + txnResponse);
+            Debug.Log("[DemoDapp] txnResponse: " + txnResponse);
         });
 
-        sendERC1155Btn.onClick.AddListener(async () => 
-        {
-            //todo
-            Debug.Log("Todo");
-        });
+        sendERC1155Btn.onClick.AddListener(() =>
+           {
+               //todo
+               Debug.Log("Todo");
+           });
         sendOnRinkebyBtn.onClick.AddListener(async () =>
         {
             await wallet.ExecuteSequenceJS(@"
@@ -416,7 +430,7 @@ public class DemoDapp : MonoBehaviour
                 const txnResp = await signer.sendTransactionBatch([tx], 4);
 
                 return txnResponse;");
-                   
+
         });
         //various
         contractExampleBtn.onClick.AddListener(async () =>
@@ -444,13 +458,13 @@ public class DemoDapp : MonoBehaviour
                 contractExample =  [symbol, balance.toString()];
                 return contractExample;
             ");
-            Debug.Log("contract example: " + "symbol: "+ signer[0]+ "balance: "+signer[1]);
+            Debug.Log("contract example: " + "symbol: " + signer[0] + "balance: " + signer[1]);
 
         });
 
         fetchTokenBalanceAndMetadataBtn.onClick.AddListener(async () =>
         {
-            
+
             string accountAddress = await wallet.GetAddress();
             Debug.Log("[DemoDapp] accountAddress " + accountAddress);
 

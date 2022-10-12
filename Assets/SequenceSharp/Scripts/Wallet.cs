@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using System.IO;
 using UnityEngine.Networking;
 using System.Linq;
+using UnityEngine.Events;
 
 #if UNITY_WEBGL
 using System.Runtime.InteropServices;
@@ -26,6 +27,19 @@ namespace SequenceSharp
     /// </summary>
     public class Wallet : MonoBehaviour
     {
+
+        /// <summary>
+        /// Called when the Wallet is opened.
+        /// You should subscribe to this event and make it visible.
+        /// </summary>
+        [SerializeField] public UnityEvent onWalletOpened;
+
+        /// <summary>
+        /// Called when the Wallet is opened.
+        /// You should subscribe to this event and make it invisible.
+        /// </summary>
+        [SerializeField] public UnityEvent onWalletClosed;
+
         [SerializeField] private ProviderConfig providerConfig;
 
         /// <summary>
@@ -60,11 +74,15 @@ namespace SequenceSharp
 #else
         private CanvasWebViewPrefab walletWindow;
         private IWebView internalWebView;
+        private CanvasWebViewPrefab _walletWindow;
+        private IWebView _internalWebView;
         private CanvasWebViewPrefab authWindow;
-#endif
 
-        private ulong callbackIndex;
-        private IDictionary<ulong, TaskCompletionSource<string>> callbackDict = new Dictionary<ulong, TaskCompletionSource<string>>();
+#endif
+        private bool _walletVisible = true;
+
+        private ulong _callbackIndex;
+        private IDictionary<ulong, TaskCompletionSource<string>> _callbackDict = new Dictionary<ulong, TaskCompletionSource<string>>();
 
         private void Awake()
         {
@@ -79,34 +97,54 @@ namespace SequenceSharp
             
             walletWindow.transform.SetParent(this.transform);
             walletWindow.Visible = false;
+            Debug.Log("[Android Build Debugging] Awake");
+            if (enableRemoteDebugging)
+            {
+                Web.EnableRemoteDebugging();
+            }
+            Web.SetUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36 UnitySequence ");
+            Debug.Log("[Android Build Debugging] after Web.SetUserAgent");
+            _walletWindow = CanvasWebViewPrefab.Instantiate();
+            Debug.Log("[Android Build Debugging] walletWindow" + _walletWindow.ToString());
+            _walletWindow.transform.SetParent(this.transform);
+
             // set Widget to full-size of parent
-            var rect = walletWindow.GetComponent<RectTransform>();
+            var rect = _walletWindow.GetComponent<RectTransform>();
             rect.sizeDelta = new Vector2(0, 0);
             rect.anchorMin = new Vector2(0, 0);
             rect.anchorMax = new Vector2(1, 1);
             rect.pivot = new Vector2(0.5f, 0.5f);
             rect.localPosition = Vector3.zero;
 
-            walletWindow.Native2DModeEnabled = native2DMode;
-            walletWindow.Visible = false;
+            _walletWindow.Native2DModeEnabled = native2DMode;
 
-            internalWebView = Web.CreateWebView();
-            
+            onWalletOpened.AddListener(() =>
+            {
+                _walletWindow.Visible = true;
+            });
+            onWalletClosed.AddListener(() =>
+            {
+                _walletWindow.Visible = false;
+            });
+
+            _internalWebView = Web.CreateWebView();
+            Debug.Log("[Android Build Debugging] internalWebView" + _internalWebView.ToString());
 #endif
         }
 
         private async void Start()
         {
+            _HideWallet();
 #if !UNITY_WEBGL
-            await internalWebView.Init(1, 1);
+            await _internalWebView.Init(1, 1);
 
-            internalWebView.SetRenderingEnabled(false);
+            _internalWebView.SetRenderingEnabled(false);
 
-            internalWebView.LoadUrl("streaming-assets://sequence/sequence.html");
-            await internalWebView.WaitForNextPageLoadToFinish();
-  
+            _internalWebView.LoadUrl("streaming-assets://sequence/sequence.html");
+            await _internalWebView.WaitForNextPageLoadToFinish();
+            Debug.Log("[Android Build Debugging] internalWebviwe Url" + _internalWebView.Url.ToString());
 
-            var internalWebViewWithPopups = internalWebView as IWithPopups;
+            var internalWebViewWithPopups = _internalWebView as IWithPopups;
             if (internalWebViewWithPopups == null)
             {
                 throw new IOException("Broken!");
@@ -114,39 +152,37 @@ namespace SequenceSharp
             internalWebViewWithPopups.SetPopupMode(PopupMode.NotifyWithoutLoading);
             internalWebViewWithPopups.PopupRequested += (sender, eventArgs) =>
             {
-                walletWindow.WebView.LoadUrl(eventArgs.Url);
-                // TODO replace this with a WalletOpened callback
-                walletWindow.Visible = true;
+                _walletWindow.WebView.LoadUrl(eventArgs.Url);
+                _ShowWallet();
             };
 
-            internalWebView.MessageEmitted += (sender, eventArgs) =>
+            _internalWebView.MessageEmitted += (sender, eventArgs) =>
             {
                 if (eventArgs.Value == "wallet_closed")
                 {
-                    // TODO replace this with a WalletClosed callback
-                    walletWindow.Visible = false;
+                    _HideWallet();
                 }
                 else if (eventArgs.Value == "initialized")
                 {
-                    SequenceDebugLog("Wallet Initialized!");
+                    _SequenceDebugLog("Wallet Initialized!");
                 }
                 else if (eventArgs.Value.Contains("vuplexFunctionReturn"))
                 {
                     var promiseReturn = JsonConvert.DeserializeObject<PromiseReturn>(eventArgs.Value);
 
-                    callbackDict[promiseReturn.callbackNumber].TrySetResult(promiseReturn.returnValue);
-                    callbackDict.Remove(promiseReturn.callbackNumber);
+                    _callbackDict[promiseReturn.callbackNumber].TrySetResult(promiseReturn.returnValue);
+                    _callbackDict.Remove(promiseReturn.callbackNumber);
                 }
                 else if (eventArgs.Value.Contains("vuplexFunctionError"))
                 {
                     var promiseReturn = JsonConvert.DeserializeObject<PromiseReturn>(eventArgs.Value);
 
-                    callbackDict[promiseReturn.callbackNumber].TrySetException(new JSExecutionException(promiseReturn.returnValue));
-                    callbackDict.Remove(promiseReturn.callbackNumber);
+                    _callbackDict[promiseReturn.callbackNumber].TrySetException(new JSExecutionException(promiseReturn.returnValue));
+                    _callbackDict.Remove(promiseReturn.callbackNumber);
                 }
                 else
                 {
-                    walletWindow.WebView.PostMessage(eventArgs.Value);
+                    _walletWindow.WebView.PostMessage(eventArgs.Value);
                 }
             };
 
@@ -196,22 +232,20 @@ namespace SequenceSharp
                 window.ue.sequencewallettransport.sendmessagetowallet('initialized');
             ");
 
-            await walletWindow.WaitUntilInitialized();
+            await _walletWindow.WaitUntilInitialized();
 
 
 #if UNITY_STANDALONE || UNITY_EDITOR
             var credsRequest = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "sequence/httpBasicAuth.json"));
             await credsRequest.SendWebRequest();
-            Dictionary<string, HttpBasicAuthCreds>? creds = null;
 #nullable enable
-
-
+            Dictionary<string, HttpBasicAuthCreds>? creds = null;
             creds = JsonConvert.DeserializeObject<Dictionary<string, HttpBasicAuthCreds>>(credsRequest.downloadHandler.text);
             if (creds != null)
             {
-                SequenceDebugLog("Loaded HTTP Basic Auth credentials for domains " + string.Join(",", creds.Keys.Select(x => x.ToString())));
+                _SequenceDebugLog("Loaded HTTP Basic Auth credentials for domains " + string.Join(",", creds.Keys.Select(x => x.ToString())));
             }
-            var standaloneWebView = walletWindow.WebView as StandaloneWebView;
+            var standaloneWebView = _walletWindow.WebView as StandaloneWebView;
             if (standaloneWebView == null)
             {
                 throw new System.Exception("Failed to cast webview to StandaloneWebView");
@@ -220,17 +254,17 @@ namespace SequenceSharp
             {
                 if (creds == null)
                 {
-                    SequenceDebugLogError("[Sequence] HTTP Basic Auth requested by " + eventArgs.Host + " , but no creds file is loaded.");
+                    _SequenceDebugLogError("[Sequence] HTTP Basic Auth requested by " + eventArgs.Host + " , but no creds file is loaded.");
                     eventArgs.Cancel();
                     return;
                 }
                 if (!creds.ContainsKey(eventArgs.Host))
                 {
-                    SequenceDebugLogError("[Sequence] HTTP Basic Auth requested by " + eventArgs.Host + " , but no creds for that host are in creds file.");
+                    _SequenceDebugLogError("[Sequence] HTTP Basic Auth requested by " + eventArgs.Host + " , but no creds for that host are in creds file.");
                     eventArgs.Cancel();
                     return;
                 }
-                SequenceDebugLog("HTTP Basic Auth executed for" + eventArgs.Host);
+                _SequenceDebugLog("HTTP Basic Auth executed for" + eventArgs.Host);
                 var matchingCreds = creds[eventArgs.Host];
                 eventArgs.Continue(matchingCreds.username, matchingCreds.password);
             };
@@ -238,7 +272,7 @@ namespace SequenceSharp
 #nullable disable
 #endif
 
-            var walletWithPopups = walletWindow.WebView as IWithPopups;
+            var walletWithPopups = _walletWindow.WebView as IWithPopups;
             if (walletWithPopups == null)
             {
                 throw new IOException("Broken!");
@@ -268,7 +302,6 @@ namespace SequenceSharp
                 authWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) => {
                     Debug.Log("Closing the popup");
                     authWindow.Destroy();
-
                 };
                 //eventArgs.WebView.LoadUrl(eventArgs.Url);
             };
@@ -280,13 +313,12 @@ namespace SequenceSharp
                // walletWindow.WebView.LoadUrl(eventArgs.Url);
 
             };
-            walletWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) =>
+            _walletWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) =>
             {
-                // TODO replace this with a WalletClosed callback
-                walletWindow.Visible = false;
+                _HideWallet();
             };
 
-            walletWindow.WebView.PageLoadScripts.Add(@"
+            _walletWindow.WebView.PageLoadScripts.Add(@"
                 window.ue = {
                     sequencewallettransport: {
                         onmessagefromsequencejs: () => { /* will be overwritten by transport! */ },
@@ -300,20 +332,10 @@ namespace SequenceSharp
                 window.sequenceStartWalletWebapp();
             ");
 
-            walletWindow.WebView.MessageEmitted += (sender, eventArgs) =>
+            _walletWindow.WebView.MessageEmitted += (sender, eventArgs) =>
             {
-                internalWebView.PostMessage(eventArgs.Value);
                
-            };
-
-
-            var hardwareKeyboardListener = HardwareKeyboardListener.Instantiate();
-            hardwareKeyboardListener.KeyDownReceived += (sender, eventArgs) =>
-            {
-                walletWindow.WebView.SendKey(eventArgs.Value);
-                authWindow.WebView.SendKey(eventArgs.Value);
-                
-
+                _internalWebView.PostMessage(eventArgs.Value);
             };
 #endif
         }
@@ -327,12 +349,12 @@ namespace SequenceSharp
         /// <returns>A stringified version of your return value.</returns>
         public Task<string> ExecuteSequenceJS(string js)
         {
-            var thisCallbackIndex = callbackIndex;
-            callbackIndex += 1;
+            var thisCallbackIndex = _callbackIndex;
+            _callbackIndex += 1;
 
             var jsPromiseResolved = new TaskCompletionSource<string>();
 
-            callbackDict.Add(thisCallbackIndex, jsPromiseResolved);
+            _callbackDict.Add(thisCallbackIndex, jsPromiseResolved);
 
 #if UNITY_WEBGL
             var jsToRun = @"{
@@ -383,7 +405,7 @@ namespace SequenceSharp
             })()
             }
         ";
-            internalWebView.ExecuteJavaScript(jsToRun);
+            _internalWebView.ExecuteJavaScript(jsToRun);
 #endif
             return jsPromiseResolved.Task;
         }
@@ -483,6 +505,10 @@ namespace SequenceSharp
         public async Task CloseWallet()
         {
             await ExecuteSequenceJS("return seq.getWallet().closeWallet();");
+            if(_walletVisible)
+            {
+                _HideWallet();
+            }
         }
 
 #nullable enable
@@ -499,13 +525,31 @@ namespace SequenceSharp
             });
         }
 #nullable disable
-        private void SequenceDebugLog(string message)
+        private void _SequenceDebugLog(string message)
         {
             Debug.Log("[Sequence] " + message);
         }
-        private void SequenceDebugLogError(string message)
+        private void _SequenceDebugLogError(string message)
         {
             Debug.LogError("[Sequence] " + message);
+        }
+
+        private void _HideWallet()
+        {
+            if (_walletVisible)
+            {
+                onWalletClosed.Invoke();
+                _walletVisible = false;
+            }
+        }
+
+        private void _ShowWallet()
+        {
+            if (!_walletVisible)
+            {
+                onWalletOpened.Invoke();
+                _walletVisible = true;
+            }
         }
     }
 
