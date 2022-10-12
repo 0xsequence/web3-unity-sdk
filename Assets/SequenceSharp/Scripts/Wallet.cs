@@ -32,13 +32,20 @@ namespace SequenceSharp
         /// Called when the Wallet is opened.
         /// You should subscribe to this event and make it visible.
         /// </summary>
-        [SerializeField] public UnityEvent onWalletOpened;
+        [HideInInspector] public UnityEvent onWalletOpened;
 
         /// <summary>
         /// Called when the Wallet is opened.
         /// You should subscribe to this event and make it invisible.
         /// </summary>
-        [SerializeField] public UnityEvent onWalletClosed;
+        [HideInInspector] public UnityEvent onWalletClosed;
+
+        /// <summary>
+        /// Called when the Wallet is ready to connect
+        /// You should subscribe to this event and start to connect to sequence wallet!
+        /// </summary>
+        [HideInInspector] public UnityEvent readyToConnectEvent;
+
 
         [SerializeField] private ProviderConfig providerConfig;
 
@@ -131,7 +138,7 @@ namespace SequenceSharp
 
             _internalWebView.LoadUrl("streaming-assets://sequence/sequence.html");
             await _internalWebView.WaitForNextPageLoadToFinish();
-            Debug.Log("[Android Build Debugging] internalWebviwe Url" + _internalWebView.Url.ToString());
+            Debug.Log("[Android Build Debugging] internalWebview Url: " + _internalWebView.Url.ToString());
 
             var internalWebViewWithPopups = _internalWebView as IWithPopups;
             if (internalWebViewWithPopups == null)
@@ -144,6 +151,8 @@ namespace SequenceSharp
                 _walletWindow.WebView.LoadUrl(eventArgs.Url);
                 _ShowWallet();
             };
+
+            readyToConnectEvent.Invoke();
 
             _internalWebView.MessageEmitted += (sender, eventArgs) =>
             {

@@ -50,11 +50,14 @@ public class DemoDapp : MonoBehaviour
 
     private void Awake()
     {
+        ShowButtons(false);
+
         //exit 
         exitBtn.onClick.AddListener(() =>
         {
             Application.Quit();
         });
+        
             wallet.onWalletOpened.AddListener(() =>
         {
             walletContainer.alpha = 1f;
@@ -67,6 +70,11 @@ public class DemoDapp : MonoBehaviour
             walletContainer.alpha = 0f;
             walletContainer.interactable = false;
             walletContainer.blocksRaycasts = false;
+        });
+        //wallet ready
+        wallet.readyToConnectEvent.AddListener(()=>
+        {
+            ShowButtons(true);
         });
 
         //connection
@@ -478,6 +486,15 @@ public class DemoDapp : MonoBehaviour
 
 
         });
+    }
+
+    void ShowButtons(bool show)
+    {
+        var buttons = GetComponentsInChildren<Button>();
+        foreach(Button btn in buttons)
+        {
+            btn.enabled = show;
+        }
     }
 
 
