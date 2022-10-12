@@ -6767,12 +6767,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 800, y: 600}
-  m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_ScreenMatchMode: 1
+  m_MatchWidthOrHeight: 1
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -7951,15 +7951,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6031872228641697957, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.75
+      value: 0.66
       objectReference: {fileID: 0}
     - target: {fileID: 6031872228641697957, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0.98547536
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6031872228641697957, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.251693
+      value: 0.33
       objectReference: {fileID: 0}
     - target: {fileID: 6031872228641697957, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
       propertyPath: m_AnchorMin.y
@@ -7967,11 +7967,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6031872228641697957, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 2
+      value: 866
       objectReference: {fileID: 0}
     - target: {fileID: 6031872228641697957, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 11
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6031872228641697957, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -8003,11 +8003,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6031872228641697957, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -1
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 6031872228641697957, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 5.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6031872228641697957, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -8020,6 +8020,10 @@ PrefabInstance:
     - target: {fileID: 6031872228641697957, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6120976415946990035, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
+      propertyPath: enableRemoteDebugging
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6120976415946990035, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
       propertyPath: providerConfig.walletAppURL

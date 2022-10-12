@@ -245,7 +245,8 @@ namespace SequenceSharp
             walletWithPopups.SetPopupMode(PopupMode.LoadInNewWebView);
             walletWithPopups.PopupRequested += (sender, eventArgs) =>
             {
-                Application.OpenURL(eventArgs.Url);
+                // TODO signal that we've opened a social login window,
+                // so games can make it fullscreen
             };
             walletWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) =>
             {
