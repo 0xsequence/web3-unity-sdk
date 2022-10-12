@@ -8345,15 +8345,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6031872228641697957, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.66
+      value: 0.75
       objectReference: {fileID: 0}
     - target: {fileID: 6031872228641697957, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0.9
       objectReference: {fileID: 0}
     - target: {fileID: 6031872228641697957, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.33
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 6031872228641697957, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
       propertyPath: m_AnchorMin.y
@@ -8417,7 +8417,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6120976415946990035, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
       propertyPath: enableRemoteDebugging
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6120976415946990035, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
       propertyPath: providerConfig.walletAppURL
