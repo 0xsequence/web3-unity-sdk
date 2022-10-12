@@ -19,7 +19,7 @@ public class WalletSettings
         A 3:1 aspect ratio works best - e.g 1200x400
         </summary>
     */
-    public string? bannerURL;
+    public string? bannerUrl;
 
     /**
         <summary>
