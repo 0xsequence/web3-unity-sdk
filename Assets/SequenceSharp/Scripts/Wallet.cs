@@ -13,6 +13,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 #else
 using Vuplex.WebView;
+
 using Vuplex.WebView.Demos;
 #endif
 
@@ -67,14 +68,16 @@ namespace SequenceSharp
         private void Awake()
         {
 #if !UNITY_WEBGL
+            Debug.Log("[Android Build Debugging] Awake");
             if (enableRemoteDebugging) {
                 Web.EnableRemoteDebugging();
             }
             Web.SetUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36 UnitySequence ");
-
+            Debug.Log("[Android Build Debugging] after Web.SetUserAgent");
             walletWindow = CanvasWebViewPrefab.Instantiate();
+            Debug.Log("[Android Build Debugging] walletWindow"+walletWindow.ToString());
             walletWindow.transform.SetParent(this.transform);
-
+            walletWindow.Visible = false;
             // set Widget to full-size of parent
             var rect = walletWindow.GetComponent<RectTransform>();
             rect.sizeDelta = new Vector2(0, 0);
@@ -87,6 +90,7 @@ namespace SequenceSharp
             walletWindow.Visible = false;
 
             internalWebView = Web.CreateWebView();
+            Debug.Log("[Android Build Debugging] internalWebView"+ internalWebView.ToString());
 #endif
         }
 
@@ -99,6 +103,7 @@ namespace SequenceSharp
 
             internalWebView.LoadUrl("streaming-assets://sequence/sequence.html");
             await internalWebView.WaitForNextPageLoadToFinish();
+            Debug.Log("[Android Build Debugging] internalWebviwe Url"+ internalWebView.Url.ToString());
 
             var internalWebViewWithPopups = internalWebView as IWithPopups;
             if (internalWebViewWithPopups == null)
@@ -192,11 +197,13 @@ namespace SequenceSharp
 
             await walletWindow.WaitUntilInitialized();
 
+
 #if UNITY_STANDALONE || UNITY_EDITOR
             var credsRequest = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "sequence/httpBasicAuth.json"));
             await credsRequest.SendWebRequest();
-#nullable enable
             Dictionary<string, HttpBasicAuthCreds>? creds = null;
+#nullable enable
+
 
             creds = JsonConvert.DeserializeObject<Dictionary<string, HttpBasicAuthCreds>>(credsRequest.downloadHandler.text);
             if (creds != null)
@@ -235,7 +242,7 @@ namespace SequenceSharp
             {
                 throw new IOException("Broken!");
             }
-            walletWithPopups.SetPopupMode(PopupMode.NotifyWithoutLoading);
+            walletWithPopups.SetPopupMode(PopupMode.LoadInNewWebView);
             walletWithPopups.PopupRequested += (sender, eventArgs) =>
             {
                 Application.OpenURL(eventArgs.Url);
@@ -316,7 +323,7 @@ namespace SequenceSharp
         ";
             Sequence_ExecuteJSInBrowserContext(jsToRun);
 #else
-            var jsToRun = @"
+            var jsToRun = @"{
             const codeToRun = async () => {
                 " + js + @"
             };
@@ -336,6 +343,7 @@ namespace SequenceSharp
                     });
                  }              
             })()
+            }
         ";
             internalWebView.ExecuteJavaScript(jsToRun);
 #endif

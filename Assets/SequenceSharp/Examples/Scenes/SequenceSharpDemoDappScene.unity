@@ -8023,7 +8023,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6120976415946990035, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
       propertyPath: providerConfig.walletAppURL
-      value: https://dev.sequence.app
+      value: https://sequence.app
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 35ffd11ad03cb5645a31aa156c98358e, type: 3}
