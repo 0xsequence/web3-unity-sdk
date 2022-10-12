@@ -74,7 +74,7 @@ namespace SequenceSharp
 #else
         private CanvasWebViewPrefab _walletWindow;
         private IWebView _internalWebView;
-        private CanvasWebViewPrefab authWindow;
+        private CanvasWebViewPrefab _authWindow;
 
 #endif
         private bool _walletVisible = true;
@@ -276,21 +276,19 @@ namespace SequenceSharp
 
                 //Application.OpenURL(eventArgs.Url);
                 Debug.Log("Popup opened with URL: " + eventArgs.Url);
-                authWindow = CanvasWebViewPrefab.Instantiate(eventArgs.WebView);
-                authWindow.transform.SetParent(transform);
-                //popupPrefab.transform.localPosition = Vector3.zero;
-                //popupPrefab.transform.localEulerAngles = new Vector3(0, 180, 0);
-                var rect = authWindow.GetComponent<RectTransform>();
+                _authWindow = CanvasWebViewPrefab.Instantiate(eventArgs.WebView);
+                _authWindow.transform.SetParent(this.transform);
+                var rect = _authWindow.GetComponent<RectTransform>();
                 rect.sizeDelta = new Vector2(0, 0);
                 rect.anchorMin = new Vector2(0, 0);
                 rect.anchorMax = new Vector2(1, 1);
                 rect.pivot = new Vector2(0.5f, 0.5f);
                 rect.localPosition = Vector3.zero;
-                await authWindow.WaitUntilInitialized();
+                await _authWindow.WaitUntilInitialized();
 
-                authWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) => {
+                _authWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) => {
                     Debug.Log("Closing the popup");
-                    authWindow.Destroy();
+                    _authWindow.Destroy();
                 };
                 //eventArgs.WebView.LoadUrl(eventArgs.Url);
             };
