@@ -99,7 +99,7 @@ public class DemoDapp : MonoBehaviour
                 settings = new WalletSettings
                 {
                     theme = "indigoDark",
-                    bannerUrl = "https://placekitten.com/1200/400.jpg",
+                    bannerUrl = "https://placekitten.com/1200/400",
                     includedPaymentProviders = new string[] { PaymentProviderOption.Moonpay },
                     defaultFundingCurrency = CurrencyOption.Matic,
                     defaultPurchaseAmount = 111
