@@ -6,6 +6,8 @@ public class DemoDapp : MonoBehaviour
 {
     [SerializeField] private Wallet wallet;
     [SerializeField] private CanvasGroup walletContainer;
+    [SerializeField] private Transform authWindowParentTransform;
+    [SerializeField] private RectTransform authWindowRect;
 
     //Connection
     [Header("Connection")]
@@ -75,6 +77,15 @@ public class DemoDapp : MonoBehaviour
         wallet.readyToConnectEvent.AddListener(()=>
         {
             ShowButtons(true);
+        });
+
+        //Social login
+        wallet.onAuthWindowOpened.AddListener(() =>
+        {
+            if (authWindowParentTransform && authWindowRect)
+            {
+                wallet.SetAuthWindowPosition(authWindowParentTransform, authWindowRect);
+            }
         });
 
         //connection

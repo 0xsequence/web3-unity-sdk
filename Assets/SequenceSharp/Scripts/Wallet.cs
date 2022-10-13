@@ -41,6 +41,19 @@ namespace SequenceSharp
         [HideInInspector] public UnityEvent onWalletClosed;
 
         /// <summary>
+        /// Called when the Social Login Window is opened.
+        /// You should subscribe to this event and make it visible.
+        /// </summary>
+        [HideInInspector] public UnityEvent onAuthWindowOpened;
+
+        /// <summary>
+        /// Called when the Social Login Window is opened.
+        /// You should subscribe to this event and make it invisible.
+        /// </summary>
+        [HideInInspector] public UnityEvent onAuthWindowClosed;
+
+
+        /// <summary>
         /// Called when the Wallet is ready to connect
         /// You should subscribe to this event and start to connect to sequence wallet!
         /// </summary>
@@ -85,7 +98,7 @@ namespace SequenceSharp
 
 #endif
         private bool _walletVisible = true;
-
+        private bool _authWindowOpened = false;
         private ulong _callbackIndex;
         private IDictionary<ulong, TaskCompletionSource<string>> _callbackDict = new Dictionary<ulong, TaskCompletionSource<string>>();
 
@@ -284,8 +297,10 @@ namespace SequenceSharp
                 // so games can make it fullscreen
 
                 //Application.OpenURL(eventArgs.Url);
-                Debug.Log("Popup opened with URL: " + eventArgs.Url);
+                
                 _authWindow = CanvasWebViewPrefab.Instantiate(eventArgs.WebView);
+
+                //Defualt Position for social login window
                 _authWindow.transform.SetParent(this.transform);
                 var rect = _authWindow.GetComponent<RectTransform>();
                 rect.sizeDelta = new Vector2(0, 0);
@@ -293,10 +308,15 @@ namespace SequenceSharp
                 rect.anchorMax = new Vector2(1, 1);
                 rect.pivot = new Vector2(0.5f, 0.5f);
                 rect.localPosition = Vector3.zero;
+
                 await _authWindow.WaitUntilInitialized();
+
+                _ShowAuthWindow();
 
                 _authWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) => {
                     Debug.Log("Closing the popup");
+                    _authWindowOpened = false;
+                    _HideAuthWindow();
                     _authWindow.Destroy();
                 };
                 //eventArgs.WebView.LoadUrl(eventArgs.Url);
@@ -548,6 +568,47 @@ namespace SequenceSharp
             {
                 onWalletOpened.Invoke();
                 _walletVisible = true;
+            }
+        }
+
+        private void _ShowAuthWindow()
+        {
+            if (!_authWindowOpened)
+            {
+                _authWindowOpened = true;
+                onAuthWindowOpened.Invoke();
+                
+            }
+        }
+        private void _HideAuthWindow()
+        {
+            if (_authWindowOpened)
+            {
+                onAuthWindowClosed.Invoke();
+                _authWindowOpened = false;
+            }
+        }
+
+        /// <summary>
+        /// Set Social Login Window's Transform
+        /// </summary>
+        /// <param name="parentTransform"></param>
+        /// <param name="windowRect"></param>
+        public void SetAuthWindowPosition(Transform parentTransform, RectTransform windowRect)
+        {
+            if (_authWindowOpened)
+            {               
+                _authWindow.transform.SetParent(parentTransform);
+                var rect = _authWindow.GetComponent<RectTransform>();
+                rect.sizeDelta = windowRect.sizeDelta;
+                rect.anchorMin = windowRect.anchorMin;
+                rect.anchorMax = windowRect.anchorMax;
+                rect.pivot = windowRect.pivot;
+                rect.localPosition = windowRect.localPosition;
+            }
+            else
+            {
+                Debug.Log("[Sequence] Please Set Position of Social Login Window after it is initialized.");
             }
         }
     }

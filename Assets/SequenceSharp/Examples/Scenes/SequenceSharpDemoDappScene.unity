@@ -479,6 +479,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wallet: {fileID: 1071765237}
   walletContainer: {fileID: 1699350058}
+  authWindowParentTransform: {fileID: 0}
+  authWindowRect: {fileID: 0}
   connectBtn: {fileID: 1898361780}
   connectAndAuthBtn: {fileID: 1725050132}
   connectWithSettingsBtn: {fileID: 8705140}
