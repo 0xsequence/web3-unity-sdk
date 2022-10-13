@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System.IO;
 using UnityEditor;
 using UnityEditor.Build;
@@ -51,3 +52,4 @@ class BuildSequenceHTML
         File.WriteAllText(sequenceHTMLGeneratedPath, combined);
     }
 }
+#endif
