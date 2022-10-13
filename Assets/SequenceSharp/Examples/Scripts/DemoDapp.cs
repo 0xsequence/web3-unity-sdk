@@ -3,6 +3,8 @@ using SequenceSharp;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
+
 public class DemoDapp : MonoBehaviour
 {
     [SerializeField] private Wallet wallet;
@@ -53,8 +55,6 @@ public class DemoDapp : MonoBehaviour
 
     //Debugging
     [Header("Debug")]
-    private string output = "";
-    private string stack = "";
     [SerializeField] private TMP_Text debugWindowText;
     [SerializeField] private ScrollRect debugScrollRect;
     
@@ -108,89 +108,153 @@ public class DemoDapp : MonoBehaviour
         //connection
         connectBtn.onClick.AddListener(async () =>
         {
-            var connectDetails = await wallet.Connect(new ConnectOptions
+            try
             {
-                app = "Demo Unity Dapp"
-            });
-            Debug.Log("[DemoDapp] Connect Details:  " + JsonConvert.SerializeObject(connectDetails, Formatting.Indented, new JsonSerializerSettings
+                var connectDetails = await wallet.Connect(new ConnectOptions
+                {
+                    app = "Demo Unity Dapp"
+                });
+                Debug.Log("[DemoDapp] Connect Details:  " + JsonConvert.SerializeObject(connectDetails, Formatting.Indented, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                }));
+            }
+            catch (Exception e)
             {
-                NullValueHandling = NullValueHandling.Ignore
-            }));
+                Debug.Log(e);
+            }
+
         });
 
         connectAndAuthBtn.onClick.AddListener(async () =>
         {
-            var connectDetails = await wallet.Connect(new ConnectOptions
+            try
             {
-                app = "Demo Unity Dapp",
-                authorize = true
-            });
-            Debug.Log("[DemoDapp] Connect and Auth Details:  " + connectDetails);
+                var connectDetails = await wallet.Connect(new ConnectOptions
+                {
+                    app = "Demo Unity Dapp",
+                    authorize = true
+                });
+                Debug.Log("[DemoDapp] Connect and Auth Details:  " + connectDetails);
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
         });
         connectWithSettingsBtn.onClick.AddListener(async () =>
         {
-            var connectDetails = await wallet.Connect(new ConnectOptions
+            try
             {
-                app = "Demo Unity Dapp",
-                settings = new WalletSettings
+                var connectDetails = await wallet.Connect(new ConnectOptions
                 {
-                    theme = "indigoDark",
-                    bannerUrl = "https://placekitten.com/1200/400",
-                    includedPaymentProviders = new string[] { PaymentProviderOption.Moonpay },
-                    defaultFundingCurrency = CurrencyOption.Matic,
-                    defaultPurchaseAmount = 111
-                }
-            });
-            Debug.Log("[DemoDapp] Connect With Settings Details:  " + connectDetails);
+                    app = "Demo Unity Dapp",
+                    settings = new WalletSettings
+                    {
+                        theme = "indigoDark",
+                        bannerUrl = "https://placekitten.com/1200/400",
+                        includedPaymentProviders = new string[] { PaymentProviderOption.Moonpay },
+                        defaultFundingCurrency = CurrencyOption.Matic,
+                        defaultPurchaseAmount = 111
+                    }
+                });
+                Debug.Log("[DemoDapp] Connect With Settings Details:  " + connectDetails);
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
         });
 
         disconnectBtn.onClick.AddListener(async () =>
         {
-            await wallet.Disconnect();
-            Debug.Log("[DemoDapp] Disconnected.");
+            try
+            {
+                await wallet.Disconnect();
+                Debug.Log("[DemoDapp] Disconnected.");
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
         });
 
         openWalletBtn.onClick.AddListener(async () =>
         {
-            await wallet.OpenWallet(null, null, null);
-            Debug.Log("[DemoDapp] Wallet Opened.");
+            try
+            {
+                await wallet.OpenWallet(null, null, null);
+                Debug.Log("[DemoDapp] Wallet Opened.");
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
         });
 
         openWalletWithSettingsBtn.onClick.AddListener(async () =>
         {
-            await wallet.OpenWallet("wallet/add-funds", new ConnectOptions
+            try
             {
-                settings = new WalletSettings
+                await wallet.OpenWallet("wallet/add-funds", new ConnectOptions
                 {
-                    theme = "goldDark",
-                    includedPaymentProviders = new string[] { PaymentProviderOption.Moonpay, PaymentProviderOption.Ramp, PaymentProviderOption.Wyre },
-                    defaultFundingCurrency = CurrencyOption.Ether,
-                    defaultPurchaseAmount = 400,
-                    lockFundingCurrencyToDefault = false
+                    settings = new WalletSettings
+                    {
+                        theme = "goldDark",
+                        includedPaymentProviders = new string[] { PaymentProviderOption.Moonpay, PaymentProviderOption.Ramp, PaymentProviderOption.Wyre },
+                        defaultFundingCurrency = CurrencyOption.Ether,
+                        defaultPurchaseAmount = 400,
+                        lockFundingCurrencyToDefault = false
 
-                }
-            }, null);
-            Debug.Log("[DemoDapp] Wallet Opened with settings.");
+                    }
+                }, null);
+                Debug.Log("[DemoDapp] Wallet Opened with settings.");
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
 
         });
 
         closeWalletBtn.onClick.AddListener(async () =>
         {
-            await wallet.CloseWallet();
-            Debug.Log("[DemoDapp] Wallet Closed!");
+            try
+            {
+                await wallet.CloseWallet();
+                Debug.Log("[DemoDapp] Wallet Closed!");
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
         });
 
         isConnectedBtn.onClick.AddListener(async () =>
         {
-            var isConnected = await wallet.IsConnected();
-            Debug.Log("[DemoDapp] Is connected? " + isConnected);
+            try
+            {
+                var isConnected = await wallet.IsConnected();
+                Debug.Log("[DemoDapp] Is connected? " + isConnected);
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
         });
 
 
         isOpenedBtn.onClick.AddListener(async () =>
         {
-            var isOpened = await wallet.IsOpened();
-            Debug.Log("[DemoDapp] Is opened? " + isOpened);
+            try
+            {
+                var isOpened = await wallet.IsOpened();
+                Debug.Log("[DemoDapp] Is opened? " + isOpened);
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
         });
 
         defaultChainBtn.onClick.AddListener(() =>
@@ -201,62 +265,104 @@ public class DemoDapp : MonoBehaviour
 
         authChainBtn.onClick.AddListener(async () =>
         {
-            var authChainId = await wallet.GetAuthChainId();
-            Debug.Log("[DemoDapp] Auth Chain ID:  " + authChainId);
-        });
+            try { 
+                var authChainId = await wallet.GetAuthChainId();
+                Debug.Log("[DemoDapp] Auth Chain ID:  " + authChainId);
+            }catch (Exception e)
+            {
+                Debug.Log(e);
+            }
+    });
 
         chainIDBtn.onClick.AddListener(async () =>
         {
-            var chainId = await wallet.GetChainId();
-            Debug.Log("[DemoDapp] Chain ID:  " + chainId);
+            try
+            {
+                var chainId = await wallet.GetChainId();
+                Debug.Log("[DemoDapp] Chain ID:  " + chainId);
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
         });
 
         //signing
         networksBtn.onClick.AddListener(async () =>
         {
-            var networks = await wallet.GetNetworks(null);
-            Debug.Log("[DemoDapp] Networks :  " + JsonConvert.SerializeObject(networks, Formatting.Indented, new JsonSerializerSettings
+            try
             {
-                NullValueHandling = NullValueHandling.Ignore
-            }));
+                var networks = await wallet.GetNetworks(null);
+                Debug.Log("[DemoDapp] Networks :  " + JsonConvert.SerializeObject(networks, Formatting.Indented, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                }));
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
         });
 
         getAccountsBtn.onClick.AddListener(async () =>
         {
-            var accounts = await wallet.ExecuteSequenceJSAndParseJSON<string[]>("return seq.getWallet().getProvider().listAccounts();");
-            Debug.Log("[DemoDapp] Accounts :  " + string.Join(", ", accounts));
+            try
+            {
+                var accounts = await wallet.ExecuteSequenceJSAndParseJSON<string[]>("return seq.getWallet().getProvider().listAccounts();");
+                Debug.Log("[DemoDapp] Accounts :  " + string.Join(", ", accounts));
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
         });
 
         getBalanceBtn.onClick.AddListener(async () =>
         {
-            var balanceChk1 = await wallet.ExecuteSequenceJS(@"
+            try
+            {
+                var balanceChk1 = await wallet.ExecuteSequenceJS(@"
                 const wallet = seq.getWallet();
                 const provider = wallet.getProvider();
                 const account = await wallet.getAddress();
                 const bal = await provider.getBalance(account)
                 return bal.toString();
             ");
-            Debug.Log("[DemoDapp] Balance Check 1 " + balanceChk1);
+                Debug.Log("[DemoDapp] Balance Check 1 " + balanceChk1);
 
-            var balanceChk2 = await wallet.ExecuteSequenceJS(@"
+                var balanceChk2 = await wallet.ExecuteSequenceJS(@"
                 const wallet = seq.getWallet();
                 const signer = wallet.getSigner();
                 const bal = await signer.getBalance().toString();
                 return bal.toString();
             ");
-            Debug.Log("[DemoDapp] Balance Check 2 " + balanceChk2);
+                Debug.Log("[DemoDapp] Balance Check 2 " + balanceChk2);
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
         });
 
         getWalletStateBtn.onClick.AddListener(async () =>
         {
-            var walletState = await wallet.ExecuteSequenceJS("return seq.getWallet().getSigner().getWalletState();");
-            Debug.Log("[DemoDapp] Wallet State: " + walletState);
+            try
+            {
+                var walletState = await wallet.ExecuteSequenceJS("return seq.getWallet().getSigner().getWalletState();");
+                Debug.Log("[DemoDapp] Wallet State: " + walletState);
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
         });
 
         //simulation
         estimateUnwrapGasBtn.onClick.AddListener(async () =>
         {
-            var estimate = await wallet.ExecuteSequenceJS(@"
+            try
+            {
+                var estimate = await wallet.ExecuteSequenceJS(@"
                 const wallet = seq.getWallet()
 
                 const wmaticContractAddress = '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270'
@@ -275,12 +381,19 @@ public class DemoDapp : MonoBehaviour
                 }
             ");
 
-            Debug.Log("[DemoDapp] estimated gas needed for wmatic withdrawal: " + estimate);
+                Debug.Log("[DemoDapp] estimated gas needed for wmatic withdrawal: " + estimate);
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
         });
         //transaction
         sendOnDefaultChainBtn.onClick.AddListener(async () =>
         {
-            var txnResponse = await wallet.ExecuteSequenceJS(@"
+            try
+            {
+                var txnResponse = await wallet.ExecuteSequenceJS(@"
 
 
                 const signer = seq.getWallet().getSigner();
@@ -313,12 +426,19 @@ public class DemoDapp : MonoBehaviour
                 return txnResponse;
 
                     ");
-            Debug.Log("[DemoDapp] txnResponse: " + txnResponse);
+                Debug.Log("[DemoDapp] txnResponse: " + txnResponse);
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
         });
 
         sendOnAuthChainBtn.onClick.AddListener(async () =>
         {
-            var txnResponse = await wallet.ExecuteSequenceJS(@"
+            try
+            {
+                var txnResponse = await wallet.ExecuteSequenceJS(@"
      
                 const wallet = seq.getWallet();
                 const networks = await wallet.getNetworks()
@@ -353,11 +473,18 @@ public class DemoDapp : MonoBehaviour
                 return txnResponse;
 
                     ");
-            Debug.Log("[DemoDapp] txnResponse: " + txnResponse);
+                Debug.Log("[DemoDapp] txnResponse: " + txnResponse);
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
         });
         sendDAIBtn.onClick.AddListener(async () =>
         {
-            var txnResponse = await wallet.ExecuteSequenceJS(@"
+            try
+            {
+                var txnResponse = await wallet.ExecuteSequenceJS(@"
                 const ERC_20_ABI = [
                 {
                     constant: false,
@@ -408,7 +535,12 @@ public class DemoDapp : MonoBehaviour
                 return txnResponse;
 
                 ");
-            Debug.Log("[DemoDapp] txnResponse: " + txnResponse);
+                Debug.Log("[DemoDapp] txnResponse: " + txnResponse);
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
         });
 
         sendERC1155Btn.onClick.AddListener(() =>
@@ -418,7 +550,9 @@ public class DemoDapp : MonoBehaviour
            });
         sendOnRinkebyBtn.onClick.AddListener(async () =>
         {
-            await wallet.ExecuteSequenceJS(@"
+            try
+            {
+                await wallet.ExecuteSequenceJS(@"
             const ERC_20_ABI = [
             {
                 constant: false,
@@ -466,12 +600,19 @@ public class DemoDapp : MonoBehaviour
                 const txnResp = await signer.sendTransactionBatch([tx], 4);
 
                 return txnResponse;");
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
 
         });
         //various
         contractExampleBtn.onClick.AddListener(async () =>
         {
-            string[] signer = await wallet.ExecuteSequenceJSAndParseJSON<string[]>(@"
+            try
+            {
+                string[] signer = await wallet.ExecuteSequenceJSAndParseJSON<string[]>(@"
                 
                 const abi = [
                 'function balanceOf(address owner) view returns (uint256)',
@@ -494,23 +635,33 @@ public class DemoDapp : MonoBehaviour
                 contractExample = [symbol, balance.toString()];
                 return contractExample;
             ");
-            Debug.Log("contract example: " + "symbol: " + signer[0] + "balance: " + signer[1]);
+                Debug.Log("contract example: " + "symbol: " + signer[0] + "balance: " + signer[1]);
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
         });
 
         fetchTokenBalanceAndMetadataBtn.onClick.AddListener(async () =>
         {
-
-            string accountAddress = await wallet.GetAddress();
-            Debug.Log("[DemoDapp] accountAddress " + accountAddress);
-
-            GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, true);
-            BlockChainType blockChainType = BlockChainType.Polygon;
-
-            Indexer.GetTokenBalances(blockChainType, tokenBalancesArgs, (tokenBalances) =>
+            try
             {
-                Debug.Log(tokenBalances);
-            });
+                string accountAddress = await wallet.GetAddress();
+                Debug.Log("[DemoDapp] accountAddress " + accountAddress);
 
+                GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, true);
+                BlockChainType blockChainType = BlockChainType.Polygon;
+
+                Indexer.GetTokenBalances(blockChainType, tokenBalancesArgs, (tokenBalances) =>
+                {
+                    Debug.Log(tokenBalances);
+                });
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
 
         });
     }
@@ -533,17 +684,14 @@ public class DemoDapp : MonoBehaviour
         Application.logMessageReceived -= HandleLog;
     }
 
-    private void ScrollToBottom(ScrollRect scrollRect)
-    {
-        scrollRect.normalizedPosition = new Vector2(0, 0);
-    }
+
     private void HandleLog(string logString, string stackTrace, LogType type)
     {
-        output = logString;
-        stack = stackTrace;
-        debugWindowText.text += System.Environment.NewLine + output;
+        debugWindowText.text += logString+ System.Environment.NewLine;
+
         //debugWindowText.text += System.Environment.NewLine + stackTrace;
-        ScrollToBottom(debugScrollRect);
+        Canvas.ForceUpdateCanvases();
+        debugScrollRect.normalizedPosition = new Vector2(0, 0);
     }
     private void ShowButtons(bool show)
     {
