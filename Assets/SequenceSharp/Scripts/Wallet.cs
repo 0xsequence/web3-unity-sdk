@@ -32,33 +32,32 @@ namespace SequenceSharp
         /// Called when the Wallet is opened.
         /// You should subscribe to this event and make it visible.
         /// </summary>
-        [HideInInspector] public UnityEvent onWalletOpened;
+        public UnityEvent onWalletOpened;
 
         /// <summary>
         /// Called when the Wallet is opened.
         /// You should subscribe to this event and make it invisible.
         /// </summary>
-        [HideInInspector] public UnityEvent onWalletClosed;
+        public UnityEvent onWalletClosed;
 
         /// <summary>
         /// Called when the Social Login Window is opened.
         /// You should subscribe to this event and make it visible.
         /// </summary>
-        [HideInInspector] public UnityEvent onAuthWindowOpened;
+        public UnityEvent<CanvasWebViewPrefab> onAuthWindowOpened;
 
         /// <summary>
         /// Called when the Social Login Window is opened.
         /// You should subscribe to this event and make it invisible.
         /// </summary>
-        [HideInInspector] public UnityEvent onAuthWindowClosed;
+        public UnityEvent onAuthWindowClosed;
 
 
         /// <summary>
-        /// Called when the Wallet is ready to connect
-        /// You should subscribe to this event and start to connect to sequence wallet!
+        /// Called when the Wallet is ready to connect.
+        /// Do not interact with the Wallet class until it's called.
         /// </summary>
-        [HideInInspector] public UnityEvent readyToConnectEvent;
-
+        public UnityEvent readyToConnectEvent;
 
         [SerializeField] private ProviderConfig providerConfig;
 
@@ -106,15 +105,12 @@ namespace SequenceSharp
         {
 #if !UNITY_WEBGL
    
-            Debug.Log("[Android Build Debugging] Awake");
             if (enableRemoteDebugging)
             {
                 Web.EnableRemoteDebugging();
             }
             Web.SetUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36 UnitySequence ");
-            Debug.Log("[Android Build Debugging] after Web.SetUserAgent");
             _walletWindow = CanvasWebViewPrefab.Instantiate();
-            Debug.Log("[Android Build Debugging] walletWindow" + _walletWindow.ToString());
             _walletWindow.transform.SetParent(this.transform);
 
             // set Widget to full-size of parent
@@ -137,7 +133,6 @@ namespace SequenceSharp
             });
 
             _internalWebView = Web.CreateWebView();
-            Debug.Log("[Android Build Debugging] internalWebView" + _internalWebView.ToString());
 #endif
         }
 
@@ -151,7 +146,6 @@ namespace SequenceSharp
 
             _internalWebView.LoadUrl("streaming-assets://sequence/sequence.html");
             await _internalWebView.WaitForNextPageLoadToFinish();
-            Debug.Log("[Android Build Debugging] internalWebview Url: " + _internalWebView.Url.ToString());
 
             var internalWebViewWithPopups = _internalWebView as IWithPopups;
             if (internalWebViewWithPopups == null)
@@ -314,7 +308,6 @@ namespace SequenceSharp
                 _ShowAuthWindow();
 
                 _authWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) => {
-                    Debug.Log("Closing the popup");
                     _authWindowOpened = false;
                     _HideAuthWindow();
                     _authWindow.Destroy();
@@ -322,9 +315,6 @@ namespace SequenceSharp
                 //eventArgs.WebView.LoadUrl(eventArgs.Url);
             };
 
-            _walletWindow.WebView.UrlChanged += (sender, eventArgs) => {
-                Debug.Log("url chagned:" + eventArgs.Url);
-            };
             _walletWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) =>
             {
                 _HideWallet();
@@ -348,7 +338,6 @@ namespace SequenceSharp
 
             _walletWindow.WebView.MessageEmitted += (sender, eventArgs) =>
             {
-               
                 _internalWebView.PostMessage(eventArgs.Value);
             };
 #endif
@@ -442,39 +431,60 @@ namespace SequenceSharp
         }
 #endif
 
+        /// <summary>
+        /// Runs an arbitrary JS string and parses the result into a class.
+        /// </summary>
+        /// <typeparam name="T">The type to parse into</typeparam>
+        /// <param name="js">The JS to execute. Use `return` to return.</param>
+        /// <returns>The JSON parsed into `T`, or `null` if parsing fails.</returns>
         public async Task<T> ExecuteSequenceJSAndParseJSON<T>(string js)
         {
             var jsonString = await ExecuteSequenceJS(js);
             return JsonConvert.DeserializeObject<T>(jsonString);
         }
 
+        /// <summary>
+        /// Connect to the user's wallet.
+        /// Will return immediately with ConnectDetails if the user is already connected,
+        /// otherwise it will open the wallet with a connection prompt.
+        /// </summary>
+        /// <param name="options"></param>
+        /// <exception cref="JSExecutionException">Thrown if the user declines the connection.</exception>
         public Task<ConnectDetails> Connect(ConnectOptions options)
         {
             return ExecuteSequenceJSAndParseJSON<ConnectDetails>("return seq.getWallet().connect(" + ObjectToJson(options) + ");");
         }
 
+        /// <summary>
+        /// Check if the user's wallet is connected.
+        /// </summary>
+        /// <returns>Whether or not the wallet is connected.</returns>
         public Task<bool> IsConnected()
         {
             return ExecuteSequenceJSAndParseJSON<bool>("return seq.getWallet().isConnected();");
         }
 
+        /// <summary>
+        /// Disconnect the user's wallet.
+        /// </summary>
         public async Task Disconnect()
         {
             await ExecuteSequenceJS("return seq.getWallet().disconnect();");
         }
-
+        /// <summary>
+        /// Get the connected wallet's address.
+        /// </summary>
+        /// <exception cref="JSExecutionException">Thrown if the wallet isn't connected.</exception>
         public Task<string> GetAddress()
         {
             return ExecuteSequenceJS("return seq.getWallet().getSigner().getAddress();");
         }
 
-        public Task<string[]> ContractExample(string contractExampleJsCode)
-        {
-            return ExecuteSequenceJSAndParseJSON<string[]>(contractExampleJsCode);
-
-        }
-
 #nullable enable
+        /// <summary>
+        /// Get the connected wallet's networks.
+        /// </summary>
+        /// <exception cref="JSExecutionException">Thrown if the wallet isn't connected.</exception>
         public Task<NetworkConfig[]> GetNetworks(string? chainId)
         {
             return ExecuteSequenceJSAndParseJSON<NetworkConfig[]>(@"return seq
@@ -484,28 +494,41 @@ namespace SequenceSharp
                 ");");
         }
 #nullable disable
-
+        /// <summary>
+        /// Get the connected wallet's chain ID.
+        /// </summary>
+        /// <exception cref="JSExecutionException">Thrown if the wallet isn't connected.</exception>
         public Task<ulong> GetChainId()
         {
             return ExecuteSequenceJSAndParseJSON<ulong>("return seq.getWallet().getChainId();");
         }
 
+        /// <returns>The ID of the wallet's Auth Chain.</returns>
+        /// <exception cref="JSExecutionException">Thrown if the wallet isn't connected.</exception>
         public Task<ulong> GetAuthChainId()
         {
             return ExecuteSequenceJSAndParseJSON<ulong>("return seq.getWallet().getAuthChainId();");
         }
 
+        /// <returns>Whether or not the wallet is currently open.</returns>
         public Task<bool> IsOpened()
         {
             return ExecuteSequenceJSAndParseJSON<bool>("return seq.getWallet().isOpened();");
         }
 
 #nullable enable
+        /// <summary>
+        /// Opens the wallet. Configurable with settings &amp; wallet pages.
+        /// </summary>
+        /// <param name="path">A URL path, e.g. wallet/add-funds</param>
+        /// <param name="options">Wallet or Connect settings, for theming etc.</param>
+        /// <param name="networkId">The network/chain the wallet will be opened to.</param>
+        /// <returns>Whether or not the wallet opened</returns>
         public Task<bool> OpenWallet(string? path, ConnectOptions? options, string? networkId)
         {
             var pathJson = path == null ? "undefined" : "'" + path + "'";
             var optionsJson = options == null ? "undefined" : "{ type: 'openWithOptions', options: " + ObjectToJson(options) + "}";
-            var networkIdJson = networkId == null ? "undefined" : networkId;
+            var networkIdJson = networkId ?? "undefined";
             return ExecuteSequenceJSAndParseJSON<bool>("return seq.getWallet().openWallet("
                 + pathJson + ","
                 + optionsJson + ","
@@ -514,6 +537,9 @@ namespace SequenceSharp
         }
 #nullable disable
 
+        /// <summary>
+        /// Closes the wallet, if it's open.
+        /// </summary>
         public async Task CloseWallet()
         {
             await ExecuteSequenceJS("return seq.getWallet().closeWallet();");
@@ -524,6 +550,10 @@ namespace SequenceSharp
         }
 
 #nullable enable
+        /// <summary>
+        /// Get the connected wallet's session.
+        /// </summary>
+        /// <exception cref="JSExecutionException">Thrown if the wallet isn't connected.</exception>
         public Task<WalletSession?> GetSession()
         {
             return ExecuteSequenceJSAndParseJSON<WalletSession?>("return seq.getWallet().getSession();");
@@ -576,7 +606,7 @@ namespace SequenceSharp
             if (!_authWindowOpened)
             {
                 _authWindowOpened = true;
-                onAuthWindowOpened.Invoke();
+                onAuthWindowOpened.Invoke(_authWindow);
                 
             }
         }
@@ -586,29 +616,6 @@ namespace SequenceSharp
             {
                 onAuthWindowClosed.Invoke();
                 _authWindowOpened = false;
-            }
-        }
-
-        /// <summary>
-        /// Set Social Login Window's Transform
-        /// </summary>
-        /// <param name="parentTransform"></param>
-        /// <param name="windowRect"></param>
-        public void SetAuthWindowPosition(Transform parentTransform, RectTransform windowRect)
-        {
-            if (_authWindowOpened)
-            {               
-                _authWindow.transform.SetParent(parentTransform);
-                var rect = _authWindow.GetComponent<RectTransform>();
-                rect.sizeDelta = windowRect.sizeDelta;
-                rect.anchorMin = windowRect.anchorMin;
-                rect.anchorMax = windowRect.anchorMax;
-                rect.pivot = windowRect.pivot;
-                rect.localPosition = windowRect.localPosition;
-            }
-            else
-            {
-                Debug.Log("[Sequence] Please Set Position of Social Login Window after it is initialized.");
             }
         }
     }

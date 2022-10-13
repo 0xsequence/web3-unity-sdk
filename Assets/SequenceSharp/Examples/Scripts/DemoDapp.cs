@@ -80,11 +80,17 @@ public class DemoDapp : MonoBehaviour
         });
 
         //Social login
-        wallet.onAuthWindowOpened.AddListener(() =>
+        wallet.onAuthWindowOpened.AddListener((authWindow) =>
         {
             if (authWindowParentTransform && authWindowRect)
             {
-                wallet.SetAuthWindowPosition(authWindowParentTransform, authWindowRect);
+                authWindow.transform.SetParent(authWindowParentTransform);
+                var rect = authWindow.GetComponent<RectTransform>();
+                rect.sizeDelta = authWindowRect.sizeDelta;
+                rect.anchorMin = authWindowRect.anchorMin;
+                rect.anchorMax = authWindowRect.anchorMax;
+                rect.pivot = authWindowRect.pivot;
+                rect.localPosition = authWindowRect.localPosition;
             }
         });
 
@@ -454,7 +460,7 @@ public class DemoDapp : MonoBehaviour
         //various
         contractExampleBtn.onClick.AddListener(async () =>
         {
-            string[] signer = await wallet.ContractExample(@"
+            string[] signer = await wallet.ExecuteSequenceJSAndParseJSON<string[]>(@"
                 
                 const abi = [
                 'function balanceOf(address owner) view returns (uint256)',
@@ -474,11 +480,10 @@ public class DemoDapp : MonoBehaviour
                 console.log('Token symbol:',symbol);
                 const balance = await usdc.balanceOf(await signer.getAddress());
                 console.log('Token Balance', balance.toString());
-                contractExample =  [symbol, balance.toString()];
+                contractExample = [symbol, balance.toString()];
                 return contractExample;
             ");
             Debug.Log("contract example: " + "symbol: " + signer[0] + "balance: " + signer[1]);
-
         });
 
         fetchTokenBalanceAndMetadataBtn.onClick.AddListener(async () =>
@@ -499,21 +504,19 @@ public class DemoDapp : MonoBehaviour
         });
     }
 
+#if UNITY_STANDALONE_WIN || UNITY_ANDROID || UNITY_WEBGL
     private void Start()
     {
-#if UNITY_STANDALONE_WIN || UNITY_ANDROID || UNITY_WEBGL
         Canvas canvas = GetComponentInParent<Canvas>();
         canvas.scaleFactor = 1.0f;
-#endif
     }
+#endif
+
     void ShowButtons(bool show)
     {
-        var buttons = GetComponentsInChildren<Button>();
-        foreach(Button btn in buttons)
-        {
-            btn.enabled = show;
-        }
+        var canvasGroup = GetComponent<CanvasGroup>();
+        canvasGroup.alpha = show ? 1 : 0;
+        canvasGroup.blocksRaycasts = show;
+        canvasGroup.interactable = show;
     }
-
-
 }
