@@ -1,8 +1,6 @@
 #if UNITY_EDITOR
 using System.IO;
 using UnityEditor;
-using UnityEditor.Build;
-using UnityEditor.Build.Reporting;
 using UnityEngine;
 class BuildSequenceHTML
 {
