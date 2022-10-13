@@ -4,9 +4,8 @@
 
 1. Import Vuplex.
 2. Import SequenceSharp.unitypackage.
-3. Add an Assembly Reference to SequenceSharp's Assembly Definition, and/or SequenceIndexer's Assembly Definition.
-   This is required because SequenceSharp must inform Vuplex _not_ to build for WebGL.
-   If you're already using Vuplex WebGL for something different, you can delete the Assembly Reference files in Vuplex, in SequenceSharp, and in SequenceIndexer.
+
+If you want to avoid buying Vuplex WebGL, since it's not technically used, then to do a WebGL build, _first move the Vuplex folder out of your project_, then move it back in after your build is done.
 
 ## Creating the UnityPackage
 
