@@ -321,7 +321,9 @@ namespace SequenceSharp
                     }
                 };
                 window.vuplex.addEventListener('message', event => window.ue.sequencewallettransport.onmessagefromsequencejs(JSON.parse(event.data)));
-                window.sequenceStartWalletWebapp();
+                if('sequenceStartWalletWebapp' in window) {
+                    window.sequenceStartWalletWebapp();
+                }
             ");
 
             _walletWindow.WebView.MessageEmitted += (sender, eventArgs) =>
