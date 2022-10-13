@@ -1,5 +1,8 @@
 #define VUPLEX_OMIT_WEBGL
 
+#if !UNITY_WEBGL || UNITY_EDITOR
+#define IS_EDITOR_OR_NOT_WEBGL
+#endif
 using UnityEngine;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -7,16 +10,16 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.IO;
 using UnityEngine.Networking;
-using System.Linq;
 using UnityEngine.Events;
 
-#if UNITY_WEBGL
+#if IS_EDITOR_OR_NOT_WEBGL
+using Vuplex.WebView;
+#if UNITY_STANDALONE || UNITY_EDITOR
+using System.Linq;
+#endif
+#else
 using System.Runtime.InteropServices;
 using CanvasWebViewPrefab = UnityEngine.GameObject; 
-#else
-using Vuplex.WebView;
-
-using Vuplex.WebView.Demos;
 #endif
 
 namespace SequenceSharp
@@ -90,24 +93,23 @@ namespace SequenceSharp
         /// </remarks>
         [SerializeField] private bool native2DMode;
 
-#if UNITY_WEBGL
-        [DllImport("__Internal")]
-        private static extern void Sequence_ExecuteJSInBrowserContext(string js);
+#if IS_EDITOR_OR_NOT_WEBGL
         private bool _authWindowOpened = false;
-#else
         private CanvasWebViewPrefab _walletWindow;
         private IWebView _internalWebView;
         private CanvasWebViewPrefab _authWindow;
-
+#else
+        [DllImport("__Internal")]
+        private static extern void Sequence_ExecuteJSInBrowserContext(string js);
 #endif
+
         private bool _walletVisible = true;
         private ulong _callbackIndex;
         private IDictionary<ulong, TaskCompletionSource<string>> _callbackDict = new Dictionary<ulong, TaskCompletionSource<string>>();
 
         private void Awake()
         {
-#if !UNITY_WEBGL
-   
+#if IS_EDITOR_OR_NOT_WEBGL
             if (enableRemoteDebugging)
             {
                 Web.EnableRemoteDebugging();
@@ -142,7 +144,7 @@ namespace SequenceSharp
         private async void Start()
         {
             _HideWallet();
-#if !UNITY_WEBGL
+#if IS_EDITOR_OR_NOT_WEBGL
             await _internalWebView.Init(1, 1);
 
             _internalWebView.SetRenderingEnabled(false);
@@ -224,7 +226,7 @@ namespace SequenceSharp
                     '" + providerConfig.defaultNetworkId + @"',
                     {
                         walletAppURL: '" + providerConfig.walletAppURL + "'," +
-#if !UNITY_WEBGL
+#if IS_EDITOR_OR_NOT_WEBGL
                         "transports: { unrealTransport: { enabled: true } } " +
 #endif
                     @"}
@@ -232,7 +234,7 @@ namespace SequenceSharp
             ");
 
 
-#if !UNITY_WEBGL
+#if IS_EDITOR_OR_NOT_WEBGL
             await ExecuteSequenceJS(@"
                 window.seq.getWallet().on('close', () => {
                     window.ue.sequencewallettransport.sendmessagetowallet('wallet_closed')
@@ -276,7 +278,6 @@ namespace SequenceSharp
                 var matchingCreds = creds[eventArgs.Host];
                 eventArgs.Continue(matchingCreds.username, matchingCreds.password);
             };
-
 #nullable disable
 #endif
 
@@ -360,7 +361,31 @@ namespace SequenceSharp
 
             _callbackDict.Add(thisCallbackIndex, jsPromiseResolved);
 
-#if UNITY_WEBGL
+#if IS_EDITOR_OR_NOT_WEBGL
+            var jsToRun = @"{
+            const codeToRun = async () => {
+                " + js + @"
+            };
+            (async () => {
+                try {
+                    const returnValue = await codeToRun();
+                    window.vuplex.postMessage({
+                        type: 'vuplexFunctionReturn',
+                        callbackNumber: " + thisCallbackIndex + @",
+                        returnValue: JSON.stringify(returnValue)
+                    });
+                 } catch(err) {
+                    window.vuplex.postMessage({
+                        type: 'vuplexFunctionError',
+                        callbackNumber: " + thisCallbackIndex + @",
+                        returnValue: JSON.stringify(Object.fromEntries(Object.getOwnPropertyNames(err).map(prop => [JSON.stringify(prop), JSON.stringify(err[prop])])))
+                    });
+                 }              
+            })()
+            }
+        ";
+            _internalWebView.ExecuteJavaScript(jsToRun);
+#else
             var jsToRun = @"{
             const codeToRun = async () => {
                 " + js + @"
@@ -386,35 +411,11 @@ namespace SequenceSharp
             }
         ";
             Sequence_ExecuteJSInBrowserContext(jsToRun);
-#else
-            var jsToRun = @"{
-            const codeToRun = async () => {
-                " + js + @"
-            };
-            (async () => {
-                try {
-                    const returnValue = await codeToRun();
-                    window.vuplex.postMessage({
-                        type: 'vuplexFunctionReturn',
-                        callbackNumber: " + thisCallbackIndex + @",
-                        returnValue: JSON.stringify(returnValue)
-                    });
-                 } catch(err) {
-                    window.vuplex.postMessage({
-                        type: 'vuplexFunctionError',
-                        callbackNumber: " + thisCallbackIndex + @",
-                        returnValue: JSON.stringify(Object.fromEntries(Object.getOwnPropertyNames(err).map(prop => [JSON.stringify(prop), JSON.stringify(err[prop])])))
-                    });
-                 }              
-            })()
-            }
-        ";
-            _internalWebView.ExecuteJavaScript(jsToRun);
 #endif
             return jsPromiseResolved.Task;
         }
 
-#if UNITY_WEBGL
+#if !IS_EDITOR_OR_NOT_WEBGL
         public void JSFunctionReturn(string returnVal)
         {
             var promiseReturn = JsonConvert.DeserializeObject<PromiseReturn>(returnVal);
@@ -583,7 +584,7 @@ namespace SequenceSharp
             {
                 onWalletClosed.Invoke();
                 _walletVisible = false;
-#if !UNITY_WEBGL
+#if IS_EDITOR_OR_NOT_WEBGL
                 // blank it out!
                 if (_walletWindow.WebView != null)
                 {
@@ -602,7 +603,7 @@ namespace SequenceSharp
             }
         }
 
-#if !UNITY_WEBGL
+#if IS_EDITOR_OR_NOT_WEBGL
         private void _ShowAuthWindow()
         {
             if (!_authWindowOpened)
@@ -622,7 +623,6 @@ namespace SequenceSharp
         }
 #endif
     }
-
 
     class PromiseReturn
     {
