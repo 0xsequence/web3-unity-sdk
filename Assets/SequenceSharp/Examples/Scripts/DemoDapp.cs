@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using SequenceSharp;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 public class DemoDapp : MonoBehaviour
 {
     [SerializeField] private Wallet wallet;
@@ -49,6 +50,15 @@ public class DemoDapp : MonoBehaviour
     //Exit
     [Header("Exit")]
     [SerializeField] private Button exitBtn;
+
+    //Debugging
+    [Header("Debug")]
+    private string output = "";
+    private string stack = "";
+    [SerializeField] private TMP_Text debugWindowText;
+    [SerializeField] private ScrollRect debugScrollRect;
+    
+
 
     private void Awake()
     {
@@ -511,8 +521,29 @@ public class DemoDapp : MonoBehaviour
         canvas.scaleFactor = 1.0f;
     }
 #endif
+    
 
-    void ShowButtons(bool show)
+    private void OnEnable()
+    {
+        Application.logMessageReceived += HandleLog;
+    }
+    private void OnDisable()
+    {
+        Application.logMessageReceived -= HandleLog;
+    }
+
+    private void ScrollToBottom(ScrollRect scrollRect)
+    {
+        scrollRect.normalizedPosition = new Vector2(0, 0);
+    }
+    private void HandleLog(string logString, string stackTrace, LogType type)
+    {
+        output = logString;
+        stack = stackTrace;
+        debugWindowText.text += System.Environment.NewLine + output;
+        ScrollToBottom(debugScrollRect);
+    }
+    private void ShowButtons(bool show)
     {
         var canvasGroup = GetComponent<CanvasGroup>();
         canvasGroup.alpha = show ? 1 : 0;
