@@ -12,6 +12,7 @@ using UnityEngine.Events;
 
 #if UNITY_WEBGL
 using System.Runtime.InteropServices;
+using CanvasWebViewPrefab = UnityEngine.GameObject; 
 #else
 using Vuplex.WebView;
 
@@ -43,12 +44,14 @@ namespace SequenceSharp
         /// <summary>
         /// Called when the Social Login Window is opened.
         /// You should subscribe to this event and make it visible.
+        /// This isn't called in WebGL builds.
         /// </summary>
         public UnityEvent<CanvasWebViewPrefab> onAuthWindowOpened;
 
         /// <summary>
         /// Called when the Social Login Window is opened.
         /// You should subscribe to this event and make it invisible.
+        /// This isn't called in WebGL builds.
         /// </summary>
         public UnityEvent onAuthWindowClosed;
 
@@ -90,6 +93,7 @@ namespace SequenceSharp
 #if UNITY_WEBGL
         [DllImport("__Internal")]
         private static extern void Sequence_ExecuteJSInBrowserContext(string js);
+        private bool _authWindowOpened = false;
 #else
         private CanvasWebViewPrefab _walletWindow;
         private IWebView _internalWebView;
@@ -97,7 +101,6 @@ namespace SequenceSharp
 
 #endif
         private bool _walletVisible = true;
-        private bool _authWindowOpened = false;
         private ulong _callbackIndex;
         private IDictionary<ulong, TaskCompletionSource<string>> _callbackDict = new Dictionary<ulong, TaskCompletionSource<string>>();
 
@@ -308,11 +311,9 @@ namespace SequenceSharp
                 _ShowAuthWindow();
 
                 _authWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) => {
-                    _authWindowOpened = false;
                     _HideAuthWindow();
                     _authWindow.Destroy();
                 };
-                //eventArgs.WebView.LoadUrl(eventArgs.Url);
             };
 
             _walletWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) =>
@@ -601,6 +602,7 @@ namespace SequenceSharp
             }
         }
 
+#if !UNITY_WEBGL
         private void _ShowAuthWindow()
         {
             if (!_authWindowOpened)
@@ -618,6 +620,7 @@ namespace SequenceSharp
                 _authWindowOpened = false;
             }
         }
+#endif
     }
 
 
