@@ -6,6 +6,7 @@
 /[Tt]emp/
 /[Oo]bj/
 /[Bb]uild/
+/[Bb]uilds/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 
@@ -64,6 +65,10 @@ sysinfo.txt
 *.unitypackage
 *.app
 
+# Proprietary packages
+Vuplex/
+
+
 # Crashlytics generated file
 crashlytics-build.properties
 
@@ -73,3 +78,8 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Credentials files
+/[Aa]ssets/[Ss]treaming[Aa]ssets/sequence/httpBasicAuth.json
+
+.DS_Store

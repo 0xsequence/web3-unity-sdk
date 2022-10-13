@@ -241,8 +241,11 @@ public static class Indexer
             InitClient(HostName(blockChainType));
 
             HttpRequestMessage request = CreateHTTPRequest(blockChainType, HttpMethod.Post, "GetTokenBalances", args);
+            Debug.Log("from indexer gettokenbalance request:"+ request);
 
             HttpResponseMessage response = await client.SendAsync(request);
+            Debug.Log("from indexer gettokenbalance response:" + response);
+
             response.EnsureSuccessStatusCode();
 
             string responseBody = await response.Content.ReadAsStringAsync();
