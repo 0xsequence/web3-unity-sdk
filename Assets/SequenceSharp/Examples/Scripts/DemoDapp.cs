@@ -541,6 +541,7 @@ public class DemoDapp : MonoBehaviour
         output = logString;
         stack = stackTrace;
         debugWindowText.text += System.Environment.NewLine + output;
+        //debugWindowText.text += System.Environment.NewLine + stackTrace;
         ScrollToBottom(debugScrollRect);
     }
     private void ShowButtons(bool show)
