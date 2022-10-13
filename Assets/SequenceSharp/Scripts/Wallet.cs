@@ -49,7 +49,7 @@ namespace SequenceSharp
         /// You should subscribe to this event and make it visible.
         /// This isn't called in WebGL builds.
         /// </summary>
-        public UnityEvent<CanvasWebViewPrefab> onAuthWindowOpened;
+        public UnityEvent onAuthWindowOpened;
 
         /// <summary>
         /// Called when the Social Login Window is opened.
@@ -244,7 +244,7 @@ namespace SequenceSharp
 
             await _walletWindow.WaitUntilInitialized();
             _walletWindow.WebView.LoadHtml("<style>*{background:black;}</style>");
-// Doesn't work in mobile webviews :D
+            // Doesn't work in mobile webviews :D
 #if UNITY_STANDALONE || UNITY_EDITOR
             var credsRequest = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "sequence/httpBasicAuth.json"));
             await credsRequest.SendWebRequest();
@@ -295,7 +295,7 @@ namespace SequenceSharp
                 // so games can make it fullscreen
 
                 //Application.OpenURL(eventArgs.Url);
-                
+
                 _authWindow = CanvasWebViewPrefab.Instantiate(eventArgs.WebView);
 
                 //Defualt Position for social login window
@@ -311,7 +311,8 @@ namespace SequenceSharp
 
                 _ShowAuthWindow();
 
-                _authWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) => {
+                _authWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) =>
+                {
                     _HideAuthWindow();
                     _authWindow.Destroy();
                 };
@@ -568,6 +569,19 @@ namespace SequenceSharp
                 NullValueHandling = NullValueHandling.Ignore
             });
         }
+
+        /// <summary>
+        /// If the auth window isn't open, or this is a WebGL build, returns null.
+        /// </summary>
+        /// <returns></returns>
+        public GameObject? GetAuthWindow()
+        {
+#if IS_EDITOR_OR_NOT_WEBGL
+            return _authWindow.gameObject;
+#else
+            return null;
+#endif
+        }
 #nullable disable
         private void _SequenceDebugLog(string message)
         {
@@ -609,8 +623,7 @@ namespace SequenceSharp
             if (!_authWindowOpened)
             {
                 _authWindowOpened = true;
-                onAuthWindowOpened.Invoke(_authWindow);
-                
+                onAuthWindowOpened.Invoke();
             }
         }
         private void _HideAuthWindow()

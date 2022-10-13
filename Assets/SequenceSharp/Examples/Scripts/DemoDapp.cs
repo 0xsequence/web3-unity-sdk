@@ -90,9 +90,10 @@ public class DemoDapp : MonoBehaviour
         });
 
         //Social login
-        wallet.onAuthWindowOpened.AddListener((authWindow) =>
+        wallet.onAuthWindowOpened.AddListener(() =>
         {
-            if (authWindowParentTransform && authWindowRect)
+            var authWindow = wallet.GetAuthWindow();
+            if (authWindow && authWindowParentTransform && authWindowRect)
             {
                 authWindow.transform.SetParent(authWindowParentTransform);
                 var rect = authWindow.GetComponent<RectTransform>();
