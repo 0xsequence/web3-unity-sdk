@@ -164,8 +164,6 @@ namespace SequenceSharp
                 _ShowWallet();
             };
 
-            readyToConnectEvent.Invoke();
-
             _internalWebView.MessageEmitted += (sender, eventArgs) =>
             {
                 if (eventArgs.Value == "wallet_closed")
@@ -344,6 +342,8 @@ namespace SequenceSharp
                 _internalWebView.PostMessage(eventArgs.Value);
             };
 #endif
+
+            readyToConnectEvent.Invoke();
         }
 
         /// <summary>
