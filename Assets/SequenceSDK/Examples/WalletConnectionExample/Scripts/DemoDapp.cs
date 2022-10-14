@@ -88,7 +88,7 @@ public class DemoDapp : MonoBehaviour
             });
         });
         //wallet ready
-        wallet.readyToConnectEvent.AddListener(()=>
+        wallet.onReadyToConnect.AddListener(()=>
         {
             ShowButtons(true);
         });

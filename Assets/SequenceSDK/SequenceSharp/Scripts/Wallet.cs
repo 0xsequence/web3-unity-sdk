@@ -61,9 +61,10 @@ namespace SequenceSharp
 
         /// <summary>
         /// Called when the Wallet is ready to connect.
-        /// Do not interact with the Wallet class until it's called.
+        /// Do not interact with the Wallet class until it's called, or until readyToConnect is true.
         /// </summary>
-        public UnityEvent readyToConnectEvent;
+        public UnityEvent onReadyToConnect;
+        public bool readyToConnect = false;
 
         [SerializeField] private ProviderConfig providerConfig;
 
@@ -343,7 +344,8 @@ namespace SequenceSharp
             };
 #endif
 
-            readyToConnectEvent.Invoke();
+            onReadyToConnect.Invoke();
+            readyToConnect = true;
         }
 
         /// <summary>
