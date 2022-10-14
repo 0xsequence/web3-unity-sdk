@@ -13,6 +13,8 @@
 # Plugins
 /[Aa]ssets/Plugins/
 /[Aa]ssets/TextMesh Pro
+/[Aa]ssets/Plugins.meta
+/[Aa]ssets/TextMesh Pro.meta
 
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
