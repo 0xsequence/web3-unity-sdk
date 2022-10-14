@@ -19,7 +19,7 @@ We have a Wallet Connection demo, and an Indexer demo.
       ![](Demo/WalletDemo.png)
       ![](Demo/IndexerDemo.png)
 ### Indexer Example
-Coming soon!
+      ![](Demo/load_skyweaver_card.gif)
 ## Using the SDK
 More documentation will be available soon at [https://docs.sequence.xyz](https://docs.sequence.xyz)!
 
