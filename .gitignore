@@ -69,7 +69,7 @@ sysinfo.txt
 
 # Proprietary packages
 Vuplex/
-
+/[Aa]ssets/Vuplex.meta
 
 # Crashlytics generated file
 crashlytics-build.properties
