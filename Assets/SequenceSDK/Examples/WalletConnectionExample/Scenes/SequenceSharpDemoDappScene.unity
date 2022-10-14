@@ -617,7 +617,7 @@ MonoBehaviour:
   disconnectBtn: {fileID: 2056373941}
   openWalletBtn: {fileID: 361239728}
   openWalletWithSettingsBtn: {fileID: 182881892}
-  closeWalletBtn: {fileID: 227976988}
+  closeWalletBtn: {fileID: 2094050784}
   isConnectedBtn: {fileID: 1446359442}
   isOpenedBtn: {fileID: 1965704523}
   defaultChainBtn: {fileID: 1667895210}
