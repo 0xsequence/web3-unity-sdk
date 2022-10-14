@@ -16,20 +16,20 @@ Sequence Unity SDK provides full wallet integration for your Unity Games.
       [Insert demo pic]
 4. Try out our Prefabs:
 5. Main features for now:
-  - Connect to Sequence Wallet:
+   - Connect to Sequence Wallet:
     [Insert demo pic]
-  - Get the wallet address:
+   - Get the wallet address:
     [Insert demo pic]
-  - Open the wallet from your game:
+   - Open the wallet from your game:
     [Insert demo pic]
-  - Get the blockchain network ID
+   - Get the blockchain network ID
     [Insert demo pic]
 
 6. Build your game:
-  - WebGL Build
+   - WebGL Build
       - You don't need to choose extra WebGLTemplate for sequence sdk, stay on your own template and sequenceSDK does the rest.
       - If you want to avoid buying Vuplex WebGL, since it's not technically used, then every time you do a WebGL build, _first move the Vuplex folder out of your project_, then move it back in after your build is done.
-  - Other Builds (Standalone(Win/Mac)/IOS/Android:
+   - Other Builds (Standalone(Win/Mac)/IOS/Android:
       - Install vuplex webviw accordingly and build!
 ### Future Work (Soon release)
 1. Connect to Metamask, WalletConnect etc..
