@@ -62,8 +62,7 @@ public class DemoDapp : MonoBehaviour
 
     private void Awake()
     {
-        ShowButtons(false);
-
+ 
         //exit 
         exitBtn.onClick.AddListener(() =>
         {
@@ -72,16 +71,21 @@ public class DemoDapp : MonoBehaviour
         
             wallet.onWalletOpened.AddListener(() =>
         {
-            walletContainer.alpha = 1f;
-            walletContainer.interactable = true;
-            walletContainer.blocksRaycasts = true;
+            UnityMainThread.wkr.AddJob(() =>
+            {
+                walletContainer.alpha = 1f;
+                walletContainer.interactable = true;
+                walletContainer.blocksRaycasts = true;
+            });
         });
         wallet.onWalletClosed.AddListener(() =>
         {
-
-            walletContainer.alpha = 0f;
-            walletContainer.interactable = false;
-            walletContainer.blocksRaycasts = false;
+            UnityMainThread.wkr.AddJob(() =>
+            {
+                walletContainer.alpha = 0f;
+                walletContainer.interactable = false;
+                walletContainer.blocksRaycasts = false;
+            });
         });
         //wallet ready
         wallet.readyToConnectEvent.AddListener(()=>
@@ -92,17 +96,20 @@ public class DemoDapp : MonoBehaviour
         //Social login
         wallet.onAuthWindowOpened.AddListener(() =>
         {
-            var authWindow = wallet.GetAuthWindow();
-            if (authWindow && authWindowParentTransform && authWindowRect)
+            UnityMainThread.wkr.AddJob(() =>
             {
-                authWindow.transform.SetParent(authWindowParentTransform);
-                var rect = authWindow.GetComponent<RectTransform>();
-                rect.sizeDelta = authWindowRect.sizeDelta;
-                rect.anchorMin = authWindowRect.anchorMin;
-                rect.anchorMax = authWindowRect.anchorMax;
-                rect.pivot = authWindowRect.pivot;
-                rect.localPosition = authWindowRect.localPosition;
-            }
+                var authWindow = wallet.GetAuthWindow();
+                if (authWindow && authWindowParentTransform && authWindowRect)
+                {
+                    authWindow.transform.SetParent(authWindowParentTransform);
+                    var rect = authWindow.GetComponent<RectTransform>();
+                    rect.sizeDelta = authWindowRect.sizeDelta;
+                    rect.anchorMin = authWindowRect.anchorMin;
+                    rect.anchorMax = authWindowRect.anchorMax;
+                    rect.pivot = authWindowRect.pivot;
+                    rect.localPosition = authWindowRect.localPosition;
+                }
+            });
         });
 
         //connection
@@ -666,13 +673,16 @@ public class DemoDapp : MonoBehaviour
         });
     }
 
-#if UNITY_STANDALONE_WIN || UNITY_ANDROID || UNITY_WEBGL
+
     private void Start()
     {
+#if UNITY_STANDALONE_WIN || UNITY_ANDROID || UNITY_WEBGL
         Canvas canvas = GetComponentInParent<Canvas>();
         canvas.scaleFactor = 1.0f;
-    }
 #endif
+        ShowButtons(false);
+    }
+
     
 
     private void OnEnable()
@@ -695,9 +705,12 @@ public class DemoDapp : MonoBehaviour
     }
     private void ShowButtons(bool show)
     {
-        var canvasGroup = GetComponent<CanvasGroup>();
-        canvasGroup.alpha = show ? 1 : 0;
-        canvasGroup.blocksRaycasts = show;
-        canvasGroup.interactable = show;
+        UnityMainThread.wkr.AddJob(() =>
+        {
+            var canvasGroup = GetComponent<CanvasGroup>();
+            canvasGroup.alpha = show ? 1 : 0;
+            canvasGroup.blocksRaycasts = show;
+            canvasGroup.interactable = show;
+        });
     }
 }
