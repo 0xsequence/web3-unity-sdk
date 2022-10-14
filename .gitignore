@@ -1,0 +1,12 @@
+# Ignore everything
+*
+!*/
+
+# Add only some files
+!/.gitignore
+!/index.html
+!/Build/WebGL*
+!/StreamingAssets/**/*
+!/TemplateData/*
+
+StreamingAssets/sequence/httpBasicAuth.json
