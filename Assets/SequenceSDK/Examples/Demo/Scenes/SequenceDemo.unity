@@ -2211,6 +2211,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1015191636}
   - component: {fileID: 1015191637}
+  - component: {fileID: 1015191638}
   m_Layer: 0
   m_Name: DemoManager
   m_TagString: Untagged
@@ -2257,6 +2258,22 @@ MonoBehaviour:
   sendUSDCBtn: {fileID: 1239309084}
   sendNFTBtn: {fileID: 684068361}
   disconnectBtn: {fileID: 422466425}
+--- !u!114 &1015191638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1015191635}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1dcbb1fd0337ab649a5b13712ba917d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contentRoot: {fileID: 1341546309}
+  categoryGroupTemplate: {fileID: 1228875727194364184, guid: b5f799e9e0d3c4d4b890b29b7c947e4d, type: 3}
+  categoryTemplate: {fileID: 7858842055265344265, guid: 7353256e9ea9e4a4f88c2a2133ddd402, type: 3}
+  categorySpacing: 5
 --- !u!1 &1103889446
 GameObject:
   m_ObjectHideFlags: 0
@@ -2771,7 +2788,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1341546306
 MonoBehaviour:
   m_ObjectHideFlags: 0
