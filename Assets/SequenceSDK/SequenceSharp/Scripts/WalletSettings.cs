@@ -1,4 +1,6 @@
 ﻿
+using Newtonsoft.Json;
+
 public class WalletSettings
 {
 #nullable enable
@@ -63,5 +65,22 @@ public class WalletSettings
         </summary>
     */
     public bool? lockFundingCurrencyToDefault;
+
+    /**
+     * <summary>
+     * Specify an email address to allow user automatically sign in with the email option.
+     * Will be ignored if user is already signed in.
+     * </summary>
+     */
+    public string? signInWithEmail;
+
+    /**
+     * <summary>
+     * **Only Email signin is supported. Other login methods will not work.**
+     * Specify which sign in options are allowed.
+     * Will be ignored if user is already signed in.
+     * </summary>
+     */
+    public string[]? signInOptions = new string[] { "email" };
 #nullable disable
 }

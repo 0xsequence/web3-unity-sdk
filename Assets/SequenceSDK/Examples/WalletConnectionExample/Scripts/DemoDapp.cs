@@ -192,7 +192,6 @@ public class DemoDapp : MonoBehaviour
                         defaultFundingCurrency = CurrencyOption.Ether,
                         defaultPurchaseAmount = 400,
                         lockFundingCurrencyToDefault = false
-
                     }
                 }, null);
                 Debug.Log("[DemoDapp] Wallet Opened with settings.");

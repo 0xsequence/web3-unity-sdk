@@ -46,13 +46,13 @@
             </summary>
         */
         public bool? keepWalletOpened;
+#nullable disable
 
         /**
             <summary>
            Options to further customize the wallet experience.
             </summary>
         */
-        public WalletSettings? settings;
-#nullable disable
+        public WalletSettings settings = new WalletSettings { };
     }
 }

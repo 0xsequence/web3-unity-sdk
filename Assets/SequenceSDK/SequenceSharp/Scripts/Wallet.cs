@@ -396,6 +396,7 @@ namespace SequenceSharp
         /// <returns>The JSON parsed into `T`, or `null` if parsing fails.</returns>
         public async Task<T> ExecuteSequenceJSAndParseJSON<T>(string js)
         {
+            Debug.Log("exe seq js " +  js);
             var jsonString = await ExecuteSequenceJS(js);
             return JsonConvert.DeserializeObject<T>(jsonString);
         }
