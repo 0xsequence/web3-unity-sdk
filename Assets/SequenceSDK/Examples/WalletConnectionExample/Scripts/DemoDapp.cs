@@ -9,8 +9,6 @@ public class DemoDapp : MonoBehaviour
 {
     [SerializeField] private Wallet wallet;
     [SerializeField] private CanvasGroup walletContainer;
-    [SerializeField] private Transform authWindowParentTransform;
-    [SerializeField] private RectTransform authWindowRect;
 
     //Connection
     [Header("Connection")]
@@ -93,24 +91,6 @@ public class DemoDapp : MonoBehaviour
             ShowButtons(true);
         });
 
-        //Social login
-        wallet.onAuthWindowOpened.AddListener(() =>
-        {
-            UnityMainThread.wkr.AddJob(() =>
-            {
-                var authWindow = wallet.GetAuthWindow();
-                if (authWindow && authWindowParentTransform && authWindowRect)
-                {
-                    authWindow.transform.SetParent(authWindowParentTransform);
-                    var rect = authWindow.GetComponent<RectTransform>();
-                    rect.sizeDelta = authWindowRect.sizeDelta;
-                    rect.anchorMin = authWindowRect.anchorMin;
-                    rect.anchorMax = authWindowRect.anchorMax;
-                    rect.pivot = authWindowRect.pivot;
-                    rect.localPosition = authWindowRect.localPosition;
-                }
-            });
-        });
 
         //connection
         connectBtn.onClick.AddListener(async () =>

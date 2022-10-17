@@ -45,21 +45,6 @@ namespace SequenceSharp
         public UnityEvent onWalletClosed;
 
         /// <summary>
-        /// Called when the Social Login Window is opened.
-        /// You should subscribe to this event and make it visible.
-        /// This isn't called in WebGL builds.
-        /// </summary>
-        public UnityEvent onAuthWindowOpened;
-
-        /// <summary>
-        /// Called when the Social Login Window is opened.
-        /// You should subscribe to this event and make it invisible.
-        /// This isn't called in WebGL builds.
-        /// </summary>
-        public UnityEvent onAuthWindowClosed;
-
-
-        /// <summary>
         /// Called when the Wallet is ready to connect.
         /// Do not interact with the Wallet class until it's called, or until readyToConnect is true.
         /// </summary>
@@ -95,10 +80,8 @@ namespace SequenceSharp
         [SerializeField] private bool native2DMode;
 
 #if IS_EDITOR_OR_NOT_WEBGL
-        private bool _authWindowOpened = false;
         private CanvasWebViewPrefab _walletWindow;
         private IWebView _internalWebView;
-        private CanvasWebViewPrefab _authWindow;
 #else
         [DllImport("__Internal")]
         private static extern void Sequence_ExecuteJSInBrowserContext(string js);
@@ -285,37 +268,6 @@ namespace SequenceSharp
             {
                 throw new IOException("Broken!");
             }
-
-            walletWithPopups.SetPopupMode(PopupMode.LoadInNewWebView);
-            walletWithPopups.PopupRequested += async (sender, eventArgs) =>
-            {
-
-                // TODO signal that we've opened a social login window,
-                // so games can make it fullscreen
-
-                //Application.OpenURL(eventArgs.Url);
-
-                _authWindow = CanvasWebViewPrefab.Instantiate(eventArgs.WebView);
-
-                //Defualt Position for social login window
-                _authWindow.transform.SetParent(this.transform);
-                var rect = _authWindow.GetComponent<RectTransform>();
-                rect.sizeDelta = new Vector2(0, 0);
-                rect.anchorMin = new Vector2(0, 0);
-                rect.anchorMax = new Vector2(1, 1);
-                rect.pivot = new Vector2(0.5f, 0.5f);
-                rect.localPosition = Vector3.zero;
-
-                await _authWindow.WaitUntilInitialized();
-
-                _ShowAuthWindow();
-
-                _authWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) =>
-                {
-                    _HideAuthWindow();
-                    _authWindow.Destroy();
-                };
-            };
 
             _walletWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) =>
             {
@@ -571,19 +523,6 @@ namespace SequenceSharp
                 NullValueHandling = NullValueHandling.Ignore
             });
         }
-
-        /// <summary>
-        /// If the auth window isn't open, or this is a WebGL build, returns null.
-        /// </summary>
-        /// <returns></returns>
-        public GameObject? GetAuthWindow()
-        {
-#if IS_EDITOR_OR_NOT_WEBGL
-            return _authWindow.gameObject;
-#else
-            return null;
-#endif
-        }
 #nullable disable
         private void _SequenceDebugLog(string message)
         {
@@ -618,25 +557,6 @@ namespace SequenceSharp
                 _walletVisible = true;
             }
         }
-
-#if IS_EDITOR_OR_NOT_WEBGL
-        private void _ShowAuthWindow()
-        {
-            if (!_authWindowOpened)
-            {
-                _authWindowOpened = true;
-                onAuthWindowOpened.Invoke();
-            }
-        }
-        private void _HideAuthWindow()
-        {
-            if (_authWindowOpened)
-            {
-                onAuthWindowClosed.Invoke();
-                _authWindowOpened = false;
-            }
-        }
-#endif
     }
 
     class PromiseReturn
