@@ -466,7 +466,7 @@ public class DemoDapp : MonoBehaviour
                 Debug.Log(e);
             }
         });
-        sendUSDCButton.onClick.AddListener(async () =>
+       /* sendUSDCButton.onClick.AddListener(async () =>
         {
             try
             {
@@ -527,7 +527,7 @@ public class DemoDapp : MonoBehaviour
             {
                 Debug.Log(e);
             }
-        });
+        });*/
 
         sendERC1155Btn.onClick.AddListener(() =>
            {

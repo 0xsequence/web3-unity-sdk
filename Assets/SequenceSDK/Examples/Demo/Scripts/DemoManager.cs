@@ -11,6 +11,11 @@ public class DemoManager : MonoBehaviour
 {
     [SerializeField] private Wallet wallet;
 
+    [Header("Canvases")]
+    [SerializeField] private GameObject connectCanvas;
+    [SerializeField] private GameObject welcomeCanvas;
+
+
     [Header("Connection")]
     [SerializeField] private Button connectBtn;
 
@@ -26,6 +31,10 @@ public class DemoManager : MonoBehaviour
 
     private void OnEnable()
     {
+        //wallet initialize
+        wallet.onWalletInitialized.AddListener(StartDemo);
+        wallet.onWalletClosed.AddListener(DisplayWelcomePanel);
+
         connectBtn.onClick.AddListener(Connect);
         openWalletBtn.onClick.AddListener(OpenWallet);
         getAddressBtn.onClick.AddListener(GetAddress);
@@ -39,6 +48,9 @@ public class DemoManager : MonoBehaviour
     }
     private void OnDisable()
     {
+        wallet.onWalletInitialized.RemoveListener(StartDemo);
+        wallet.onWalletClosed.RemoveListener(DisplayWelcomePanel);
+
         connectBtn.onClick.RemoveListener(Connect);
         openWalletBtn.onClick.RemoveListener(OpenWallet);
         getAddressBtn.onClick.RemoveListener(GetAddress);
@@ -49,10 +61,50 @@ public class DemoManager : MonoBehaviour
         sendNFTBtn.onClick.RemoveListener(SendNFT);
         disconnectBtn.onClick.RemoveListener(Disconnect);
     }
+
+
+    /// <summary>
+    /// Call after wallet is initialized
+    /// </summary>
+    public async void StartDemo()
+    {
+        bool isConnected =  await wallet.IsConnected();
+        if (isConnected)
+        {
+            DisplayWelcomePanel();
+ 
+        }
+        else
+        {
+            DisplayConnectPanel();
+        }
+    }
+
+    private void DisplayWelcomePanel()
+    {
+        welcomeCanvas.SetActive(true);
+        HideConnectPanel();
+    }
+    private void HideWelcomePanel()
+    {
+        welcomeCanvas.SetActive(false);
+    }
+
+    private void DisplayConnectPanel()
+    {
+        connectCanvas.SetActive(true);
+        HideWelcomePanel();
+    }
+    private void HideConnectPanel()
+    {
+        connectCanvas.SetActive(false);
+    }
     public async void Connect()
     {
         try
         {
+            HideConnectPanel();
+
             var connectDetails = await wallet.Connect(new ConnectOptions
             {
                 app = "Demo Unity Dapp"
@@ -62,7 +114,12 @@ public class DemoManager : MonoBehaviour
                 NullValueHandling = NullValueHandling.Ignore
             }));
 
-            //Enter Welcome UI Panel
+            bool isConnected = await wallet.IsConnected();
+            if(isConnected)
+            {
+                DisplayWelcomePanel();
+            }
+
         }
         catch (Exception e)
         {
@@ -70,10 +127,13 @@ public class DemoManager : MonoBehaviour
         }
     }
 
+    
+
     public async void OpenWallet()
     {
         try
         {
+            HideWelcomePanel();
             await wallet.OpenWallet("wallet/add-funds", new ConnectOptions
             {
                 settings = new WalletSettings
@@ -111,6 +171,7 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
+            HideWelcomePanel();
             string accountAddress = await wallet.GetAddress();
             Debug.Log("[DemoDapp] accountAddress " + accountAddress);
         }
@@ -124,6 +185,7 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
+            HideWelcomePanel();
             string accountAddress = await wallet.GetAddress();
             Debug.Log("[DemoDapp] accountAddress " + accountAddress);
             GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, true);
@@ -156,6 +218,7 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
+            HideWelcomePanel();
             await wallet.ExecuteSequenceJS(@"
                 const wallet = sequence.getWallet();
 
@@ -219,7 +282,59 @@ And that has made all the difference.
     {
         try
         {
+            HideWelcomePanel();
+            var txnResponse = await wallet.ExecuteSequenceJS(@"
+                const ERC_20_ABI = [
+                {
+                    constant: false,
+                    inputs: [
+                            {
+                                internalType: 'address',
+                                name: 'recipient',
+                                type: 'address'
+                            },
+                            {
+                                internalType: 'uint256',
+                                name: 'amount',
+                                type: 'uint256'
+                            }
+                            ],
+                    name: 'transfer',
+                    outputs: [
+                            {
+                                internalType: 'bool',
+                                name: '',
+                                type: 'bool'
+                            }
+                            ],
+                    payable: false,
+                    stateMutability: 'nonpayable',
+                    type: 'function'
+                }
+                ]
+                const signer = seq.getWallet().getSigner();
 
+                const toAddress = ethers.Wallet.createRandom().address;
+
+                const amount = ethers.utils.parseUnits('5', 18);
+
+                const usdcContractAddress = '0x2791bca1f2de4661ed88a30c99a7a9449aa84174'; // (USDC address on Polygon)
+    
+                const tx = {
+                    delegateCall: false,
+                    revertOnError: false,
+                    gasLimit: '0x55555',
+                    to: usdcContractAddress,
+                    value: 0,
+                    data: new ethers.utils.Interface(ERC_20_ABI).encodeFunctionData('transfer', [toAddress, amount.toHexString()])
+                }
+
+                const txnResponse = await signer.sendTransactionBatch([tx]);
+
+                return txnResponse;
+
+                ");
+            Debug.Log("[DemoDapp] txnResponse: " + txnResponse);
         }
         catch (Exception e)
         {
@@ -230,6 +345,63 @@ And that has made all the difference.
     {
         try
         {
+            HideWelcomePanel();
+            var txnResponse = await wallet.ExecuteSequenceJS(@"
+            const ERC_1155_ABI = [
+            {
+                inputs: [
+                {
+                    internalType: 'address',
+                    name: '_from',
+                    type: 'address'
+                },
+                {
+                    internalType: 'address',
+                    name: '_to',
+                    type: 'address'
+                },
+                {
+                    internalType: 'uint256[]',
+                    name: '_ids',
+                    type: 'uint256[]'
+                },
+                {
+                    internalType: 'uint256[]',
+                    name: '_amounts',
+                    type: 'uint256[]'
+                },
+                {
+                    internalType: 'bytes',
+                    name: '_data',
+                    type: 'bytes'
+                }
+                ],
+            name: 'safeBatchTransferFrom',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function'
+            }
+        ];
+        const signer = seq.getWallet().getSigner();
+        const fromAddress = await seq.getWallet().getAddress();
+        const toAddress = ethers.Wallet.createRandom().address;
+
+
+        const skyweaverContractAddress = '0x631998e91476DA5B870D741192fc5Cbc55F5a52E'; // (Skyweaver address on prod)
+        //tx : sequence.transactions.Transaction
+        const tx = {
+            delegateCall: false,
+            revertOnError: false,
+            gasLimit: '0x55555',
+            to: skyweaverContractAddress,
+            value: 0,
+            data: new ethers.utils.Interface(ERC_1155_ABI).encodeFunctionData('safeBatchTransferFrom', [fromAddress, toAddress, ['0x20001'], ['0x64']])
+        }
+
+        const txnResp = await signer.sendTransactionBatch([tx], 4);
+
+        return txnResponse; ");
+            Debug.Log("[DemoDapp] txnResponse: " + txnResponse);
 
         }
         catch (Exception e)
@@ -247,6 +419,7 @@ And that has made all the difference.
             Debug.Log("[DemoDapp] Disconnected.");
 
             // Return Back to Connect Panel
+            DisplayConnectPanel();
         }
         catch (Exception e)
         {
