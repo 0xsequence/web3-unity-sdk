@@ -39,7 +39,7 @@ public class DemoDapp : MonoBehaviour
     [Header("Simulation")]
     [SerializeField] private Button sendOnDefaultChainBtn;
     [SerializeField] private Button sendOnAuthChainBtn;
-    [SerializeField] private Button sendDAIBtn;
+    [SerializeField] private Button sendUSDCButton;
     [SerializeField] private Button sendERC1155Btn;
     [SerializeField] private Button sendOnRinkebyBtn;
     //Transactions
@@ -466,7 +466,7 @@ public class DemoDapp : MonoBehaviour
                 Debug.Log(e);
             }
         });
-        sendDAIBtn.onClick.AddListener(async () =>
+        sendUSDCButton.onClick.AddListener(async () =>
         {
             try
             {
@@ -505,13 +505,13 @@ public class DemoDapp : MonoBehaviour
 
                 const amount = ethers.utils.parseUnits('5', 18);
 
-                const daiContractAddress = '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063'; // (DAI address on Polygon)
+                const usdcContractAddress = '0x2791bca1f2de4661ed88a30c99a7a9449aa84174'; // (USDC address on Polygon)
     
                 const tx = {
                     delegateCall: false,
                     revertOnError: false,
                     gasLimit: '0x55555',
-                    to: daiContractAddress,
+                    to: usdcContractAddress,
                     value: 0,
                     data: new ethers.utils.Interface(ERC_20_ABI).encodeFunctionData('transfer', [toAddress, amount.toHexString()])
                 }
