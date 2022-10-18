@@ -14,7 +14,8 @@ public class Collection : MonoBehaviour
 
 
     [Header("Categories")]
-    [SerializeField] private RectTransform contentRoot = null;
+    [SerializeField] private RectTransform tokensRoot = null;
+    [SerializeField] private RectTransform catogryGroupRoot = null;
     [SerializeField] private GameObject categoryGroupTemplate = null;
     [SerializeField] private GameObject categoryTemplate = null;
     [SerializeField, Min(0f)] private float categorySpacing = 5f;
@@ -24,10 +25,6 @@ public class Collection : MonoBehaviour
 
     private Dictionary<ContractType, CategoryGroup> _categoryGroups = new Dictionary<ContractType, CategoryGroup>();
 
-    private void Start()
-    {
-        RetriveContractInfoData("0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9");
-    }
 
     public void RetriveContractInfoData(string accountAddress)
     {
@@ -60,7 +57,6 @@ public class Collection : MonoBehaviour
         ContractInfo contractInfo;
         Texture logoTex = null;
         UnityWebRequest imgRequest;
-        float totalHeight = 0f;
 
         for (int i = 0; i < tokenBalances.balances.Length; i++)
         {
@@ -68,20 +64,16 @@ public class Collection : MonoBehaviour
 
             if (contractInfo != null)
             {
-                newCatGo = Instantiate(categoryTemplate);
+                newCatGo = Instantiate(categoryTemplate, tokensRoot);
+
                 newCategory = newCatGo.GetComponent<Category>();
 
                 if (_categoryGroups.ContainsKey(tokenBalances.balances[i].contractType) == false)
                 {
-                    CategoryGroup newCatGroup = Instantiate(categoryGroupTemplate, contentRoot).GetComponent<CategoryGroup>();
+                    CategoryGroup newCatGroup = Instantiate(categoryGroupTemplate, catogryGroupRoot).GetComponent<CategoryGroup>();
                     _categoryGroups.Add(tokenBalances.balances[i].contractType, newCatGroup);
                     newCatGroup.InitGroup(tokenBalances.balances[i].contractType, categorySpacing);
 
-                    totalHeight += newCatGroup.GetHeight();
-                    totalHeight += categorySpacing;
-                    contentRoot.sizeDelta = new Vector2(contentRoot.sizeDelta.x, totalHeight);
-
-                    newCatGroup.OnScaleChange += OnGroupContentResize;
                 }
 
                 // Add new Category option to their relevant ContractType Group
@@ -113,46 +105,12 @@ public class Collection : MonoBehaviour
             }
         }
 
-        // Remove excess height 
-        totalHeight -= categorySpacing;
-        contentRoot.sizeDelta = new Vector2(contentRoot.sizeDelta.x, totalHeight);
-
-        // Position Category Groups
-        CategoryGroup currentGroup;
-        float catPosY = 0f;
-        foreach (ContractType cType in Enum.GetValues(typeof(ContractType)))
-        {
-            if (_categoryGroups.TryGetValue(cType, out currentGroup))
-            {
-                currentGroup.GetRectTransform().anchoredPosition = new Vector2(0f, catPosY);
-                catPosY -= currentGroup.GetHeight() + categorySpacing;
-            }
-        }
-
-        // Finished loading categories
-        LoadingScreenCover.Instance.DisableLoadingCover();
 
         yield return null;
     }
 
 
 
-    private void OnGroupContentResize(float scaleDiff)
-    {
-        Vector2 newScale = new Vector2(contentRoot.sizeDelta.x, contentRoot.sizeDelta.y + scaleDiff);
-        contentRoot.sizeDelta = newScale;
-
-        CategoryGroup currentGroup;
-        float catPosY = 0f;
-        foreach (ContractType cType in Enum.GetValues(typeof(ContractType)))
-        {
-            if (_categoryGroups.TryGetValue(cType, out currentGroup))
-            {
-                currentGroup.GetRectTransform().anchoredPosition = new Vector2(0f, catPosY);
-                catPosY -= currentGroup.GetHeight() + categorySpacing;
-            }
-        }
-    }
 
     /// <summary>
     /// Destroys all category gameobjects under <see cref="contentRoot"/>

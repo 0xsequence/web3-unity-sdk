@@ -45,7 +45,7 @@ public class Category : MonoBehaviour
         btnLbl.text = name;
 
         iconImg.gameObject.SetActive(false);
-        StretchLabel();
+
     }
 
     public void Init(string name, Texture icon)
@@ -61,8 +61,7 @@ public class Category : MonoBehaviour
         }
         else
         {
-            iconImg.gameObject.SetActive(false);
-            StretchLabel();
+
         }
     }
 
@@ -81,7 +80,7 @@ public class Category : MonoBehaviour
         else
         {
             iconImg.gameObject.SetActive(false);
-            StretchLabel();
+            //StretchLabel();
         }
     }
 
@@ -101,7 +100,7 @@ public class Category : MonoBehaviour
 
     private void OnButtonClick()
     {
-        // Load content for gallery page
+        // TODO: Load metadata content
 
     }
 
@@ -109,13 +108,9 @@ public class Category : MonoBehaviour
     {
         if(tex != null)
         {
-            iconImg.sprite = Sprite.Create(TextureHelper.ConvertToTexture2D(tex, tex.width, tex.height), new Rect(0f, 0f, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f);
+            float width = iconImg.rectTransform.rect.width;
+            float height = iconImg.rectTransform.rect.height;
+            iconImg.sprite = Sprite.Create(TextureHelper.ConvertToTexture2D(tex,(int)width,(int)height), new Rect(0f, 0f, width, height), new Vector2(0.5f, 0.5f), 100f);
         }
-    }
-
-    private void StretchLabel()
-    {
-        RectTransform lblRect = btnLbl.GetComponent<RectTransform>();
-        lblRect.offsetMin = new Vector2(0f, lblRect.offsetMin.y);
     }
 }
