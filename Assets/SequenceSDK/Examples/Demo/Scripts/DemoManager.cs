@@ -81,7 +81,7 @@ public class DemoManager : MonoBehaviour
     /// </summary>
     public async void StartDemo()
     {
-        bool isConnected =  await wallet.IsConnected();
+        bool isConnected = await wallet.IsConnected();
         m_connected = isConnected;
         if (isConnected)
         {
@@ -232,7 +232,7 @@ public class DemoManager : MonoBehaviour
                 }
             }, null);
             Debug.Log("[DemoDapp] Wallet Opened with settings.");
-            
+
         }
         catch (Exception e)
         {
@@ -274,8 +274,7 @@ public class DemoManager : MonoBehaviour
         try
         {
             HideWelcomePanel();
-            string accountAddress =  await wallet.GetAddress();//to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
-            Debug.Log("[DemoDapp] accountAddress " + accountAddress);
+            string accountAddress = await wallet.GetAddress();//to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
             var tokenBalances = await Indexer.FetchMultiplePages(async (pageNumber) =>
             {
                 GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, true, new Page
@@ -298,7 +297,20 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
-            //TODO:
+            string accountAddress = await wallet.GetAddress();//to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
+            var transactions = await Indexer.FetchMultiplePages(async (pageNumber) =>
+            {
+                var args = new GetTransactionHistoryArgs(new TransactionHistoryFilter
+                {
+                    accountAddress = accountAddress
+                }, new Page
+                {
+                    page = pageNumber
+                });
+                BlockChainType blockChainType = BlockChainType.Polygon;
+                var history = await Indexer.GetTransactionHistory(blockChainType, args);
+                return (history.page, history.transactions);
+            }, 9999);
         }
         catch (Exception e)
         {
