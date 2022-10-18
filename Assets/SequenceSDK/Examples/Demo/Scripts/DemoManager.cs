@@ -30,16 +30,33 @@ public class DemoManager : MonoBehaviour
     [SerializeField] private Button sendUSDCBtn;
     [SerializeField] private Button sendNFTBtn;
     [SerializeField] private Button disconnectBtn;
+    [Header("Wallet")]
+    [SerializeField] private Button closeWalletBtn;
+
 
     [Header("Collection")]
     [SerializeField] private Collection m_collection;
     [Header("AccountAddress")]
     [SerializeField] private AccountAddress m_address;
 
+
+    public static DemoManager Instance { get; private set; }
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
     private void OnEnable()
     {
         //wallet initialize
         wallet.onWalletInitialized.AddListener(StartDemo);
+        wallet.onWalletOpened.AddListener(DisplayCloseWalletButton);
         wallet.onWalletClosed.AddListener(DisplayWelcomePanel);
 
         connectBtn.onClick.AddListener(Connect);
@@ -52,22 +69,10 @@ public class DemoManager : MonoBehaviour
         sendNFTBtn.onClick.AddListener(SendNFT);
         disconnectBtn.onClick.AddListener(Disconnect);
 
-    }
-    private void OnDisable()
-    {
-        wallet.onWalletInitialized.RemoveListener(StartDemo);
-        wallet.onWalletClosed.RemoveListener(DisplayWelcomePanel);
+        closeWalletBtn.onClick.AddListener(CloseWallet);
 
-        connectBtn.onClick.RemoveListener(Connect);
-        openWalletBtn.onClick.RemoveListener(OpenWallet);
-        getAddressBtn.onClick.RemoveListener(GetAddress);
-        viewCollectionBtn.onClick.RemoveListener(ViewCollection);
-        viewHistoryBtn.onClick.RemoveListener(ViewHistory);
-        signMessageBtn.onClick.RemoveListener(SignMessage);
-        sendUSDCBtn.onClick.RemoveListener(SendUSDC);
-        sendNFTBtn.onClick.RemoveListener(SendNFT);
-        disconnectBtn.onClick.RemoveListener(Disconnect);
     }
+
 
 
     /// <summary>
@@ -86,44 +91,61 @@ public class DemoManager : MonoBehaviour
             DisplayConnectPanel();
         }
     }
-    private void DisplayAddressPanel(string accountAddress)
+    public void DisplayCloseWalletButton()
+    {
+        closeWalletBtn.gameObject.SetActive(true);
+    }
+    public void HideCloseWalletButton()
+    {
+        closeWalletBtn.gameObject.SetActive(false);
+    }
+    public void DisplayAddressPanel(string accountAddress)
     {
         addressCanvas.SetActive(true);
         HideWelcomePanel();
+        HideConnectPanel();
+        HideCollectionPanel();
         m_address.DisplayAccountAddress(accountAddress);
     }
-    private void HideAddressPanel()
+    public void HideAddressPanel()
     {
         addressCanvas.SetActive(false);
     }
-    private void DisplayCollectionPanel(GetTokenBalancesReturn tokenBalances)
+    public void DisplayCollectionPanel(GetTokenBalancesReturn tokenBalances)
     {
         collectionCanvas.SetActive(true);
-        
+        HideConnectPanel();
         HideWelcomePanel();
+        HideAddressPanel();
 
         m_collection.RetriveContractInfoData(tokenBalances);
     }
-    private void HideCollectionPanel()
+    public void HideCollectionPanel()
     {
         collectionCanvas.SetActive(false);
     }
-    private void DisplayWelcomePanel()
+    public void DisplayWelcomePanel()
     {
+        
         welcomeCanvas.SetActive(true);
         HideConnectPanel();
+        HideAddressPanel();
+        HideCollectionPanel();
+        HideCloseWalletButton();
     }
-    private void HideWelcomePanel()
+    public void HideWelcomePanel()
     {
         welcomeCanvas.SetActive(false);
     }
 
-    private void DisplayConnectPanel()
+    public void DisplayConnectPanel()
     {
         connectCanvas.SetActive(true);
         HideWelcomePanel();
+        HideAddressPanel();
+        HideCollectionPanel();
     }
-    private void HideConnectPanel()
+    public void HideConnectPanel()
     {
         connectCanvas.SetActive(false);
     }
@@ -174,6 +196,7 @@ public class DemoManager : MonoBehaviour
                 }
             }, null);
             Debug.Log("[DemoDapp] Wallet Opened with settings.");
+            
         }
         catch (Exception e)
         {

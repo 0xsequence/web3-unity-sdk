@@ -20,10 +20,25 @@ public class Collection : MonoBehaviour
     [SerializeField] private GameObject categoryTemplate = null;
     [SerializeField, Min(0f)] private float categorySpacing = 5f;
 
+    public Button m_backButton;
+
 
     private Dictionary<ContractType, CategoryGroup> _categoryGroups = new Dictionary<ContractType, CategoryGroup>();
 
+    private void OnEnable()
+    {
+        m_backButton.onClick.AddListener(BackToWelcomePanel);
+    }
+    private void OnDisable()
+    {
+        m_backButton.onClick.RemoveListener(BackToWelcomePanel);
+    }
 
+    public void BackToWelcomePanel()
+    {
+        DemoManager.Instance.HideCollectionPanel();
+        DemoManager.Instance.DisplayWelcomePanel();
+    }
     public void RetriveContractInfoData(GetTokenBalancesReturn tokenBalances)
     {
         
