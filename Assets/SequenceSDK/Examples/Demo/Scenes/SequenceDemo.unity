@@ -1646,7 +1646,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1400256527652218485, guid: f16c10dd27546e44a8dd181994e459b0, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: -80
       objectReference: {fileID: 0}
     - target: {fileID: 1400256527652218485, guid: f16c10dd27546e44a8dd181994e459b0, type: 3}
       propertyPath: m_LocalScale.x
@@ -1694,7 +1694,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1400256527652218485, guid: f16c10dd27546e44a8dd181994e459b0, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -40
       objectReference: {fileID: 0}
     - target: {fileID: 1400256527652218485, guid: f16c10dd27546e44a8dd181994e459b0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -3250,6 +3250,7 @@ GameObject:
   - component: {fileID: 1015191637}
   - component: {fileID: 1015191638}
   - component: {fileID: 1015191639}
+  - component: {fileID: 1015191640}
   m_Layer: 0
   m_Name: DemoManager
   m_TagString: Untagged
@@ -3333,6 +3334,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_accountAddressText: {fileID: 1498130493}
   m_backButton: {fileID: 109749957}
+--- !u!114 &1015191640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1015191635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eacfaa3c855703242a076eb0541f53ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1059555297
 GameObject:
   m_ObjectHideFlags: 0
@@ -3351,7 +3364,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1059555298
 RectTransform:
   m_ObjectHideFlags: 0

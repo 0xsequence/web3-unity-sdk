@@ -96,65 +96,95 @@ public class DemoManager : MonoBehaviour
     }
     public void DisplayCloseWalletButton()
     {
-        closeWalletBtn.gameObject.SetActive(true);
+        MainThread.wkr.AddJob(() =>
+        {
+            closeWalletBtn.gameObject.SetActive(true);
+        });
     }
     public void HideCloseWalletButton()
     {
-        closeWalletBtn.gameObject.SetActive(false);
+        MainThread.wkr.AddJob(() =>
+        {
+            closeWalletBtn.gameObject.SetActive(false);
+        });
     }
     public void DisplayAddressPanel(string accountAddress)
     {
-        addressCanvas.SetActive(true);
-        HideWelcomePanel();
-        HideConnectPanel();
-        HideCollectionPanel();
-        m_address.DisplayAccountAddress(accountAddress);
+        MainThread.wkr.AddJob(() =>
+        {
+            addressCanvas.SetActive(true);
+            HideWelcomePanel();
+            HideConnectPanel();
+            HideCollectionPanel();
+            m_address.DisplayAccountAddress(accountAddress);
+        });
     }
     public void HideAddressPanel()
     {
-        addressCanvas.SetActive(false);
+        MainThread.wkr.AddJob(() =>
+        {
+            addressCanvas.SetActive(false);
+        });
     }
     public void DisplayCollectionPanel(GetTokenBalancesReturn tokenBalances)
     {
-        collectionCanvas.SetActive(true);
-        HideConnectPanel();
-        HideWelcomePanel();
-        HideAddressPanel();
+        MainThread.wkr.AddJob(() =>
+        {
+            collectionCanvas.SetActive(true);
+            HideConnectPanel();
+            HideWelcomePanel();
+            HideAddressPanel();
 
-        m_collection.RetriveContractInfoData(tokenBalances);
+            m_collection.RetriveContractInfoData(tokenBalances);
+        });
     }
     public void HideCollectionPanel()
     {
-        collectionCanvas.SetActive(false);
+        MainThread.wkr.AddJob(() =>
+        {
+            collectionCanvas.SetActive(false);
+        });
     }
     public void DisplayWelcomePanel()
     {
-        if (m_connected)
+        MainThread.wkr.AddJob(() =>
         {
-            welcomeCanvas.SetActive(true);
-            HideConnectPanel();
-            HideAddressPanel();
-            HideCollectionPanel();
-            
-        }
-        HideCloseWalletButton();
+            if (m_connected)
+            {
+                welcomeCanvas.SetActive(true);
+                HideConnectPanel();
+                HideAddressPanel();
+                HideCollectionPanel();
+
+            }
+            HideCloseWalletButton();
+        });
     }
     public void HideWelcomePanel()
     {
-        welcomeCanvas.SetActive(false);
+        MainThread.wkr.AddJob(() =>
+        {
+            welcomeCanvas.SetActive(false);
+        });
     }
 
     public void DisplayConnectPanel()
     {
-        connectCanvas.SetActive(true);
-        HideWelcomePanel();
-        HideAddressPanel();
-        HideCollectionPanel();
-        HideCloseWalletButton();
+        MainThread.wkr.AddJob(() =>
+        {
+            connectCanvas.SetActive(true);
+            HideWelcomePanel();
+            HideAddressPanel();
+            HideCollectionPanel();
+            HideCloseWalletButton();
+        });
     }
     public void HideConnectPanel()
     {
-        connectCanvas.SetActive(false);
+        MainThread.wkr.AddJob(() =>
+        {
+            connectCanvas.SetActive(false);
+        });
     }
     public async void Connect()
     {
