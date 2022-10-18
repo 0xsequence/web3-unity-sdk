@@ -20,33 +20,22 @@ public class Collection : MonoBehaviour
     [SerializeField] private GameObject categoryTemplate = null;
     [SerializeField, Min(0f)] private float categorySpacing = 5f;
 
-    private string _currentAccountAddress;
-    private BlockChainType _blockChainType;
 
     private Dictionary<ContractType, CategoryGroup> _categoryGroups = new Dictionary<ContractType, CategoryGroup>();
 
 
-    public void RetriveContractInfoData(string accountAddress)
+    public void RetriveContractInfoData(GetTokenBalancesReturn tokenBalances)
     {
-        if (accountAddress.Length > 0)
-        {
+        
+            ClearCategories();
+            //_currentAccountAddress = accountAddress;
 
-
-            GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, "", true);
-            Indexer.GetTokenBalances(_blockChainType, tokenBalancesArgs, (tokenBalances) =>
+            if (tokenBalances != null && tokenBalances.balances.Length > 0)
             {
-                ClearCategories();
-                _currentAccountAddress = accountAddress;
-
-                if (tokenBalances != null && tokenBalances.balances.Length > 0)
-                {
-                    StartCoroutine(GenerateCategories(tokenBalances));
-                }
-                else
-                {
-                }
-            });
-        }
+                StartCoroutine(GenerateCategories(tokenBalances));
+            }
+               
+        
     }
 
     private IEnumerator GenerateCategories(GetTokenBalancesReturn tokenBalances)

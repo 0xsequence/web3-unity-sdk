@@ -4,7 +4,7 @@ using UnityEngine;
 using SequenceSharp;
 using Newtonsoft.Json;
 using UnityEngine.UI;
-using TMPro;
+
 using System;
 
 public class DemoManager : MonoBehaviour
@@ -14,6 +14,8 @@ public class DemoManager : MonoBehaviour
     [Header("Canvases")]
     [SerializeField] private GameObject connectCanvas;
     [SerializeField] private GameObject welcomeCanvas;
+    [SerializeField] private GameObject addressCanvas;
+    [SerializeField] private GameObject collectionCanvas;
 
 
     [Header("Connection")]
@@ -28,6 +30,11 @@ public class DemoManager : MonoBehaviour
     [SerializeField] private Button sendUSDCBtn;
     [SerializeField] private Button sendNFTBtn;
     [SerializeField] private Button disconnectBtn;
+
+    [Header("Collection")]
+    [SerializeField] private Collection m_collection;
+    [Header("AccountAddress")]
+    [SerializeField] private AccountAddress m_address;
 
     private void OnEnable()
     {
@@ -79,7 +86,28 @@ public class DemoManager : MonoBehaviour
             DisplayConnectPanel();
         }
     }
+    private void DisplayAddressPanel(string accountAddress)
+    {
+        addressCanvas.SetActive(true);
+        HideWelcomePanel();
+        m_address.DisplayAccountAddress(accountAddress);
+    }
+    private void HideAddressPanel()
+    {
+        addressCanvas.SetActive(false);
+    }
+    private void DisplayCollectionPanel(GetTokenBalancesReturn tokenBalances)
+    {
+        collectionCanvas.SetActive(true);
+        
+        HideWelcomePanel();
 
+        m_collection.RetriveContractInfoData(tokenBalances);
+    }
+    private void HideCollectionPanel()
+    {
+        collectionCanvas.SetActive(false);
+    }
     private void DisplayWelcomePanel()
     {
         welcomeCanvas.SetActive(true);
@@ -174,6 +202,7 @@ public class DemoManager : MonoBehaviour
             HideWelcomePanel();
             string accountAddress = await wallet.GetAddress();
             Debug.Log("[DemoDapp] accountAddress " + accountAddress);
+            DisplayAddressPanel(accountAddress);
         }
         catch (Exception e)
         {
@@ -186,16 +215,18 @@ public class DemoManager : MonoBehaviour
         try
         {
             HideWelcomePanel();
-            string accountAddress = await wallet.GetAddress();
+            string accountAddress = "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";//await wallet.GetAddress();
             Debug.Log("[DemoDapp] accountAddress " + accountAddress);
             GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, true);
             BlockChainType blockChainType = BlockChainType.Polygon;
-
+            GetTokenBalancesReturn tokenBalances;
             Indexer.GetTokenBalances(blockChainType, tokenBalancesArgs, (tokenBalances) =>
             {
                 Debug.Log(tokenBalances);
+                DisplayCollectionPanel(tokenBalances);
             });
 
+            
         }
         catch (Exception e)
         {
