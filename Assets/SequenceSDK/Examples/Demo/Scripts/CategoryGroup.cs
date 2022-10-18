@@ -22,7 +22,7 @@ public class CategoryGroup : MonoBehaviour
 
 
     // Start is called before the first frame update
-    void Start()
+    void OnEnable()
     {
         AddEventListener(OnButtonClick);
         collection = DemoManager.Instance.GetComponent<Collection>();

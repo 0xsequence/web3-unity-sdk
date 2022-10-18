@@ -58,7 +58,7 @@ public class DemoManager : MonoBehaviour
         //wallet initialize
         wallet.onWalletInitialized.AddListener(StartDemo);
         wallet.onWalletOpened.AddListener(DisplayCloseWalletButton);
-        wallet.onWalletClosed.AddListener(StartDemo);
+        wallet.onWalletClosed.AddListener(DisplayWelcomePanel);
 
         connectBtn.onClick.AddListener(Connect);
         openWalletBtn.onClick.AddListener(OpenWallet);
@@ -274,7 +274,7 @@ public class DemoManager : MonoBehaviour
         try
         {
             HideWelcomePanel();
-            string accountAddress = "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";// await wallet.GetAddress();//to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
+            string accountAddress =  await wallet.GetAddress();//to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
             Debug.Log("[DemoDapp] accountAddress " + accountAddress);
             var tokenBalances = await Indexer.FetchMultiplePages(async (pageNumber) =>
             {
