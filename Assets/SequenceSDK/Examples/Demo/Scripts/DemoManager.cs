@@ -146,8 +146,10 @@ public class DemoManager : MonoBehaviour
     }
     public void DisplayWelcomePanel()
     {
+
         MainThread.wkr.AddJob(() =>
         {
+
             if (m_connected)
             {
                 welcomeCanvas.SetActive(true);
@@ -201,6 +203,7 @@ public class DemoManager : MonoBehaviour
             }));
 
             bool isConnected = await wallet.IsConnected();
+            m_connected = isConnected;
             if (isConnected)
             {
                 DisplayWelcomePanel();
