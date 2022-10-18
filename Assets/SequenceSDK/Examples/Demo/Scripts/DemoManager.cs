@@ -39,6 +39,7 @@ public class DemoManager : MonoBehaviour
     [Header("AccountAddress")]
     [SerializeField] private AccountAddress m_address;
 
+    private bool m_connected = false; //For UI Only
 
     public static DemoManager Instance { get; private set; }
     private void Awake()
@@ -57,7 +58,7 @@ public class DemoManager : MonoBehaviour
         //wallet initialize
         wallet.onWalletInitialized.AddListener(StartDemo);
         wallet.onWalletOpened.AddListener(DisplayCloseWalletButton);
-        wallet.onWalletClosed.AddListener(DisplayWelcomePanel);
+        wallet.onWalletClosed.AddListener(StartDemo);
 
         connectBtn.onClick.AddListener(Connect);
         openWalletBtn.onClick.AddListener(OpenWallet);
@@ -80,7 +81,9 @@ public class DemoManager : MonoBehaviour
     /// </summary>
     public async void StartDemo()
     {
+
         bool isConnected =  await wallet.IsConnected();
+        m_connected = isConnected;
         if (isConnected)
         {
             DisplayWelcomePanel();
@@ -126,11 +129,14 @@ public class DemoManager : MonoBehaviour
     }
     public void DisplayWelcomePanel()
     {
-        
-        welcomeCanvas.SetActive(true);
-        HideConnectPanel();
-        HideAddressPanel();
-        HideCollectionPanel();
+        if (m_connected)
+        {
+            welcomeCanvas.SetActive(true);
+            HideConnectPanel();
+            HideAddressPanel();
+            HideCollectionPanel();
+            
+        }
         HideCloseWalletButton();
     }
     public void HideWelcomePanel()
@@ -144,6 +150,7 @@ public class DemoManager : MonoBehaviour
         HideWelcomePanel();
         HideAddressPanel();
         HideCollectionPanel();
+        HideCloseWalletButton();
     }
     public void HideConnectPanel()
     {
