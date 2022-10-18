@@ -30,7 +30,7 @@ public class Collection : MonoBehaviour
     {
         if (accountAddress.Length > 0)
         {
-            //LoadingScreenCover.Instance.EnableLoadingCover();
+
 
             GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, "", true);
             Indexer.GetTokenBalances(_blockChainType, tokenBalancesArgs, (tokenBalances) =>
@@ -44,7 +44,6 @@ public class Collection : MonoBehaviour
                 }
                 else
                 {
-                   // LoadingScreenCover.Instance.DisableLoadingCover();
                 }
             });
         }
