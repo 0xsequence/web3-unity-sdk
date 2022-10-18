@@ -278,7 +278,6 @@ public class DemoManager : MonoBehaviour
             Debug.Log("[DemoDapp] accountAddress " + accountAddress);
             var tokenBalances = await Indexer.FetchMultiplePages(async (pageNumber) =>
             {
-
                 GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, true, new Page
                 {
                     page = pageNumber
