@@ -56,7 +56,13 @@ public class DemoManager : MonoBehaviour
     private void OnEnable()
     {
         //wallet initialize
-        wallet.onWalletInitialized.AddListener(StartDemo);
+        if(wallet.readyToConnect)
+        {
+            StartDemo();
+        } else
+        {
+            wallet.onReadyToConnect.AddListener(StartDemo);
+        }
         wallet.onWalletOpened.AddListener(DisplayCloseWalletButton);
         wallet.onWalletClosed.AddListener(DisplayWelcomePanel);
 

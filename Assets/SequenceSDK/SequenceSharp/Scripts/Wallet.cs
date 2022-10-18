@@ -31,7 +31,6 @@ namespace SequenceSharp
     /// </summary>
     public class Wallet : MonoBehaviour
     {
-        public UnityEvent onWalletInitialized;
         /// <summary>
         /// Called when the Wallet is opened.
         /// You should subscribe to this event and make it visible.
@@ -158,7 +157,6 @@ namespace SequenceSharp
                 else if (eventArgs.Value == "initialized")
                 {
                     _SequenceDebugLog("Wallet Initialized!");
-                    onWalletInitialized.Invoke();
                 }
                 else if (eventArgs.Value.Contains("vuplexFunctionReturn"))
                 {
