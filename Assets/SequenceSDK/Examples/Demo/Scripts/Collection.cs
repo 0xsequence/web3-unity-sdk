@@ -22,8 +22,8 @@ public class Collection : MonoBehaviour
 
     public Button m_backButton;
 
-
     private Dictionary<ContractType, CategoryGroup> _categoryGroups = new Dictionary<ContractType, CategoryGroup>();
+
 
     private void OnEnable()
     {
@@ -138,6 +138,23 @@ public class Collection : MonoBehaviour
             }
 
             _categoryGroups.Clear();
+        }
+    }
+
+    public void HideCategories()
+    {
+        if (_categoryGroups.Count > 0)
+        {
+            CategoryGroup currentGroup;
+            foreach (ContractType cType in Enum.GetValues(typeof(ContractType)))
+            {
+                if (_categoryGroups.TryGetValue(cType, out currentGroup))
+                {
+                    currentGroup.HideCategories();
+
+                }
+            }
+
         }
     }
 }

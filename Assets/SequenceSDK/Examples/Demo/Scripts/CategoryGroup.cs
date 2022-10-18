@@ -7,8 +7,8 @@ using TMPro;
 
 public class CategoryGroup : MonoBehaviour
 {
-    public UnityAction<float> OnScaleChange; // Returns scale diff
-
+    // public UnityAction<float> OnScaleChange; // Returns scale diff
+    public Collection collection;
     [SerializeField] private TextMeshProUGUI groupLabel = null;
     [SerializeField] private Button btn = null;
     [SerializeField] private RectTransform contentRoot = null;
@@ -16,7 +16,7 @@ public class CategoryGroup : MonoBehaviour
 
     private List<Category> _categories = new List<Category>();
 
-    private bool _visible;
+    private bool _visible = false;
 
     private ContractType _contractType = ContractType.UNKNOWN;
 
@@ -25,6 +25,7 @@ public class CategoryGroup : MonoBehaviour
     void Start()
     {
         AddEventListener(OnButtonClick);
+        collection = DemoManager.Instance.GetComponent<Collection>();
     }
 
     /// <summary>
@@ -44,18 +45,21 @@ public class CategoryGroup : MonoBehaviour
         {
             _categories[i].gameObject.SetActive(true);
         }
+        _visible = true;
     }
 
     public void HideCategories()
     {
+
         // Shouldn't disable them right away
         for (int i = 0; i < _categories.Count; i++)
         {
             _categories[i].gameObject.SetActive(false);
         }
-
+        _visible = false;
 
     }
+
 
     /// <summary>
     /// Adds category to group, disables category gameobject
@@ -96,14 +100,9 @@ public class CategoryGroup : MonoBehaviour
 
     private void OnButtonClick()
     {
-        if(_visible)
+        collection.HideCategories();
+        if (!_visible)
         {
-            _visible = false;
-            HideCategories();
-        }
-        else
-        {
-            _visible = true;
             ShowCategories();
         }
     }
