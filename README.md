@@ -9,14 +9,8 @@ The demo offers the same functionality as [our sequence.js demo dApp](https://gi
 ## Using the SDK
 Read the docs over at [https://docs.sequence.xyz/unity-sdk](https://docs.sequence.xyz/unity-sdk)!
 
-## Testing the Examples locally
+## Testing the Example locally
 1. Download [the latest release of the Sequence Unity SDK UnityPackage](https://github.com/0xsequence/web3-unity-sdk/releases)
 2. Drag the `.unitypackage` file into your Unity game project & import the entire thing.
 3. The Sequence Unity SDK currently depends on the [Vuplex webview package](https://vuplex.com), so you'll need to purchase and import Vuplex to run the demos.
-4. Open one of the scenes in `SequenceSDK/Examples`.
-### Wallet Connection Example
-We have a Wallet Connection demo, and an Indexer demo.
-      ![](Demo/WalletDemo.png)
-      ![](Demo/IndexerDemo.png)
-### Indexer Example
-![](Demo/load_skyweaver_card.gif)
+4. Open the scene in `SequenceSDK/Examples/Demo/Scenes`.
