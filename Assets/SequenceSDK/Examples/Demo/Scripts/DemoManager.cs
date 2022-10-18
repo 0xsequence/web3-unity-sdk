@@ -215,7 +215,7 @@ public class DemoManager : MonoBehaviour
         try
         {
             HideWelcomePanel();
-            string accountAddress = "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";//await wallet.GetAddress();
+            string accountAddress = await wallet.GetAddress();//to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
             Debug.Log("[DemoDapp] accountAddress " + accountAddress);
             GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, true);
             BlockChainType blockChainType = BlockChainType.Polygon;
