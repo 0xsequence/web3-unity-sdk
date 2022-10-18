@@ -436,7 +436,7 @@ namespace SequenceSharp
         /// <exception cref="JSExecutionException">Thrown if the wallet isn't connected.</exception>
         public Task<string> GetAddress()
         {
-            return ExecuteSequenceJS("return seq.getWallet().getSigner().getAddress();");
+            return ExecuteSequenceJSAndParseJSON<string>("return seq.getWallet().getSigner().getAddress();");
         }
 
 #nullable enable

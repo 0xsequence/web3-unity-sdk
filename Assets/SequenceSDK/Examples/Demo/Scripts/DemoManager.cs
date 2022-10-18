@@ -219,14 +219,8 @@ public class DemoManager : MonoBehaviour
             Debug.Log("[DemoDapp] accountAddress " + accountAddress);
             GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, true);
             BlockChainType blockChainType = BlockChainType.Polygon;
-            GetTokenBalancesReturn tokenBalances;
-            Indexer.GetTokenBalances(blockChainType, tokenBalancesArgs, (tokenBalances) =>
-            {
-                Debug.Log(tokenBalances);
+            var tokenBalances = await Indexer.GetTokenBalances(blockChainType, tokenBalancesArgs);
                 DisplayCollectionPanel(tokenBalances);
-            });
-
-            
         }
         catch (Exception e)
         {

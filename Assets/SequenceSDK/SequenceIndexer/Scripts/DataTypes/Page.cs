@@ -6,6 +6,6 @@ public class Page
     public object before;
     public object after;
     public SortBy[] sort;
-    public int pageSize;
+    public int pageSize = 50;
     public bool more;
 }

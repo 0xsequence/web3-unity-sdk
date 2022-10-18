@@ -11,93 +11,82 @@ public class IndexerFunctionTest : MonoBehaviour
 
     private void Start()
     {
-        
+
     }
 
 
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             TestGetEtherBalances();
         }
     }
 
-    private void TestPing()
+    private async void TestPing()
     {
-        Indexer.Ping(BlockChainType.Polygon, (pingReturn) =>
-        {
-            Debug.Log("Ping Status: " + pingReturn.status);
-        });
+        var status = await Indexer.Ping(BlockChainType.Polygon);
+        Debug.Log("Ping Status: " + status);
     }
 
-    private void TestVersion()
+    private async void TestVersion()
     {
-        Indexer.Version(BLOCKCHAIN_TYPE, (version) =>
-        {
-            Debug.Log("App Version: " + version.version.appVersion);
-        });
+        var version = await Indexer.Version(BLOCKCHAIN_TYPE);
+        Debug.Log("App Version: " + version.appVersion);
     }
 
-    private void TestRuntimeStatus()
+    private async void TestRuntimeStatus()
     {
-        Indexer.RuntimeStatus(BLOCKCHAIN_TYPE, (runtimeStatus) =>
-        {
-            Debug.Log("Runtime health ok: " + runtimeStatus.status.healthOK);
-        });
+        var status = await Indexer.RuntimeStatus(BLOCKCHAIN_TYPE);
+        Debug.Log("Runtime health ok: " + status.healthOK);
     }
 
-    private void TestGetChainID()
+
+    private async void TestGetChainID()
     {
-        Indexer.GetChainID(BLOCKCHAIN_TYPE, (chainID) =>
-        {
-            Debug.Log("ChainID: " + chainID.chainID);
-        });
+        var chainID = await Indexer.GetChainID(BLOCKCHAIN_TYPE);
+
+        Debug.Log("ChainID: " + chainID);
     }
 
     // Returns "Response status code does not indicate success: 401 (Unauthorized)."
-    private void TestGetEtherBalances()
+    private async void TestGetEtherBalances()
     {
-        GetEtherBalanceArgs etherBalanceArgs = new GetEtherBalanceArgs("0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9");
+        var etherBalance = await Indexer.GetEtherBalance(BLOCKCHAIN_TYPE, "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9");
 
-        Indexer.GetEtherBalance(BLOCKCHAIN_TYPE, etherBalanceArgs, (etherBalance) =>
+        if (etherBalance != null)
         {
-            if (etherBalance != null)
-            {
-                Debug.Log("Ether Balance: " + etherBalance.balance);
-            }
-        });
+            Debug.Log("Ether Balance: " + etherBalance);
+        }
     }
 
-    private void TestGetTokenBalances()
+    private async void TestGetTokenBalances()
     {
         GetTokenBalancesArgs balanceArgs = new GetTokenBalancesArgs
             ("0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9",
             "0x631998e91476DA5B870D741192fc5Cbc55F5a52E",
             true);
 
-        Indexer.GetTokenBalances(BLOCKCHAIN_TYPE, balanceArgs, (tokenBalances) =>
-        {
-            Debug.Log("Balances found: " + tokenBalances.balances.Length);
-        });
+        var tokenBalances = await Indexer.GetTokenBalances(BLOCKCHAIN_TYPE, balanceArgs);
+
+        Debug.Log("Balances found: " + tokenBalances.balances.Length);
     }
 
-    private void TestGetTokenSupplies()
+    private async void TestGetTokenSupplies()
     {
         GetTokenSuppliesArgs tokenSuppliesArgs = new GetTokenSuppliesArgs("0x631998e91476DA5B870D741192fc5Cbc55F5a52E", true);
 
-        Indexer.GetTokenSupplies(BLOCKCHAIN_TYPE, tokenSuppliesArgs, (tokenSuppliesReturn) =>
+        var tokenSuppliesReturn = await Indexer.GetTokenSupplies(BLOCKCHAIN_TYPE, tokenSuppliesArgs);
+
+        if (tokenSuppliesReturn != null)
         {
-            if (tokenSuppliesReturn != null)
-            {
-                Debug.Log("Token Supplies contract type: " + tokenSuppliesReturn.contractType);
-            }
-        });
+            Debug.Log("Token Supplies contract type: " + tokenSuppliesReturn.contractType);
+        }
     }
 
-    
-    private void TestGetTokenSuppliesMap()
+
+    private async void TestGetTokenSuppliesMap()
     {
         Dictionary<string, string[]> tokenSuppliesMap = new Dictionary<string, string[]>();
         tokenSuppliesMap.Add("0x631998e91476da5b870d741192fc5cbc55f5a52e", new string[]
@@ -108,55 +97,35 @@ public class IndexerFunctionTest : MonoBehaviour
 
         GetTokenSuppliesMapArgs tokenSuppliesMapArgs = new GetTokenSuppliesMapArgs(tokenSuppliesMap, true);
 
-        Indexer.GetTokenSuppliesMap(BLOCKCHAIN_TYPE, tokenSuppliesMapArgs, (tokenSuppliesMapReturn) =>
+        var tokenSuppliesMapReturn = await Indexer.GetTokenSuppliesMap(BLOCKCHAIN_TYPE, tokenSuppliesMapArgs);
+
+        if (tokenSuppliesMapReturn != null)
         {
-            if (tokenSuppliesMapReturn != null)
-            {
-                Debug.Log("Token Supplies Map Count: " + tokenSuppliesMapReturn.supplies.Count);
-            }
-        });
+            Debug.Log("Token Supplies Map Count: " + tokenSuppliesMapReturn.supplies.Count);
+        }
     }
 
-    
-    private void TestGetBalanceUpdates()
+
+    private async void TestGetBalanceUpdates()
     {
         GetBalanceUpdatesArgs balanceUpdatesArgs = new GetBalanceUpdatesArgs("0x631998e91476DA5B870D741192fc5Cbc55F5a52E");
-        Indexer.GetBalanceUpdates(BLOCKCHAIN_TYPE, balanceUpdatesArgs, (balanceUpdateReturn) =>
-        {
-            Debug.Log("Balances returned: " + balanceUpdateReturn.balances.Length);
-        });
+        var balanceUpdateReturn = await Indexer.GetBalanceUpdates(BLOCKCHAIN_TYPE, balanceUpdatesArgs);
+
+        Debug.Log("Balances returned: " + balanceUpdateReturn.balances.Length);
     }
 
-    private void TestGetTransactionHistory()
+    private async void TestGetTransactionHistory()
     {
         TransactionHistoryFilter transactionFilter = new TransactionHistoryFilter();
         transactionFilter.accountAddress = "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
         transactionFilter.contractAddress = "0x631998e91476DA5B870D741192fc5Cbc55F5a52E";
 
         GetTransactionHistoryArgs transactionHistoryArgs = new GetTransactionHistoryArgs(transactionFilter);
-        Indexer.GetTransactionHistory(BLOCKCHAIN_TYPE, transactionHistoryArgs, (transactionHistoryReturn) =>
-        {
-            if (transactionHistoryReturn != null)
-            {
-                Debug.Log("Transactions returned: " + transactionHistoryReturn.transactions.Length);
-            }
-        });
-    }
+        var transactionHistoryReturn = await Indexer.GetTransactionHistory(BLOCKCHAIN_TYPE, transactionHistoryArgs);
 
-    // Currently returning "Response status code does not indicate success: 401 (Unauthorized)."
-    private void TestSyncBalance()
-    {
-        SyncBalanceArgs syncBalanceArgs = new SyncBalanceArgs(
-            "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9",
-            "0x631998e91476DA5B870D741192fc5Cbc55F5a52E",
-            "65539"
-            );
-        Indexer.SyncBalance(BLOCKCHAIN_TYPE, syncBalanceArgs, (syncBalance) =>
+        if (transactionHistoryReturn != null)
         {
-            if (syncBalance != null)
-            {
-                Debug.Log("Balance Synced");
-            }
-        });
+            Debug.Log("Transactions returned: " + transactionHistoryReturn.transactions.Length);
+        }
     }
 }

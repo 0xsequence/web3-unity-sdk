@@ -47,7 +47,7 @@ namespace demo
             }
         }
 
-        public void RetriveAssetInfoData(string accountAddress)
+        public async void RetriveAssetInfoData(string accountAddress)
         {
             if (accountAddress.Length > 0)
             {
@@ -55,40 +55,37 @@ namespace demo
 
                 GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, "", true);
                 BlockChainType blockChainType = blockChainDropDown.GetSelectedOption();
-                Indexer.GetTokenBalances(blockChainType, tokenBalancesArgs, (tokenBalances) =>
-                {
-                    ClearAssets();
-                    _currentAccountAddress = accountAddress;
+                var tokenBalances = await Indexer.GetTokenBalances(blockChainType, tokenBalancesArgs);
+                _currentAccountAddress = accountAddress;
 
-                    if (tokenBalances != null && tokenBalances.balances.Length > 0)
+                if (tokenBalances != null && tokenBalances.balances.Length > 0)
+                {
+                    for (int i = 0; i < tokenBalances.balances.Length; i++)
                     {
-                        for (int i = 0; i < tokenBalances.balances.Length; i++)
+                        ContractInfo contractInfo = tokenBalances.balances[i].contractInfo;
+                        string contractAddress = contractInfo.address;
+                        if (contractInfo.name.Contains("skyweaver") || contractInfo.name.Contains("Skyweaver"))
                         {
-                            ContractInfo contractInfo = tokenBalances.balances[i].contractInfo;
-                            string contractAddress = contractInfo.address;
-                            if (contractInfo.name.Contains("skyweaver") || contractInfo.name.Contains("Skyweaver"))
+                            GetTokenBalancesArgs tokenBalancesArgsWithContract = new GetTokenBalancesArgs(accountAddress, contractAddress, true);
+                            var tokenBalancesWithContract = await Indexer.GetTokenBalances(blockChainType, tokenBalancesArgsWithContract);
+
+                            if (tokenBalancesWithContract != null && tokenBalancesWithContract.balances.Length > 0)
                             {
-                                GetTokenBalancesArgs tokenBalancesArgsWithContract = new GetTokenBalancesArgs(accountAddress, contractAddress, true);
-                                Indexer.GetTokenBalances(blockChainType, tokenBalancesArgsWithContract, (tokenBalancesWithContract) =>
-                                {
-                                    if (tokenBalancesWithContract != null && tokenBalancesWithContract.balances.Length > 0)
-                                    {
-                                        StartCoroutine(GenerateAssets(tokenBalancesWithContract));
-                                    }
-                                    else
-                                    {
-                                        LoadingScreenCover.Instance.DisableLoadingCover();
-                                    }
-                                });
+                                StartCoroutine(GenerateAssets(tokenBalancesWithContract));
+                            }
+                            else
+                            {
+                                LoadingScreenCover.Instance.DisableLoadingCover();
                             }
                         }
+                    }
 
-                    }
-                    else
-                    {
-                        LoadingScreenCover.Instance.DisableLoadingCover();
-                    }
-                });
+                }
+                else
+                {
+                    LoadingScreenCover.Instance.DisableLoadingCover();
+                }
+
             }
         }
 
@@ -165,7 +162,7 @@ namespace demo
                         // Create new card and initiate it
                         AddAssetToGallery(((DownloadHandlerTexture)imgRequest.downloadHandler).texture, tokenBalances.balances[i].tokenMetadata.name, cardProperties);
                     }
-                    
+
                     yield return null;
                 }
             }
@@ -185,7 +182,7 @@ namespace demo
 
             //m_currentDeck.Add(newCard);
 
-            if(!cardAssets.Contains(newCard))
+            if (!cardAssets.Contains(newCard))
             {
                 cardAssets.Add(newCard);
             }

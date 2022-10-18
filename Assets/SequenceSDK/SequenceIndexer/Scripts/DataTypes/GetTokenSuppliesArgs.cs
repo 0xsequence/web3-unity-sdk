@@ -5,11 +5,6 @@ public class GetTokenSuppliesArgs
     public bool includeMetadata;
     public Page page;
 
-    public GetTokenSuppliesArgs()
-    {
-
-    }
-
     public GetTokenSuppliesArgs(string contractAddress)
     {
         this.contractAddress = contractAddress;
