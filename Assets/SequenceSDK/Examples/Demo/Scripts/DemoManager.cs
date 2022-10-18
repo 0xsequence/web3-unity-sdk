@@ -23,7 +23,7 @@ public class DemoManager : MonoBehaviour
 
     [Header("Welcome Panel")]
     [SerializeField] private Button openWalletBtn;
-    [SerializeField] private Button getAddressBtn; 
+    [SerializeField] private Button getAddressBtn;
     [SerializeField] private Button viewCollectionBtn;
     [SerializeField] private Button viewHistoryBtn;
     [SerializeField] private Button signMessageBtn;
@@ -81,13 +81,12 @@ public class DemoManager : MonoBehaviour
     /// </summary>
     public async void StartDemo()
     {
-
         bool isConnected =  await wallet.IsConnected();
         m_connected = isConnected;
         if (isConnected)
         {
             DisplayWelcomePanel();
- 
+
         }
         else
         {
@@ -126,7 +125,7 @@ public class DemoManager : MonoBehaviour
             addressCanvas.SetActive(false);
         });
     }
-    public void DisplayCollectionPanel(GetTokenBalancesReturn tokenBalances)
+    private void DisplayCollectionPanel(TokenBalance[] tokenBalances)
     {
         MainThread.wkr.AddJob(() =>
         {
@@ -202,7 +201,7 @@ public class DemoManager : MonoBehaviour
             }));
 
             bool isConnected = await wallet.IsConnected();
-            if(isConnected)
+            if (isConnected)
             {
                 DisplayWelcomePanel();
             }
@@ -214,7 +213,7 @@ public class DemoManager : MonoBehaviour
         }
     }
 
-    
+
 
     public async void OpenWallet()
     {
@@ -277,10 +276,18 @@ public class DemoManager : MonoBehaviour
             HideWelcomePanel();
             string accountAddress = await wallet.GetAddress();//to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
             Debug.Log("[DemoDapp] accountAddress " + accountAddress);
-            GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, true);
-            BlockChainType blockChainType = BlockChainType.Polygon;
-            var tokenBalances = await Indexer.GetTokenBalances(blockChainType, tokenBalancesArgs);
-                DisplayCollectionPanel(tokenBalances);
+            var tokenBalances = await Indexer.FetchMultiplePages(async (pageNumber) =>
+            {
+
+                GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, true, new Page
+                {
+                    page = pageNumber
+                });
+                BlockChainType blockChainType = BlockChainType.Polygon;
+                var balances = await Indexer.GetTokenBalances(blockChainType, tokenBalancesArgs);
+                return (balances.page, balances.balances);
+            }, 9999);
+            DisplayCollectionPanel(tokenBalances);
         }
         catch (Exception e)
         {

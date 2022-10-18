@@ -28,6 +28,19 @@ public class GetTokenBalancesArgs
         this.contractAddress = contractAddress;
         this.includeMetadata = includeMetadata;
     }
+    public GetTokenBalancesArgs(string accountAddress, string contractAddress, Page page)
+    {
+        this.accountAddress = accountAddress;
+        this.contractAddress = contractAddress;
+        this.page = page;
+    }
+
+    public GetTokenBalancesArgs(string accountAddress, bool includeMetadata, Page page)
+    {
+        this.accountAddress = accountAddress;
+        this.includeMetadata = includeMetadata;
+        this.page = page;
+    }
 
     public GetTokenBalancesArgs(string accountAddress, string contractAddress, bool includeMetadata, Page page)
     {

@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 #region Enums
 public enum BlockChainType
@@ -90,6 +91,27 @@ public static class Indexer
         {
             BaseAddress = new Uri(hostName)
         };
+    }
+
+    public static async Task<T[]> FetchMultiplePages<T>(Func<int, Task<(Page, T[])>> func, int maxPages)
+    {
+        var nextPage = 0;
+        List<T> allItems = new List<T>();
+        while (nextPage != -1 && nextPage < maxPages)
+        {
+            (var page, var items) = await func(nextPage);
+            foreach (var item in items)
+            {
+                allItems.Add(item);
+            }
+            if (page.more && page.page != 0)
+            {
+                nextPage = page.page;
+            }
+            else { nextPage = -1; }
+            // todo add rate limit
+        }
+        return allItems.ToArray();
     }
 
     /// <summary>
@@ -196,6 +218,7 @@ public static class Indexer
         response.EnsureSuccessStatusCode();
 
         string responseBody = await response.Content.ReadAsStringAsync();
+        Debug.Log(responseBody);
         return BuildResponse<GetTokenBalancesReturn>(responseBody);
     }
 

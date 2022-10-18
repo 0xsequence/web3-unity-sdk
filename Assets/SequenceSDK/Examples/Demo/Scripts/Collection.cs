@@ -33,27 +33,23 @@ public class Collection : MonoBehaviour
     {
         m_backButton.onClick.RemoveListener(BackToWelcomePanel);
     }
-
     public void BackToWelcomePanel()
     {
         DemoManager.Instance.HideCollectionPanel();
         DemoManager.Instance.DisplayWelcomePanel();
     }
-    public void RetriveContractInfoData(GetTokenBalancesReturn tokenBalances)
+    public void RetriveContractInfoData(TokenBalance[] tokenBalances)
     {
-        
-            ClearCategories();
-            //_currentAccountAddress = accountAddress;
+        ClearCategories();
+        //_currentAccountAddress = accountAddress;
 
-            if (tokenBalances != null && tokenBalances.balances.Length > 0)
-            {
-                StartCoroutine(GenerateCategories(tokenBalances));
-            }
-               
-        
+        if (tokenBalances != null && tokenBalances.Length > 0)
+        {
+            StartCoroutine(GenerateCategories(tokenBalances));
+        }
     }
 
-    private IEnumerator GenerateCategories(GetTokenBalancesReturn tokenBalances)
+    private IEnumerator GenerateCategories(TokenBalance[] tokenBalances)
     {
         GameObject newCatGo;
         Category newCategory;
@@ -61,9 +57,9 @@ public class Collection : MonoBehaviour
         Texture logoTex = null;
         UnityWebRequest imgRequest;
 
-        for (int i = 0; i < tokenBalances.balances.Length; i++)
+        for (int i = 0; i < tokenBalances.Length; i++)
         {
-            contractInfo = tokenBalances.balances[i].contractInfo;
+            contractInfo = tokenBalances[i].contractInfo;
 
             if (contractInfo != null)
             {
@@ -71,20 +67,21 @@ public class Collection : MonoBehaviour
 
                 newCategory = newCatGo.GetComponent<Category>();
 
-                if (_categoryGroups.ContainsKey(tokenBalances.balances[i].contractType) == false)
+                if (_categoryGroups.ContainsKey(tokenBalances[i].contractType) == false)
                 {
                     CategoryGroup newCatGroup = Instantiate(categoryGroupTemplate, catogryGroupRoot).GetComponent<CategoryGroup>();
-                    _categoryGroups.Add(tokenBalances.balances[i].contractType, newCatGroup);
-                    newCatGroup.InitGroup(tokenBalances.balances[i].contractType, categorySpacing);
+                    _categoryGroups.Add(tokenBalances[i].contractType, newCatGroup);
+                    newCatGroup.InitGroup(tokenBalances[i].contractType, categorySpacing);
 
                 }
 
                 // Add new Category option to their relevant ContractType Group
-                _categoryGroups[tokenBalances.balances[i].contractType].AddToCategories(newCategory);
+                _categoryGroups[tokenBalances[i].contractType].AddToCategories(newCategory);
 
                 if (logoTex != null)
                 {
                     Destroy(logoTex);
+                    logoTex = null;
                 }
 
                 if (contractInfo.logoURI != null && contractInfo.logoURI.Length > 0)
@@ -103,8 +100,16 @@ public class Collection : MonoBehaviour
                         logoTex = ((DownloadHandlerTexture)imgRequest.downloadHandler).texture;
                     }
                 }
-
-                newCategory.Init(contractInfo.name, logoTex, Enum.Parse<ContractType>(contractInfo.type));
+                var type = ContractType.UNKNOWN;
+                try
+                {
+                    Enum.Parse<ContractType>(contractInfo.type);
+                }
+                catch
+                {
+                    // ok!
+                }
+                newCategory.Init(contractInfo.name, logoTex, type);
             }
         }
 
