@@ -101,6 +101,7 @@ public class Collection : MonoBehaviour
                         // Create new card and initiate it
                         logoTex = ((DownloadHandlerTexture)imgRequest.downloadHandler).texture;
                     }
+                    imgRequest.Dispose();
                 }
             }
             else
@@ -120,6 +121,7 @@ public class Collection : MonoBehaviour
                         // Create new card and initiate it
                         logoTex = ((DownloadHandlerTexture)imgRequest.downloadHandler).texture;
                     }
+                    imgRequest.Dispose();
                 }
             }
 
@@ -132,11 +134,8 @@ public class Collection : MonoBehaviour
             {
                 // ok!
             }
-            newCategory.Init(contractInfo.name, logoTex, type);
-
-        
-
-    }
+            newCategory.Init(tokenMetadata != null ? ($"{tokenMetadata.name} ({contractInfo.name})") : contractInfo.name, logoTex, type);
+        }
 
 
         yield return null;
