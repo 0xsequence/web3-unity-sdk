@@ -57,10 +57,11 @@ public class DemoManager : MonoBehaviour
     private void OnEnable()
     {
         //wallet initialize
-        if(wallet.readyToConnect)
+        if (wallet.readyToConnect)
         {
             StartDemo();
-        } else
+        }
+        else
         {
             wallet.onReadyToConnect.AddListener(StartDemo);
         }
@@ -138,13 +139,13 @@ public class DemoManager : MonoBehaviour
         {
             collectionCanvas.SetActive(true);
             uiManager.EnableCollectionPanel();
-            
+
             HideConnectPanel();
             HideWelcomePanel();
             HideAddressPanel();
-            
+
             m_collection.RetriveContractInfoData(tokenBalances);
-            
+
         });
     }
     public void HideCollectionPanel()
@@ -282,7 +283,7 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
-            string accountAddress = "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";// await wallet.GetAddress();//to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
+            string accountAddress = await wallet.GetAddress(); //to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
             var tokenBalances = await Indexer.FetchMultiplePages(async (pageNumber) =>
             {
                 GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, true, new Page
@@ -308,7 +309,6 @@ public class DemoManager : MonoBehaviour
 
                     return (balances.page, balances.balances);
                 }, 9999);
-                //DisplayCollectionPanel(tokenBalanceWithContract);
                 tokenBalanceList.AddRange(tokenBalanceWithContract);
 
             }
@@ -324,7 +324,7 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
-            string accountAddress = await wallet.GetAddress();//to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
+            string accountAddress = await wallet.GetAddress(); //to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
             var transactions = await Indexer.FetchMultiplePages(async (pageNumber) =>
             {
                 var args = new GetTransactionHistoryArgs(new TransactionHistoryFilter
@@ -377,7 +377,7 @@ I doubted if I should ever come back.
 
 I shall be telling this with a sigh
 Somewhere ages and ages hence:
-Two roads diverged in a wood, and I—
+Two roads diverged in a wood, and Iï¿½
 I took the one less traveled by,
 And that has made all the difference.
 
