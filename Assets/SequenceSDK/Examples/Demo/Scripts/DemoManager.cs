@@ -197,8 +197,6 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
-            HideConnectPanel();
-
             var connectDetails = await wallet.Connect(new ConnectOptions
             {
                 app = "Demo Unity Dapp"
@@ -228,7 +226,6 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
-            HideWelcomePanel();
             await wallet.OpenWallet("wallet/add-funds", new ConnectOptions
             {
                 settings = new WalletSettings
@@ -267,7 +264,6 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
-            HideWelcomePanel();
             string accountAddress = await wallet.GetAddress();
             Debug.Log("[DemoDapp] accountAddress " + accountAddress);
             DisplayAddressPanel(accountAddress);
@@ -282,7 +278,6 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
-            HideWelcomePanel();
             string accountAddress = await wallet.GetAddress();//to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
             var tokenBalances = await Indexer.FetchMultiplePages(async (pageNumber) =>
             {
@@ -330,7 +325,6 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
-            HideWelcomePanel();
             await wallet.ExecuteSequenceJS(@"
                 const wallet = sequence.getWallet();
 
@@ -394,7 +388,6 @@ And that has made all the difference.
     {
         try
         {
-            HideWelcomePanel();
             var txnResponse = await wallet.ExecuteSequenceJS(@"
                 const ERC_20_ABI = [
                 {
@@ -457,7 +450,6 @@ And that has made all the difference.
     {
         try
         {
-            HideWelcomePanel();
             var txnResponse = await wallet.ExecuteSequenceJS(@"
             const ERC_1155_ABI = [
             {
@@ -507,10 +499,10 @@ And that has made all the difference.
             gasLimit: '0x55555',
             to: skyweaverContractAddress,
             value: 0,
-            data: new ethers.utils.Interface(ERC_1155_ABI).encodeFunctionData('safeBatchTransferFrom', [fromAddress, toAddress, ['0x20001'], ['0x64']])
+            data: new ethers.utils.Interface(ERC_1155_ABI).encodeFunctionData('safeBatchTransferFrom', [fromAddress, toAddress, ['0x20001'], ['0x64'], []])
         }
 
-        const txnResp = await signer.sendTransactionBatch([tx], 4);
+        const txnResp = await signer.sendTransactionBatch([tx]);
 
         return txnResponse; ");
             Debug.Log("[DemoDapp] txnResponse: " + txnResponse);

@@ -294,6 +294,13 @@ namespace SequenceSharp
             {
                 _internalWebView.PostMessage(eventArgs.Value);
             };
+#else
+            await ExecuteSequenceJS(@"
+                window.seq.getWallet().on('close', () => {
+                console.log('closing wallet');
+                    SendMessage('" + this.name + @"', 'SequenceJSWalletClosed');
+                });
+            ");
 #endif
 
             onReadyToConnect.Invoke();
@@ -353,14 +360,14 @@ namespace SequenceSharp
                         callbackNumber: " + thisCallbackIndex + @",
                         returnValue: JSON.stringify(returnValue)
                     });
-                    SendMessage('" + this.name + @"', 'JSFunctionReturn', returnString);
+                    SendMessage('" + this.name + @"', 'SequenceJSFunctionReturn', returnString);
                  } catch(err) {
                     const returnString = JSON.stringify({
                         type: 'error',
                         callbackNumber: " + thisCallbackIndex + @",
                         returnValue: JSON.stringify(Object.fromEntries(Object.getOwnPropertyNames(err).map(prop => [JSON.stringify(prop), JSON.stringify(err[prop])])))
                     })
-                    SendMessage('" + this.name + @"', 'JSFunctionError', returnString);
+                    SendMessage('" + this.name + @"', 'SequenceJSFunctionError', returnString);
                  }
             })()
             }
@@ -371,20 +378,23 @@ namespace SequenceSharp
         }
 
 #if !IS_EDITOR_OR_NOT_WEBGL
-        public void JSFunctionReturn(string returnVal)
+        public void SequenceJSWalletClosed() {
+        Debug.Log("wallet closed");
+            _HideWallet();
+        }
+        public void SequenceJSFunctionReturn(string returnVal)
         {
             var promiseReturn = JsonConvert.DeserializeObject<PromiseReturn>(returnVal);
 
             _callbackDict[promiseReturn.callbackNumber].TrySetResult(promiseReturn.returnValue);
             _callbackDict.Remove(promiseReturn.callbackNumber);
         }
-        public void JSFunctionError(string returnVal)
+        public void SequenceJSFunctionError(string returnVal)
         {
             var promiseReturn = JsonConvert.DeserializeObject<PromiseReturn>(returnVal);
 
             _callbackDict[promiseReturn.callbackNumber].TrySetException(new JSExecutionException(promiseReturn.returnValue));
             _callbackDict.Remove(promiseReturn.callbackNumber);
-
         }
 #endif
 
@@ -500,10 +510,7 @@ namespace SequenceSharp
         public async Task CloseWallet()
         {
             await ExecuteSequenceJS("return seq.getWallet().closeWallet();");
-            if (_walletVisible)
-            {
-                _HideWallet();
-            }
+            _HideWallet();
         }
 
 #nullable enable
