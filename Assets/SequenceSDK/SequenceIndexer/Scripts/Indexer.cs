@@ -223,7 +223,11 @@ namespace SequenceSharp
             {
                 throw new System.Exception("Failed to make request, non-200 status code " + req.responseCode);
             }
-            return req.downloadHandler.text;
+
+            string returnText = req.downloadHandler.text;
+            req.Dispose();
+            return returnText;
+           // return req.downloadHandler.text;
         }
 
         /// <summary>

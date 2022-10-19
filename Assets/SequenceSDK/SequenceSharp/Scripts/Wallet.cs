@@ -195,11 +195,12 @@ namespace SequenceSharp
             var sequenceJSRequest = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "sequence/sequence.js"));
             await sequenceJSRequest.SendWebRequest();
             var sequenceJS = sequenceJSRequest.downloadHandler.text;
-
+            sequenceJSRequest.Dispose();
             var ethersJSRequest = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "sequence/ethers.js"));
             await ethersJSRequest.SendWebRequest();
             var ethersJS = ethersJSRequest.downloadHandler.text;
             await ExecuteSequenceJS(sequenceJS + ";" + ethersJS);
+            ethersJSRequest.Dispose();
 #endif
 
             await ExecuteSequenceJS(@"
