@@ -22,7 +22,6 @@ public class Category : MonoBehaviour
     public Texture _icon { get; private set; }
     public ContractType _contractType { get; private set; }
 
-    private RectTransform _rectTransform;
 
     private void OnDisable()
     {
@@ -85,6 +84,7 @@ public class Category : MonoBehaviour
         }
     }
 
+<<<<<<< HEAD
     /// <summary>
     /// Get Rect Transform of Category
     /// </summary>
@@ -95,9 +95,9 @@ public class Category : MonoBehaviour
         {
             _rectTransform = GetComponent<RectTransform>();
         }
+=======
+>>>>>>> ae70189 (modified ui scroll)
 
-        return _rectTransform;
-    }
 
     private void OnButtonClick()
     {
