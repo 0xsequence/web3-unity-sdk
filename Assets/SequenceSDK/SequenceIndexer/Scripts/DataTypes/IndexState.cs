@@ -1,6 +1,9 @@
-[System.Serializable]
-public class IndexState
+namespace SequenceSharp
 {
-    public string chainId;
-    public int lastBlockNum;
+    [System.Serializable]
+    public class IndexState
+    {
+        public string chainId;
+        public int lastBlockNum;
+    }
 }

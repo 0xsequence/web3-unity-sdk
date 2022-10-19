@@ -1,7 +1,10 @@
-[System.Serializable]
-public class GetTokenSuppliesReturn
+namespace SequenceSharp
 {
-    public Page page;
-    public ContractType contractType;
-    public TokenSupply[] tokenIDs;
+    [System.Serializable]
+    public class GetTokenSuppliesReturn
+    {
+        public Page page;
+        public ContractType contractType;
+        public TokenSupply[] tokenIDs;
+    }
 }

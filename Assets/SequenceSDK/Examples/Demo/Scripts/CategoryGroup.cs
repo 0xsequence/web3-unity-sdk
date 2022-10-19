@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using TMPro;
+using SequenceSharp;
 
 public class CategoryGroup : MonoBehaviour
 {
@@ -69,7 +70,7 @@ public class CategoryGroup : MonoBehaviour
     {
         _categories.Add(cat);
 
-        if(cat.gameObject.activeSelf)
+        if (cat.gameObject.activeSelf)
         {
             cat.gameObject.SetActive(false);
         }

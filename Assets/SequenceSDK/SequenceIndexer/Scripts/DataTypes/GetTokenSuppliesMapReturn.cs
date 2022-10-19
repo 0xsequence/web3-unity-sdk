@@ -1,7 +1,10 @@
-using System.Collections.Generic;
-
-[System.Serializable]
-public class GetTokenSuppliesMapReturn
+namespace SequenceSharp
 {
-    public Dictionary<string, TokenSupply[]> supplies;
+    using System.Collections.Generic;
+
+    [System.Serializable]
+    public class GetTokenSuppliesMapReturn
+    {
+        public Dictionary<string, TokenSupply[]> supplies;
+    }
 }

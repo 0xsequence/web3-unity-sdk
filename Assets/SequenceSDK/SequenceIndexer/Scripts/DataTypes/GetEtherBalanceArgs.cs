@@ -1,10 +1,13 @@
-[System.Serializable]
-public class GetEtherBalanceArgs
+namespace SequenceSharp
 {
-    public string accountAddress;
-
-    public GetEtherBalanceArgs(string accountAddress)
+    [System.Serializable]
+    public class GetEtherBalanceArgs
     {
-        this.accountAddress = accountAddress;
+        public string accountAddress;
+
+        public GetEtherBalanceArgs(string accountAddress)
+        {
+            this.accountAddress = accountAddress;
+        }
     }
 }

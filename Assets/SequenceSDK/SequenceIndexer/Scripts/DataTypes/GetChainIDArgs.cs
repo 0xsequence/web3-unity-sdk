@@ -1,5 +1,8 @@
-[System.Serializable]
-public class GetChainIDArgs
+namespace SequenceSharp
 {
-    
+    [System.Serializable]
+    public class GetChainIDArgs
+    {
+
+    }
 }

@@ -1,6 +1,9 @@
-[System.Serializable]
-public class EtherBalance
+namespace SequenceSharp
 {
-    public string accountAddress;
-    public string balanceWei;
+    [System.Serializable]
+    public class EtherBalance
+    {
+        public string accountAddress;
+        public string balanceWei;
+    }
 }

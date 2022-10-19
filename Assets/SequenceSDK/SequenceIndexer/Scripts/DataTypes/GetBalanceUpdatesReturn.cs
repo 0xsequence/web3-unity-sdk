@@ -1,6 +1,9 @@
-[System.Serializable]
-public class GetBalanceUpdatesReturn
+namespace SequenceSharp
 {
-    public Page page;
-    public TokenBalance[] balances;
+    [System.Serializable]
+    public class GetBalanceUpdatesReturn
+    {
+        public Page page;
+        public TokenBalance[] balances;
+    }
 }

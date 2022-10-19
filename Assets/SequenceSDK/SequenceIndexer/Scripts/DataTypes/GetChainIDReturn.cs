@@ -1,5 +1,8 @@
-[System.Serializable]
-public class GetChainIDReturn
+namespace SequenceSharp
 {
-    public int chainID;
+    [System.Serializable]
+    public class GetChainIDReturn
+    {
+        public int chainID;
+    }
 }

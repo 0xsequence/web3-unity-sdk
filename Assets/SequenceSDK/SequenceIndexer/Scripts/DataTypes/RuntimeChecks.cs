@@ -1,7 +1,10 @@
-[System.Serializable]
-public class RuntimeChecks
+namespace SequenceSharp
 {
-    public bool running;
-    public string syncMode;
-    public int lastBlockNum;
+    [System.Serializable]
+    public class RuntimeChecks
+    {
+        public bool running;
+        public string syncMode;
+        public int lastBlockNum;
+    }
 }

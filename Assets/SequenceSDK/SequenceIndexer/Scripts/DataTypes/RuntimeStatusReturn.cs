@@ -1,5 +1,8 @@
-[System.Serializable]
-public class RuntimeStatusReturn
+namespace SequenceSharp
 {
-    public RuntimeStatus status;
+    [System.Serializable]
+    public class RuntimeStatusReturn
+    {
+        public RuntimeStatus status;
+    }
 }

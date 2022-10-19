@@ -1,5 +1,8 @@
-[System.Serializable]
-public class GetEtherBalanceReturn
+namespace SequenceSharp
 {
-    public EtherBalance balance;
+    [System.Serializable]
+    public class GetEtherBalanceReturn
+    {
+        public EtherBalance balance;
+    }
 }

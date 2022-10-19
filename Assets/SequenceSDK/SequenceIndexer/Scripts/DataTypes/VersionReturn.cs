@@ -1,5 +1,8 @@
-[System.Serializable]
-public class VersionReturn
+namespace SequenceSharp
 {
-    public Version version;
+    [System.Serializable]
+    public class VersionReturn
+    {
+        public Version version;
+    }
 }

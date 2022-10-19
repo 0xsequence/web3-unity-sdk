@@ -1,12 +1,13 @@
-using System;
-
-[System.Serializable]
-public class PingReturn
+namespace SequenceSharp
 {
-    public bool status;
-
-    public PingReturn(bool status)
+    [System.Serializable]
+    public class PingReturn
     {
-        this.status = status;
+        public bool status;
+
+        public PingReturn(bool status)
+        {
+            this.status = status;
+        }
     }
 }

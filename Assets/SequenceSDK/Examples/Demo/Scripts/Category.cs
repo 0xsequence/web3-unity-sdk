@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using SequenceSharp;
 
 /*
 
@@ -30,7 +31,7 @@ public class Category : MonoBehaviour
 
     private void Start()
     {
-        if(catBtn == null)
+        if (catBtn == null)
         {
             catBtn = GetComponent<Button>();
         }
@@ -90,7 +91,7 @@ public class Category : MonoBehaviour
     /// <returns></returns>
     public RectTransform GetRectTransform()
     {
-        if(_rectTransform == null)
+        if (_rectTransform == null)
         {
             _rectTransform = GetComponent<RectTransform>();
         }
@@ -106,11 +107,11 @@ public class Category : MonoBehaviour
 
     private void ApplyIcon(Texture tex)
     {
-        if(tex != null)
+        if (tex != null)
         {
             float width = iconImg.rectTransform.rect.width;
             float height = iconImg.rectTransform.rect.height;
-            iconImg.sprite = Sprite.Create(TextureHelper.ConvertToTexture2D(tex,(int)width,(int)height), new Rect(0f, 0f, width, height), new Vector2(0.5f, 0.5f), 100f);
+            iconImg.sprite = Sprite.Create(TextureHelper.ConvertToTexture2D(tex, (int)width, (int)height), new Rect(0f, 0f, width, height), new Vector2(0.5f, 0.5f), 100f);
         }
     }
 }

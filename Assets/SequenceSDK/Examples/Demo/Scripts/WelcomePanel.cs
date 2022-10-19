@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,7 +13,7 @@ public class WelcomePanel : MonoBehaviour
     private void AdjustLayoutGroup()
     {
         Debug.Log(camera.aspect);
-        if(camera.aspect > 1)
+        if (camera.aspect > 1)
         {
             //more landscape
             gridLayoutGroup.constraintCount = 2;
@@ -28,6 +26,6 @@ public class WelcomePanel : MonoBehaviour
         {
             //more portrait, stay current setup
         }
-        
+
     }
 }

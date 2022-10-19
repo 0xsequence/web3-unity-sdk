@@ -5,6 +5,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine.Networking;
+using SequenceSharp;
 
 /// <summary>
 /// Handle receiving an Account Address and pulling all contract info data to generate Category options for a user to load content from
