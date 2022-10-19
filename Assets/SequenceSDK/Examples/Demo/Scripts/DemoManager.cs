@@ -16,7 +16,7 @@ public class DemoManager : MonoBehaviour
     [SerializeField] private GameObject welcomeCanvas;
     [SerializeField] private GameObject addressCanvas;
     [SerializeField] private GameObject collectionCanvas;
-
+    [SerializeField] private DemoUIManager uiManager;
 
 
     [Header("Connection")]
@@ -137,6 +137,7 @@ public class DemoManager : MonoBehaviour
         MainThread.wkr.AddJob(() =>
         {
             collectionCanvas.SetActive(true);
+            uiManager.EnableCollectionPanel();
             
             HideConnectPanel();
             HideWelcomePanel();

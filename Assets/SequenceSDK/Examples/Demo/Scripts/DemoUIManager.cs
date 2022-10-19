@@ -21,17 +21,17 @@ public class DemoUIManager : MonoBehaviour
     private void Start()
     {
         AdjustWelcomePanelLayoutGroup();
-        float height = collectionRect.sizeDelta.y;
-        AdjustCollectionScrollRect(height);
+
     }
 
     public void EnableCollectionPanel()
     {
-        
+        float height = collectionRect.sizeDelta.y;
+        AdjustCollectionScrollRect(height);
     }
     private void AdjustWelcomePanelLayoutGroup()
     {
-        Debug.Log(camera.aspect);
+
         if(camera.aspect > 1)
         {
             //more landscape
@@ -57,7 +57,7 @@ public class DemoUIManager : MonoBehaviour
         collectionScrollRect.anchoredPosition = new Vector2(collectionScrollRect.transform.position.x, -categoryHeight);
         collectionScrollRect.sizeDelta = new Vector2(collectionScrollRect.sizeDelta.x,scrollHeight);
 
-        collectionCatLayout.cellSize = new Vector2(categoryHeight , categoryHeight );
+        collectionCatLayout.cellSize = new Vector2(categoryHeight*0.8f , categoryHeight*0.8f );
         //collectionScrollLayout.cellSize = new Vector2(categoryHeight, categoryHeight);
     }
 }
