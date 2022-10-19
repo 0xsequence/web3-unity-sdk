@@ -18,6 +18,7 @@ public class DemoManager : MonoBehaviour
     [SerializeField] private GameObject collectionCanvas;
 
 
+
     [Header("Connection")]
     [SerializeField] private Button connectBtn;
 
@@ -136,11 +137,13 @@ public class DemoManager : MonoBehaviour
         MainThread.wkr.AddJob(() =>
         {
             collectionCanvas.SetActive(true);
+            
             HideConnectPanel();
             HideWelcomePanel();
             HideAddressPanel();
-
+            
             m_collection.RetriveContractInfoData(tokenBalances);
+            
         });
     }
     public void HideCollectionPanel()
@@ -278,12 +281,7 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
-<<<<<<< HEAD
-            string accountAddress = await wallet.GetAddress();//to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
-=======
-            HideWelcomePanel();
             string accountAddress = "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";// await wallet.GetAddress();//to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
->>>>>>> ae70189 (modified ui scroll)
             var tokenBalances = await Indexer.FetchMultiplePages(async (pageNumber) =>
             {
                 GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, true, new Page

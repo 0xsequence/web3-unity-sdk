@@ -21,8 +21,13 @@ public class DemoUIManager : MonoBehaviour
     private void Start()
     {
         AdjustWelcomePanelLayoutGroup();
-        float h = collectionRect.sizeDelta.y;
-        AdjustCollectionScrollRect(h);
+        float height = collectionRect.sizeDelta.y;
+        AdjustCollectionScrollRect(height);
+    }
+
+    public void EnableCollectionPanel()
+    {
+        
     }
     private void AdjustWelcomePanelLayoutGroup()
     {
@@ -52,7 +57,7 @@ public class DemoUIManager : MonoBehaviour
         collectionScrollRect.anchoredPosition = new Vector2(collectionScrollRect.transform.position.x, -categoryHeight);
         collectionScrollRect.sizeDelta = new Vector2(collectionScrollRect.sizeDelta.x,scrollHeight);
 
-        collectionCatLayout.cellSize = new Vector2(categoryHeight * 0.8f, categoryHeight * 0.8f);
+        collectionCatLayout.cellSize = new Vector2(categoryHeight , categoryHeight );
         //collectionScrollLayout.cellSize = new Vector2(categoryHeight, categoryHeight);
     }
 }

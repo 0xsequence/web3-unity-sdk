@@ -84,19 +84,6 @@ public class Category : MonoBehaviour
         }
     }
 
-<<<<<<< HEAD
-    /// <summary>
-    /// Get Rect Transform of Category
-    /// </summary>
-    /// <returns></returns>
-    public RectTransform GetRectTransform()
-    {
-        if (_rectTransform == null)
-        {
-            _rectTransform = GetComponent<RectTransform>();
-        }
-=======
->>>>>>> ae70189 (modified ui scroll)
 
 
     private void OnButtonClick()
