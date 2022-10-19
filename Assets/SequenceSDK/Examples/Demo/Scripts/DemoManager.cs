@@ -291,9 +291,28 @@ public class DemoManager : MonoBehaviour
                 });
                 BlockChainType blockChainType = BlockChainType.Polygon;
                 var balances = await Indexer.GetTokenBalances(blockChainType, tokenBalancesArgs);
+
                 return (balances.page, balances.balances);
             }, 9999);
-            DisplayCollectionPanel(tokenBalances);
+            List<TokenBalance> tokenBalanceList = new List<TokenBalance>();
+            foreach (var tokenBalance in tokenBalances)
+            {
+                var tokenBalanceWithContract = await Indexer.FetchMultiplePages(async (pageNumber) =>
+                {
+                    GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, tokenBalance.contractAddress, true, new Page
+                    {
+                        page = pageNumber
+                    });
+                    BlockChainType blockChainType = BlockChainType.Polygon;
+                    var balances = await Indexer.GetTokenBalances(blockChainType, tokenBalancesArgs);
+
+                    return (balances.page, balances.balances);
+                }, 9999);
+                //DisplayCollectionPanel(tokenBalanceWithContract);
+                tokenBalanceList.AddRange(tokenBalanceWithContract);
+
+            }
+            DisplayCollectionPanel(tokenBalanceList.ToArray());
         }
         catch (Exception e)
         {

@@ -89,10 +89,8 @@ namespace SequenceSharp
             while (nextPage != -1 && nextPage < maxPages)
             {
                 (var page, var items) = await func(nextPage);
-                foreach (var item in items)
-                {
-                    allItems.Add(item);
-                }
+                allItems.AddRange(items);
+
                 if (page.more && page.page != 0)
                 {
                     nextPage = page.page;
@@ -164,6 +162,7 @@ namespace SequenceSharp
         public static async Task<GetTokenBalancesReturn> GetTokenBalances(BlockChainType blockChainType, GetTokenBalancesArgs args)
         {
             var responseBody = await HTTPPost(blockChainType, "GetTokenBalances", args);
+            //Debug.Log(responseBody);
             return BuildResponse<GetTokenBalancesReturn>(responseBody);
         }
 

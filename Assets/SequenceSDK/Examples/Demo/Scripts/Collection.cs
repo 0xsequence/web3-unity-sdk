@@ -54,37 +54,57 @@ public class Collection : MonoBehaviour
     {
         GameObject newCatGo;
         Category newCategory;
-        ContractInfo contractInfo;
+        ContractInfo contractInfo = null;
         Texture logoTex = null;
         UnityWebRequest imgRequest;
-
+        TokenMetadata tokenMetadata = null;
         for (int i = 0; i < tokenBalances.Length; i++)
         {
+            //check for metadata 
+            tokenMetadata = tokenBalances[i].tokenMetadata;
             contractInfo = tokenBalances[i].contractInfo;
 
-            if (contractInfo != null)
+
+            newCatGo = Instantiate(categoryTemplate, tokensRoot);
+            newCategory = newCatGo.GetComponent<Category>();
+            if (_categoryGroups.ContainsKey(tokenBalances[i].contractType) == false)
             {
-                newCatGo = Instantiate(categoryTemplate, tokensRoot);
+                CategoryGroup newCatGroup = Instantiate(categoryGroupTemplate, catogryGroupRoot).GetComponent<CategoryGroup>();
+                _categoryGroups.Add(tokenBalances[i].contractType, newCatGroup);
+                newCatGroup.InitGroup(tokenBalances[i].contractType, categorySpacing);
+            }
 
-                newCategory = newCatGo.GetComponent<Category>();
+            // Add new Category option to their relevant ContractType Group
+            _categoryGroups[tokenBalances[i].contractType].AddToCategories(newCategory);
 
-                if (_categoryGroups.ContainsKey(tokenBalances[i].contractType) == false)
+            if (logoTex != null)
+            {
+                Destroy(logoTex);
+                logoTex = null;
+            }
+            if (tokenMetadata != null)
+            {
+                if (tokenMetadata.image != null && tokenMetadata.image.Length > 0 && !tokenMetadata.image.EndsWith("gif"))
                 {
-                    CategoryGroup newCatGroup = Instantiate(categoryGroupTemplate, catogryGroupRoot).GetComponent<CategoryGroup>();
-                    _categoryGroups.Add(tokenBalances[i].contractType, newCatGroup);
-                    newCatGroup.InitGroup(tokenBalances[i].contractType, categorySpacing);
 
+                    imgRequest = UnityWebRequestTexture.GetTexture(tokenMetadata.image);
+
+                    yield return imgRequest.SendWebRequest();
+
+                    if (imgRequest.result != UnityWebRequest.Result.Success)
+                    {
+                        Debug.Log(imgRequest.error);
+
+                    }
+                    else
+                    {
+                        // Create new card and initiate it
+                        logoTex = ((DownloadHandlerTexture)imgRequest.downloadHandler).texture;
+                    }
                 }
-
-                // Add new Category option to their relevant ContractType Group
-                _categoryGroups[tokenBalances[i].contractType].AddToCategories(newCategory);
-
-                if (logoTex != null)
-                {
-                    Destroy(logoTex);
-                    logoTex = null;
-                }
-
+            }
+            else
+            {
                 if (contractInfo.logoURI != null && contractInfo.logoURI.Length > 0)
                 {
                     imgRequest = UnityWebRequestTexture.GetTexture(contractInfo.logoURI);
@@ -101,18 +121,22 @@ public class Collection : MonoBehaviour
                         logoTex = ((DownloadHandlerTexture)imgRequest.downloadHandler).texture;
                     }
                 }
-                var type = ContractType.UNKNOWN;
-                try
-                {
-                    Enum.Parse<ContractType>(contractInfo.type);
-                }
-                catch
-                {
-                    // ok!
-                }
-                newCategory.Init(contractInfo.name, logoTex, type);
             }
-        }
+
+            var type = ContractType.UNKNOWN;
+            try
+            {
+                Enum.Parse<ContractType>(contractInfo.type);
+            }
+            catch
+            {
+                // ok!
+            }
+            newCategory.Init(contractInfo.name, logoTex, type);
+
+        
+
+    }
 
 
         yield return null;

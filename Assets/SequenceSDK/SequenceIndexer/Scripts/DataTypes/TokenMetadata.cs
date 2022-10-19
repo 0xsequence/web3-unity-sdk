@@ -18,6 +18,6 @@ namespace SequenceSharp
         public string external_url;
         public string background_color;
         public string animation_url;
-        public Dictionary<string, object> attributes;
+        public Dictionary<string, object>[] attributes;
     }
 }
