@@ -42,6 +42,7 @@ public class DemoManager : MonoBehaviour
 
     private bool m_connected = false; //For UI Only
 
+    private Nethereum.Web3.Web3 web3 = new Nethereum.Web3.Web3();
     public static DemoManager Instance { get; private set; }
     private void Awake()
     {
@@ -53,6 +54,8 @@ public class DemoManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        web3.Client.OverridingRequestInterceptor = new SequenceInterceptor(wallet);
     }
     private void OnEnable()
     {
@@ -346,15 +349,7 @@ public class DemoManager : MonoBehaviour
     }
     public async void SignMessage()
     {
-        try
-        {
-            await wallet.ExecuteSequenceJS(@"
-                const wallet = sequence.getWallet();
-
-                console.log('signing message...');
-                const signer = wallet.getSigner();
-
-                const message = `1915 Robert Frost
+        var message = @"1915 Robert Frost
 The Road Not Taken
 
 Two roads diverged in a yellow wood,
@@ -377,11 +372,23 @@ I doubted if I should ever come back.
 
 I shall be telling this with a sigh
 Somewhere ages and ages hence:
-Two roads diverged in a wood, and I�
+Two roads diverged in a wood, and
 I took the one less traveled by,
 And that has made all the difference.
 
-\u2601 \u2600 \u2602`
+\u2601 \u2600 \u2602";
+
+        var signature = await web3.Eth.Sign.SendRequestAsync(await wallet.GetAddress(), message);
+        Debug.Log(signature);
+/*        try
+        {
+            await wallet.ExecuteSequenceJS(@"
+                const wallet = sequence.getWallet();
+
+                console.log('signing message...');
+                const signer = wallet.getSigner();
+
+                const message = `" + message + @"`
 
             // sign
             const sig = await signer.signMessage(message);
@@ -404,7 +411,7 @@ And that has made all the difference.
         catch (Exception e)
         {
             Debug.Log(e);
-        }
+        }*/
     }
 
     public async void SendUSDC()
