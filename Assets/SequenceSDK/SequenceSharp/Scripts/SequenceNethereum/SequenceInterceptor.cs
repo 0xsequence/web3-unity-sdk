@@ -10,65 +10,57 @@ using Nethereum.RPC.Eth.DTOs;
 
 namespace SequenceSharp
 {
-    public class MetamaskInterceptor : RequestInterceptor
+    public class SequenceInterceptor : RequestInterceptor
     {
-        private readonly IMetamaskInterop _metamaskInterop;
-        private readonly MetamaskHostProvider _metamaskHostProvider;
+        private readonly Wallet _wallet;
 
-        public MetamaskInterceptor(IMetamaskInterop metamaskInterop, MetamaskHostProvider metamaskHostProvider)
+        public SequenceInterceptor(Wallet wallet)
         {
-            _metamaskInterop = metamaskInterop;
-            _metamaskHostProvider = metamaskHostProvider;
+            _wallet = wallet;
         }
 
         public override async Task<object> InterceptSendRequestAsync<T>(
             Func<RpcRequest, string, Task<T>> interceptedSendRequestAsync, RpcRequest request,
             string route = null)
         {
+            foreach(var x in request.RawParameters)
+            {
+                Debug.Log(x);
+
+            }
+            Debug.Log(request.Method);
             if (request.Method == ApiMethods.eth_sendTransaction.ToString())
             {
-                var transaction = (TransactionInput)request.RawParameters[0];
-                transaction.From = _metamaskHostProvider.SelectedAccount;
-                request.RawParameters[0] = transaction;
-                var response = await _metamaskInterop.SendAsync(new MetamaskRpcRequestMessage(request.Id, request.Method, GetSelectedAccount(),
-                    request.RawParameters)).ConfigureAwait(false);
-                return ConvertResponse<T>(response);
+                return null;
+
             }
             else if (request.Method == ApiMethods.eth_estimateGas.ToString() || request.Method == ApiMethods.eth_call.ToString())
             {
-                var callinput = (CallInput)request.RawParameters[0];
-                if (callinput.From == null)
-                {
-                    callinput.From ??= _metamaskHostProvider.SelectedAccount;
-                    request.RawParameters[0] = callinput;
-                }
-                var response = await _metamaskInterop.SendAsync(new RpcRequestMessage(request.Id,
-                    request.Method,
-                    request.RawParameters)).ConfigureAwait(false);
-                return ConvertResponse<T>(response);
+                return null;
+
             }
             else if (request.Method == ApiMethods.eth_signTypedData_v4.ToString())
             {
-                var account = GetSelectedAccount();
-                var parameters = new object[] { account, request.RawParameters[0] };
-                var response = await _metamaskInterop.SendAsync(new MetamaskRpcRequestMessage(request.Id, request.Method, GetSelectedAccount(),
-                   parameters)).ConfigureAwait(false);
-                return ConvertResponse<T>(response);
+                return null;
             }
-            else if (request.Method == ApiMethods.personal_sign.ToString())
+            else if (request.Method == ApiMethods.eth_sign.ToString())
             {
-                var account = GetSelectedAccount();
-                var parameters = new object[] { request.RawParameters[0], account };
-                var response = await _metamaskInterop.SendAsync(new MetamaskRpcRequestMessage(request.Id, request.Method, GetSelectedAccount(),
-                   parameters)).ConfigureAwait(false);
-                return ConvertResponse<T>(response);
+                Debug.Log("eth sign");
+                return await _wallet.ExecuteSequenceJS(@"
+                const wallet = sequence.getWallet();
+
+                const signer = wallet.getSigner();
+
+                const message = `" + request.RawParameters[1] + @"`
+
+            // sign
+            const sig = await signer.signMessage(message);
+            return sig;");
             }
             else
             {
-                var response = await _metamaskInterop.SendAsync(new RpcRequestMessage(request.Id,
-                    request.Method,
-                    request.RawParameters)).ConfigureAwait(false);
-                return ConvertResponse<T>(response);
+                return null;
+
             }
 
         }
@@ -79,51 +71,36 @@ namespace SequenceSharp
         {
             if (method == ApiMethods.eth_sendTransaction.ToString())
             {
-                var transaction = (TransactionInput)paramList[0];
-                transaction.From = GetSelectedAccount();
-                paramList[0] = transaction;
-                var response = await _metamaskInterop.SendAsync(new MetamaskRpcRequestMessage(route, method, GetSelectedAccount(),
-                    paramList)).ConfigureAwait(false);
-                return ConvertResponse<T>(response);
+                return null;
+
             }
             else if (method == ApiMethods.eth_estimateGas.ToString() || method == ApiMethods.eth_call.ToString())
             {
-                var callinput = (CallInput)paramList[0];
-                if (callinput.From == null)
-                {
-                    callinput.From ??= _metamaskHostProvider.SelectedAccount;
-                    paramList[0] = callinput;
-                }
-                var response = await _metamaskInterop.SendAsync(new RpcRequestMessage(route, method,
-                     paramList)).ConfigureAwait(false);
-                return ConvertResponse<T>(response);
+                return null;
+
             }
             else if (method == ApiMethods.eth_signTypedData_v4.ToString() || method == ApiMethods.personal_sign.ToString())
             {
-                var account = GetSelectedAccount();
-                var parameters = new object[] { account, paramList[0] };
-                var response = await _metamaskInterop.SendAsync(new MetamaskRpcRequestMessage(route, method, GetSelectedAccount(),
-                   parameters)).ConfigureAwait(false);
-                return ConvertResponse<T>(response);
+                return null;
+
             }
             else
             {
-                var response = await _metamaskInterop.SendAsync(new RpcRequestMessage(route, method,
-                    paramList)).ConfigureAwait(false);
-                return ConvertResponse<T>(response);
+                return null;
+
             }
 
         }
 
         private string GetSelectedAccount()
         {
-            return _metamaskHostProvider.SelectedAccount;
+            return "";
         }
 
         protected void HandleRpcError(RpcResponseMessage response)
         {
             if (response.HasError)
-                throw new RpcResponseException(new JsonRpc.Client.RpcError(response.Error.Code, response.Error.Message,
+                throw new RpcResponseException(new Nethereum.JsonRpc.Client.RpcError(response.Error.Code, response.Error.Message,
                     response.Error.Data));
         }
 
@@ -141,19 +118,5 @@ namespace SequenceSharp
             }
         }
 
-    }
-}
-public class SequenceInterceptor : MonoBehaviour
-{
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
