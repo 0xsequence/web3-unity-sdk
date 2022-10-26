@@ -7,6 +7,8 @@ using Nethereum.JsonRpc.Client;
 using Nethereum.JsonRpc.Client.RpcMessages;
 using Nethereum.RPC;
 using Nethereum.RPC.Eth.DTOs;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace SequenceSharp
 {
@@ -23,15 +25,36 @@ namespace SequenceSharp
             Func<RpcRequest, string, Task<T>> interceptedSendRequestAsync, RpcRequest request,
             string route = null)
         {
-            foreach(var x in request.RawParameters)
-            {
-                Debug.Log(x);
-
-            }
-            Debug.Log(request.Method);
+            
+            Debug.Log("METHOD!!"+ request.Method);
             if (request.Method == ApiMethods.eth_sendTransaction.ToString())
             {
-                return null;
+                TransactionInput transactionInput =(TransactionInput)request.RawParameters[0];
+                var dataType = new {abi = "", contractAddress = "" };
+
+                Debug.Log("after" + transactionInput.Data);
+                var data = JsonConvert.DeserializeAnonymousType(transactionInput.Data.Substring(2), dataType);
+                
+
+                return await _wallet.ExecuteSequenceJS(@"
+
+                const signer = seq.getWallet().getSigner();
+                const amount = ethers.utils.parseUnits('5', 18);
+  
+                const tx = {
+                    delegateCall: false,
+                    revertOnError: false,
+                    gasLimit: '0x55555',
+                    to: '"+ data.contractAddress+@"',
+                    value: "+ transactionInput.Value.ToString()+@",
+                    data: new ethers.utils.Interface("+data.abi+@").encodeFunctionData('transfer', ['"+transactionInput.To.ToString()+ @"', amount.toHexString()])
+                }
+
+                const txnResponse = await signer.sendTransactionBatch([tx]);
+
+                return txnResponse;
+;");
+                
 
             }
             else if (request.Method == ApiMethods.eth_estimateGas.ToString() || request.Method == ApiMethods.eth_call.ToString())
