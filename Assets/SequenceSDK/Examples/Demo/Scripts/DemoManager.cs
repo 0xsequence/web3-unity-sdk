@@ -4,12 +4,19 @@ using UnityEngine;
 using SequenceSharp;
 using Newtonsoft.Json;
 using UnityEngine.UI;
-
+using Nethereum.Unity.Rpc;
+using Nethereum.Hex.HexTypes;
+using Nethereum.RPC.Eth.DTOs;
+using Nethereum.HdWallet;
+using Nethereum.Web3;
+using Nethereum.Util;
 using System;
+using System.Numerics;
+using NBitcoin;
 
 public class DemoManager : MonoBehaviour
 {
-    [SerializeField] private Wallet wallet;
+    [SerializeField] private SequenceSharp.Wallet wallet;
 
     [Header("Canvases")]
     [SerializeField] private GameObject connectCanvas;
@@ -270,6 +277,7 @@ public class DemoManager : MonoBehaviour
 
     public async void GetAddress()
     {
+
         try
         {
             string accountAddress = await wallet.GetAddress();
@@ -377,49 +385,17 @@ I took the one less traveled by,
 And that has made all the difference.
 
 \u2601 \u2600 \u2602";
-
+        
         var signature = await web3.Eth.Sign.SendRequestAsync(await wallet.GetAddress(), message);
         Debug.Log(signature);
-/*        try
-        {
-            await wallet.ExecuteSequenceJS(@"
-                const wallet = sequence.getWallet();
-
-                console.log('signing message...');
-                const signer = wallet.getSigner();
-
-                const message = `" + message + @"`
-
-            // sign
-            const sig = await signer.signMessage(message);
-            console.log('signature:', sig);
-
-            // validate
-            const isValidHex = await wallet.utils.isValidMessageSignature(
-                await wallet.getAddress(),
-                ethers.utils.hexlify(ethers.utils.toUtf8Bytes(message)),
-                sig,
-                await signer.getChainId()
-            )
-            console.log('isValidHex?', isValidHex);
-
-            const isValid = await wallet.utils.isValidMessageSignature(await wallet.getAddress(), message, sig, await signer.getChainId());
-            console.log('isValid?', isValid);
-            if (!isValid) throw new Error('sig invalid');
-            ");
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e);
-        }*/
     }
 
     public async void SendUSDC()
     {
-        try
+
+        var USDCData = new
         {
-            var txnResponse = await wallet.ExecuteSequenceJS(@"
-                const ERC_20_ABI = [
+            abi = @" [
                 {
                     constant: false,
                     inputs: [
@@ -446,42 +422,34 @@ And that has made all the difference.
                     stateMutability: 'nonpayable',
                     type: 'function'
                 }
-                ]
-                const signer = seq.getWallet().getSigner();
+                ]",
+            contractAddress = "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"
+        };
 
-                const toAddress = ethers.Wallet.createRandom().address;
+        var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
+        //Random To Account
+        var toAccount = randomWallet.GetAccount(0).Address;
+        string gasLimitHex = "055555";
+        //TODO: Gas Limit is not parsed properly yet.
+        HexBigInteger gasLimit = new HexBigInteger(BigInteger.Parse(gasLimitHex, System.Globalization.NumberStyles.AllowHexSpecifier));
 
-                const amount = ethers.utils.parseUnits('5', 18);
+        //var amount = Web3.Convert.ToWei(5, UnitConversion.EthUnit.Gwei);
+        Debug.Log("before"+JsonConvert.SerializeObject(USDCData));
+        
 
-                const usdcContractAddress = '0x2791bca1f2de4661ed88a30c99a7a9449aa84174'; // (USDC address on Polygon)
-    
-                const tx = {
-                    delegateCall: false,
-                    revertOnError: false,
-                    gasLimit: '0x55555',
-                    to: usdcContractAddress,
-                    value: 0,
-                    data: new ethers.utils.Interface(ERC_20_ABI).encodeFunctionData('transfer', [toAddress, amount.toHexString()])
-                }
+        var value = new HexBigInteger(0);
+        TransactionInput transactionInput = new TransactionInput(JsonConvert.SerializeObject(USDCData), toAccount,await wallet.GetAddress(),gasLimit, value);
+        await web3.Eth.Transactions.SendTransaction.SendRequestAsync(transactionInput);
 
-                const txnResponse = await signer.sendTransactionBatch([tx]);
 
-                return txnResponse;
-
-                ");
-            Debug.Log("[DemoDapp] txnResponse: " + txnResponse);
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e);
-        }
     }
     public async void SendNFT()
     {
         try
         {
-            var txnResponse = await wallet.ExecuteSequenceJS(@"
-            const ERC_1155_ABI = [
+            var NFTData = new
+            {
+                abi = @"[
             {
                 inputs: [
                 {
@@ -515,27 +483,80 @@ And that has made all the difference.
             stateMutability: 'nonpayable',
             type: 'function'
             }
-        ];
-        const signer = seq.getWallet().getSigner();
-        const fromAddress = await seq.getWallet().getAddress();
-        const toAddress = ethers.Wallet.createRandom().address;
+        ];",
+                contractAddress = "0x631998e91476DA5B870D741192fc5Cbc55F5a52E"
+            };
+            var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
+            //Random To Account
+            var toAccount = randomWallet.GetAccount(0).Address;
+            string gasLimitHex = "055555";
+            //TODO: Gas Limit is not parsed properly yet.
+            HexBigInteger gasLimit = new HexBigInteger(BigInteger.Parse(gasLimitHex, System.Globalization.NumberStyles.AllowHexSpecifier));
+
+            //var amount = Web3.Convert.ToWei(5, UnitConversion.EthUnit.Gwei);
 
 
-        const skyweaverContractAddress = '0x631998e91476DA5B870D741192fc5Cbc55F5a52E'; // (Skyweaver address on prod)
-        //tx : sequence.transactions.Transaction
-        const tx = {
-            delegateCall: false,
-            revertOnError: false,
-            gasLimit: '0x55555',
-            to: skyweaverContractAddress,
-            value: 0,
-            data: new ethers.utils.Interface(ERC_1155_ABI).encodeFunctionData('safeBatchTransferFrom', [fromAddress, toAddress, ['0x20001'], ['0x64'], []])
-        }
 
-        const txnResp = await signer.sendTransactionBatch([tx]);
+            var value = new HexBigInteger(0);
+            TransactionInput transactionInput = new TransactionInput(JsonConvert.SerializeObject(NFTData), toAccount, await wallet.GetAddress(), gasLimit, value);
+            await web3.Eth.Transactions.SendTransaction.SendRequestAsync(transactionInput);
+            /*           var txnResponse = await wallet.ExecuteSequenceJS(@"
+                       const ERC_1155_ABI = [
+                       {
+                           inputs: [
+                           {
+                               internalType: 'address',
+                               name: '_from',
+                               type: 'address'
+                           },
+                           {
+                               internalType: 'address',
+                               name: '_to',
+                               type: 'address'
+                           },
+                           {
+                               internalType: 'uint256[]',
+                               name: '_ids',
+                               type: 'uint256[]'
+                           },
+                           {
+                               internalType: 'uint256[]',
+                               name: '_amounts',
+                               type: 'uint256[]'
+                           },
+                           {
+                               internalType: 'bytes',
+                               name: '_data',
+                               type: 'bytes'
+                           }
+                           ],
+                       name: 'safeBatchTransferFrom',
+                       outputs: [],
+                       stateMutability: 'nonpayable',
+                       type: 'function'
+                       }
+                   ];
+                   const signer = seq.getWallet().getSigner();
+                   const fromAddress = await seq.getWallet().getAddress();
+                   const toAddress = ethers.Wallet.createRandom().address;
 
-        return txnResponse; ");
-            Debug.Log("[DemoDapp] txnResponse: " + txnResponse);
+
+                   const skyweaverContractAddress = '0x631998e91476DA5B870D741192fc5Cbc55F5a52E'; // (Skyweaver address on prod)
+                   //tx : sequence.transactions.Transaction
+                   const tx = {
+                       delegateCall: false,
+                       revertOnError: false,
+                       gasLimit: '0x55555',
+                       to: skyweaverContractAddress,
+                       value: 0,
+                       data: new ethers.utils.Interface(ERC_1155_ABI).encodeFunctionData('safeBatchTransferFrom', [fromAddress, toAddress, ['0x20001'], ['0x64'], []])
+                   }
+
+                   const txnResp = await signer.sendTransactionBatch([tx]);
+
+                   return txnResponse; ");
+                       Debug.Log("[DemoDapp] txnResponse: " + txnResponse);
+            */
 
         }
         catch (Exception e)
@@ -560,6 +581,20 @@ And that has made all the difference.
             Debug.Log(e);
         }
     }
+    
+    //------------------------------------------------------------------------
+    public async void GetSotrageAt()
+    {
+        HexBigInteger position = null;
+        object id = null;
+        var signature = await web3.Eth.GetStorageAt.SendRequestAsync(await wallet.GetAddress(), position, id);
+    }
+
+
+    //private variables:
+    private static Mnemonic exampleMnemo = new Mnemonic(Wordlist.English, WordCount.Twelve);
+    private string exampleWords = exampleMnemo.ToString();//"ripple scissors kick mammal hire column oak again sun offer wealth tomorrow wagon turn fatal";
+    private string examplePassword = "password";
 
 
 }
