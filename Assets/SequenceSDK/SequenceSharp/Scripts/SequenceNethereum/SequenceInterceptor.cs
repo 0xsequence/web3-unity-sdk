@@ -30,13 +30,13 @@ namespace SequenceSharp
             if (request.Method == ApiMethods.eth_sendTransaction.ToString())
             {
                 TransactionInput transactionInput =(TransactionInput)request.RawParameters[0];
-                var dataType = new {abi = "", contractAddress = "" };
+                var dataType = new {abi = "", contractAddress = "", functionData="" };
 
-                Debug.Log("after" + transactionInput.Data);
+
                 var data = JsonConvert.DeserializeAnonymousType(transactionInput.Data.Substring(2), dataType);
-                
+                //Debug.Log("data" + data);
 
-                return await _wallet.ExecuteSequenceJS(@"
+                var txnResponse = await _wallet.ExecuteSequenceJS(@"
 
                 const signer = seq.getWallet().getSigner();
                 const amount = ethers.utils.parseUnits('5', 18);
@@ -47,14 +47,15 @@ namespace SequenceSharp
                     gasLimit: '0x55555',
                     to: '"+ data.contractAddress+@"',
                     value: "+ transactionInput.Value.ToString()+@",
-                    data: new ethers.utils.Interface("+data.abi+@").encodeFunctionData('transfer', ['"+transactionInput.To.ToString()+ @"', amount.toHexString()])
+                    data: new ethers.utils.Interface("+data.abi+@").encodeFunctionData("+data.functionData+@")
                 }
 
                 const txnResponse = await signer.sendTransactionBatch([tx]);
 
                 return txnResponse;
 ;");
-                
+                Debug.Log("[DemoDapp] txnResponse: "+txnResponse);
+                return txnResponse;
 
             }
             else if (request.Method == ApiMethods.eth_estimateGas.ToString() || request.Method == ApiMethods.eth_call.ToString())
