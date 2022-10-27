@@ -393,6 +393,15 @@ And that has made all the difference.
     public async void SendUSDC()
     {
 
+        
+
+        var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
+        //Random To Account
+        var toAddress = randomWallet.GetAccount(0).Address;
+        string gasLimitHex = "055555";
+        //TODO: Gas Limit is not parsed properly yet.
+        HexBigInteger gasLimit = new HexBigInteger(BigInteger.Parse(gasLimitHex, System.Globalization.NumberStyles.AllowHexSpecifier));
+
         var USDCData = new
         {
             abi = @" [
@@ -423,22 +432,13 @@ And that has made all the difference.
                     type: 'function'
                 }
                 ]",
-            contractAddress = "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"
+            contractAddress = "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+            functionData = "'transfer', ['" + toAddress + @"', amount.toHexString()]"
         };
 
-        var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
-        //Random To Account
-        var toAccount = randomWallet.GetAccount(0).Address;
-        string gasLimitHex = "055555";
-        //TODO: Gas Limit is not parsed properly yet.
-        HexBigInteger gasLimit = new HexBigInteger(BigInteger.Parse(gasLimitHex, System.Globalization.NumberStyles.AllowHexSpecifier));
-
-        //var amount = Web3.Convert.ToWei(5, UnitConversion.EthUnit.Gwei);
-        Debug.Log("before"+JsonConvert.SerializeObject(USDCData));
-        
 
         var value = new HexBigInteger(0);
-        TransactionInput transactionInput = new TransactionInput(JsonConvert.SerializeObject(USDCData), toAccount,await wallet.GetAddress(),gasLimit, value);
+        TransactionInput transactionInput = new TransactionInput(JsonConvert.SerializeObject(USDCData), toAddress,await wallet.GetAddress(),gasLimit, value);
         await web3.Eth.Transactions.SendTransaction.SendRequestAsync(transactionInput);
 
 
@@ -447,6 +447,16 @@ And that has made all the difference.
     {
         try
         {
+            
+            var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
+            //Random To Account
+            var toAddress = randomWallet.GetAccount(0).Address;
+            string gasLimitHex = "055555";
+            //TODO: Gas Limit is not parsed properly yet.
+            HexBigInteger gasLimit = new HexBigInteger(BigInteger.Parse(gasLimitHex, System.Globalization.NumberStyles.AllowHexSpecifier));
+            string fromAddress = await wallet.GetAddress();
+ 
+            //var amount = Web3.Convert.ToWei(5, UnitConversion.EthUnit.Gwei);
             var NFTData = new
             {
                 abi = @"[
@@ -483,23 +493,15 @@ And that has made all the difference.
             stateMutability: 'nonpayable',
             type: 'function'
             }
-        ];",
-                contractAddress = "0x631998e91476DA5B870D741192fc5Cbc55F5a52E"
+        ]",
+                contractAddress = "0x631998e91476DA5B870D741192fc5Cbc55F5a52E",
+                functionData = "'safeBatchTransferFrom', ['"+fromAddress+@"', '"+toAddress+@"', ['0x20001'], ['0x64'], []]"
             };
-            var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
-            //Random To Account
-            var toAccount = randomWallet.GetAccount(0).Address;
-            string gasLimitHex = "055555";
-            //TODO: Gas Limit is not parsed properly yet.
-            HexBigInteger gasLimit = new HexBigInteger(BigInteger.Parse(gasLimitHex, System.Globalization.NumberStyles.AllowHexSpecifier));
-
-            //var amount = Web3.Convert.ToWei(5, UnitConversion.EthUnit.Gwei);
-
-
 
             var value = new HexBigInteger(0);
-            TransactionInput transactionInput = new TransactionInput(JsonConvert.SerializeObject(NFTData), toAccount, await wallet.GetAddress(), gasLimit, value);
+            TransactionInput transactionInput = new TransactionInput(JsonConvert.SerializeObject(NFTData), toAddress, fromAddress, gasLimit, value);
             await web3.Eth.Transactions.SendTransaction.SendRequestAsync(transactionInput);
+
             /*           var txnResponse = await wallet.ExecuteSequenceJS(@"
                        const ERC_1155_ABI = [
                        {
