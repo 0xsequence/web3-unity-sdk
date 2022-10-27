@@ -41,6 +41,9 @@ public class DemoManager : MonoBehaviour
     [Header("Wallet")]
     [SerializeField] private Button closeWalletBtn;
 
+    [Header("test method")]
+    [SerializeField] private Button testingBtn;
+
 
     [Header("Collection")]
     [SerializeField] private Collection m_collection;
@@ -90,6 +93,7 @@ public class DemoManager : MonoBehaviour
 
         closeWalletBtn.onClick.AddListener(CloseWallet);
 
+        testingBtn.onClick.AddListener(GetEstimatedGas);
     }
 
 
@@ -433,7 +437,7 @@ And that has made all the difference.
                 }
                 ]",
             contractAddress = "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-            functionData = "'transfer', ['" + toAddress + @"', amount.toHexString()]"
+            functionData = "'transfer', ['" + toAddress + @"', ethers.utils.parseUnits('5', 18).toHexString()]"
         };
 
 
@@ -502,63 +506,6 @@ And that has made all the difference.
             TransactionInput transactionInput = new TransactionInput(JsonConvert.SerializeObject(NFTData), toAddress, fromAddress, gasLimit, value);
             await web3.Eth.Transactions.SendTransaction.SendRequestAsync(transactionInput);
 
-            /*           var txnResponse = await wallet.ExecuteSequenceJS(@"
-                       const ERC_1155_ABI = [
-                       {
-                           inputs: [
-                           {
-                               internalType: 'address',
-                               name: '_from',
-                               type: 'address'
-                           },
-                           {
-                               internalType: 'address',
-                               name: '_to',
-                               type: 'address'
-                           },
-                           {
-                               internalType: 'uint256[]',
-                               name: '_ids',
-                               type: 'uint256[]'
-                           },
-                           {
-                               internalType: 'uint256[]',
-                               name: '_amounts',
-                               type: 'uint256[]'
-                           },
-                           {
-                               internalType: 'bytes',
-                               name: '_data',
-                               type: 'bytes'
-                           }
-                           ],
-                       name: 'safeBatchTransferFrom',
-                       outputs: [],
-                       stateMutability: 'nonpayable',
-                       type: 'function'
-                       }
-                   ];
-                   const signer = seq.getWallet().getSigner();
-                   const fromAddress = await seq.getWallet().getAddress();
-                   const toAddress = ethers.Wallet.createRandom().address;
-
-
-                   const skyweaverContractAddress = '0x631998e91476DA5B870D741192fc5Cbc55F5a52E'; // (Skyweaver address on prod)
-                   //tx : sequence.transactions.Transaction
-                   const tx = {
-                       delegateCall: false,
-                       revertOnError: false,
-                       gasLimit: '0x55555',
-                       to: skyweaverContractAddress,
-                       value: 0,
-                       data: new ethers.utils.Interface(ERC_1155_ABI).encodeFunctionData('safeBatchTransferFrom', [fromAddress, toAddress, ['0x20001'], ['0x64'], []])
-                   }
-
-                   const txnResp = await signer.sendTransactionBatch([tx]);
-
-                   return txnResponse; ");
-                       Debug.Log("[DemoDapp] txnResponse: " + txnResponse);
-            */
 
         }
         catch (Exception e)
@@ -590,6 +537,27 @@ And that has made all the difference.
         HexBigInteger position = null;
         object id = null;
         var signature = await web3.Eth.GetStorageAt.SendRequestAsync(await wallet.GetAddress(), position, id);
+    }
+
+    public async void GetEstimatedGas()
+    {
+        try
+        {
+            //TODO: will modify this 
+            var contractAddress = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
+            var data = new
+            {
+                to = contractAddress,
+                data = " new ethers.utils.Interface(['function withdraw(uint256 amount)']).encodeFunctionData('withdraw', ['1000000000000000000'])"
+            };
+            var estimatedGas = await web3.Eth.GasPrice.SendRequestAsync(JsonConvert.SerializeObject(data));
+            Debug.Log("estimated gas:" + estimatedGas);
+        }
+        catch (Exception e)
+        {
+            Debug.Log(e);
+        }
+
     }
 
 
