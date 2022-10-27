@@ -39,7 +39,6 @@ namespace SequenceSharp
                 var txnResponse = await _wallet.ExecuteSequenceJS(@"
 
                 const signer = seq.getWallet().getSigner();
-                const amount = ethers.utils.parseUnits('5', 18);
   
                 const tx = {
                     delegateCall: false,
@@ -54,22 +53,39 @@ namespace SequenceSharp
 
                 return txnResponse;
 ;");
-                Debug.Log("[DemoDapp] txnResponse: "+txnResponse);
+                
                 return txnResponse;
 
             }
-            else if (request.Method == ApiMethods.eth_estimateGas.ToString() || request.Method == ApiMethods.eth_call.ToString())
+            else if (request.Method == ApiMethods.eth_gasPrice.ToString() || request.Method == ApiMethods.eth_call.ToString())
             {
-                return null;
+                
+                Debug.Log(request.RawParameters);
+                var dataType = new { to= "", data = "" };
+                var data = JsonConvert.DeserializeAnonymousType("", dataType);
+                Debug.Log("data" + data);
+                var estimatedGas = await _wallet.ExecuteSequenceJS(@"
+                    const wallet = sequence.getWallet();
+                    const provider = wallet.getProvider()!
+
+                    const tx ={
+                        to: '"+data.to+@"',
+                        data:'"+data.data+@"'
+                    }
+                    const estimate = await provider.estimateGas(tx);
+");
+
+                return estimatedGas;
+                
 
             }
             else if (request.Method == ApiMethods.eth_signTypedData_v4.ToString())
             {
-                return null;
+                throw new NotImplementedException();
             }
             else if (request.Method == ApiMethods.eth_sign.ToString())
             {
-                Debug.Log("eth sign");
+                
                 return await _wallet.ExecuteSequenceJS(@"
                 const wallet = sequence.getWallet();
 
@@ -80,6 +96,18 @@ namespace SequenceSharp
             // sign
             const sig = await signer.signMessage(message);
             return sig;");
+                 
+            }else if(request.Method == ApiMethods.eth_getBalance.ToString())
+            {
+                Debug.Log(request.Method);
+                var accountAddress = await _wallet.GetAddress();
+                var ethBalance = await Indexer.GetEtherBalance(BlockChainType.Polygon, accountAddress);
+                return ethBalance;
+
+            }else if(request.Method == ApiMethods.eth_chainId.ToString())
+            {
+                var chainID = await Indexer.GetChainID(BlockChainType.Polygon);
+                return chainID;
             }
             else
             {
