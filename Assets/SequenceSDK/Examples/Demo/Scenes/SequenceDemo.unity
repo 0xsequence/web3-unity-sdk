@@ -3256,7 +3256,7 @@ GameObject:
   - component: {fileID: 1009372701}
   - component: {fileID: 1009372700}
   m_Layer: 5
-  m_Name: Button test
+  m_Name: Button Metamask
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3429,8 +3429,10 @@ MonoBehaviour:
   sendNFTBtn: {fileID: 684068361}
   disconnectBtn: {fileID: 422466425}
   closeWalletBtn: {fileID: 1059555299}
+  testingBtn: {fileID: 1009372700}
   m_collection: {fileID: 1015191638}
   m_address: {fileID: 1015191639}
+  metamask: {fileID: 2081355877}
 --- !u!114 &1015191638
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5879,3 +5881,47 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &2081355876
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2081355878}
+  - component: {fileID: 2081355877}
+  m_Layer: 0
+  m_Name: Metamask
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2081355877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2081355876}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87b2fa53f2d72b0449da38d1bb598674, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &2081355878
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2081355876}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.0454683, y: 4.849586, z: 93.984}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
