@@ -14,6 +14,7 @@ using System;
 using System.Numerics;
 using NBitcoin;
 
+
 public class DemoManager : MonoBehaviour
 {
     [SerializeField] private SequenceSharp.Wallet wallet;
@@ -52,7 +53,7 @@ public class DemoManager : MonoBehaviour
 
     private bool m_connected = false; //For UI Only
 
-    private Nethereum.Web3.Web3 web3 = new Nethereum.Web3.Web3();
+    private Web3 web3 = new Web3();
     public static DemoManager Instance { get; private set; }
     private void Awake()
     {
@@ -66,6 +67,7 @@ public class DemoManager : MonoBehaviour
         }
 
         web3.Client.OverridingRequestInterceptor = new SequenceInterceptor(wallet);
+        
     }
     private void OnEnable()
     {
@@ -93,7 +95,7 @@ public class DemoManager : MonoBehaviour
 
         closeWalletBtn.onClick.AddListener(CloseWallet);
 
-        testingBtn.onClick.AddListener(GetEstimatedGas);
+        testingBtn.onClick.AddListener(ConnectMetamask);
     }
 
 
@@ -558,6 +560,12 @@ And that has made all the difference.
             Debug.Log(e);
         }
 
+    }
+
+    public Metamask metamask;
+    public  void ConnectMetamask()
+    {
+         metamask.MetamaskConnect();
     }
 
 
