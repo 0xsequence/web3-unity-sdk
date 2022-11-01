@@ -8,6 +8,7 @@ using Nethereum.Unity.Metamask;
 using Nethereum.Unity.Contracts;
 using System.Numerics;
 using Nethereum.Hex.HexTypes;
+using UnityEngine.Events;
 
 namespace SequenceSharp
 {
@@ -22,6 +23,7 @@ namespace SequenceSharp
 
         public decimal BalanceAddressTo = 0m;
 
+        public UnityEvent MetamaskConnectedEvent;
 
         public bool IsWebGL()
         {
@@ -33,7 +35,10 @@ namespace SequenceSharp
         }
 
 
-
+        public bool IsMetamaskInitialised()
+        {
+            return _isMetamaskInitialised;
+        }
 
 
         public void DisplayError(string errorMessage)
@@ -41,13 +46,14 @@ namespace SequenceSharp
             Debug.LogError(errorMessage);
         }
 
-        public void MetamaskConnect()
+        public IEnumerator MetamaskConnect()
         {
 #if UNITY_WEBGL
             if (IsWebGL())
             {
                 if (MetamaskInterop.IsMetamaskAvailable())
                 {
+                    
                     MetamaskInterop.EnableEthereum(gameObject.name, nameof(EthereumEnabled), nameof(DisplayError));
                 }
                 else
@@ -56,7 +62,7 @@ namespace SequenceSharp
                 }
             }
 #endif
-
+            yield return null;
         }
 
         public void EthereumEnabled(string addressSelected)
@@ -69,7 +75,11 @@ namespace SequenceSharp
                     MetamaskInterop.EthereumInit(gameObject.name, nameof(NewAccountSelected), nameof(ChainChanged));
                     MetamaskInterop.GetChainId(gameObject.name, nameof(ChainChanged), nameof(DisplayError));
                     _isMetamaskInitialised = true;
-                    Debug.Log("is Metamask Initialized?" + _isMetamaskInitialised);
+                    Debug.Log("is Metamask Initialized: " + _isMetamaskInitialised);
+                    if(_isMetamaskInitialised)
+                    {
+                        MetamaskConnectedEvent.Invoke();
+                    }
                 }
                 NewAccountSelected(addressSelected);
             }
