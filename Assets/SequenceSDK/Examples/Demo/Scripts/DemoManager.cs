@@ -1,18 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using SequenceSharp;
-using Newtonsoft.Json;
-using UnityEngine.UI;
-using Nethereum.Unity.Rpc;
+using NBitcoin;
 using Nethereum.Hex.HexTypes;
 using Nethereum.RPC.Eth.DTOs;
-using Nethereum.HdWallet;
 using Nethereum.Web3;
-using Nethereum.Util;
+using Newtonsoft.Json;
+using SequenceSharp;
 using System;
+using System.Collections.Generic;
 using System.Numerics;
-using NBitcoin;
+using UnityEngine;
+using UnityEngine.UI;
 
 
 public class DemoManager : MonoBehaviour
@@ -42,7 +38,15 @@ public class DemoManager : MonoBehaviour
     [Header("Wallet")]
     [SerializeField] private Button closeWalletBtn;
 
-    [Header("test method")]
+    [Header("Metamask Test")]
+    [SerializeField] private GameObject metamaskPanel;
+
+    [SerializeField] private Button metamaskConnectBtn;
+    [SerializeField] private Button metamaskSignMessageBtn;
+    public Metamask metamask;
+
+
+    [Header("Test method")]
     [SerializeField] private Button testingBtn;
 
 
@@ -95,7 +99,12 @@ public class DemoManager : MonoBehaviour
 
         closeWalletBtn.onClick.AddListener(CloseWallet);
 
-        testingBtn.onClick.AddListener(ConnectMetamask);
+       // testingBtn.onClick.AddListener();
+
+        //Metamask Test
+        metamaskConnectBtn.onClick.AddListener(ConnectMetamask);
+        metamaskSignMessageBtn.onClick.AddListener(MetamaskSignMessage);
+        metamask.MetamaskConnectedEvent.AddListener(DisplayMetamaskPanel);
     }
 
 
@@ -107,10 +116,15 @@ public class DemoManager : MonoBehaviour
     {
         bool isConnected = await wallet.IsConnected();
         m_connected = isConnected;
+
+        bool metamaskInitialized = metamask.IsMetamaskInitialised();
         if (isConnected)
         {
             DisplayWelcomePanel();
 
+        }else if(metamaskInitialized)
+        {
+            DisplayMetamaskPanel();
         }
         else
         {
@@ -561,11 +575,58 @@ And that has made all the difference.
         }
 
     }
+    //========================Metamask===========================
 
-    public Metamask metamask;
-    public  void ConnectMetamask()
+   
+    //UI
+    private void DisplayMetamaskPanel()
     {
-         metamask.MetamaskConnect();
+        HideConnectPanel();
+        metamaskPanel.SetActive(true);
+        web3.Client.OverridingRequestInterceptor = new MetamaskInterceptor(metamask);
+
+    }
+    private void ConnectMetamask()
+    {
+        StartCoroutine(metamask.MetamaskConnect());
+        bool metamaskInitialized = metamask.IsMetamaskInitialised();
+        if(metamaskInitialized)
+        {
+            DisplayMetamaskPanel();  
+        }
+    }
+
+    private void MetamaskSignMessage()
+    {
+        var message = @"1915 Robert Frost
+The Road Not Taken
+
+Two roads diverged in a yellow wood,
+And sorry I could not travel both
+And be one traveler, long I stood
+And looked down one as far as I could
+To where it bent in the undergrowth
+
+Then took the other, as just as fair,
+And having perhaps the better claim,
+Because it was grassy and wanted wear
+Though as for that the passing there
+Had worn them really about the same,
+
+And both that morning equally lay
+In leaves no step had trodden black.
+Oh, I kept the first for another day!
+Yet knowing how way leads on to way,
+I doubted if I should ever come back.
+
+I shall be telling this with a sigh
+Somewhere ages and ages hence:
+Two roads diverged in a wood, and
+I took the one less traveled by,
+And that has made all the difference.
+
+\u2601 \u2600 \u2602";
+        metamask.SignMessageRequest(message);
     }
 
 

@@ -1,10 +1,10 @@
-﻿/*using System;
+﻿using System;
 using System.Threading.Tasks;
 using Nethereum.JsonRpc.Client;
 using Nethereum.JsonRpc.Client.RpcMessages;
 using Nethereum.RPC;
 using Nethereum.RPC.Eth.DTOs;
-
+using UnityEngine;
 
 namespace SequenceSharp
 {
@@ -21,19 +21,23 @@ namespace SequenceSharp
             Func<RpcRequest, string, Task<T>> interceptedSendRequestAsync, RpcRequest request,
             string route = null)
         {
+            Debug.Log("[Sequence] Metamask Interceptor Request: (method)" + request.Method);
             if (request.Method == ApiMethods.eth_sendTransaction.ToString())
             {
                 var transaction = (TransactionInput)request.RawParameters[0];
-                transaction.From = _metamaskHostProvider.SelectedAccount;
+                Debug.Log(transaction);
+                /*transaction.From = _metamaskHostProvider.SelectedAccount;
                 request.RawParameters[0] = transaction;
 
                 var response = await _metamaskInterop.SendAsync(new MetamaskRpcRequestMessage(request.Id, request.Method, GetSelectedAccount(),
                     request.RawParameters)).ConfigureAwait(false);
-                return ConvertResponse<T>(response);
-            } 
-            else if (request.Method == ApiMethods.eth_estimateGas.ToString() || request.Method == ApiMethods.eth_call.ToString()) 
+                return ConvertResponse<T>(response);*/
+                throw new NotImplementedException();
+
+            }
+            else if (request.Method == ApiMethods.eth_estimateGas.ToString() || request.Method == ApiMethods.eth_call.ToString())
             {
-                var callinput = (CallInput)request.RawParameters[0];
+                /*var callinput = (CallInput)request.RawParameters[0];
                 if (callinput.From == null)
                 {
                     callinput.From ??= _metamaskHostProvider.SelectedAccount;
@@ -42,49 +46,55 @@ namespace SequenceSharp
                 var response = await _metamaskInterop.SendAsync(new RpcRequestMessage(request.Id,
                     request.Method,
                     request.RawParameters)).ConfigureAwait(false);
-                return ConvertResponse<T>(response);
-            } 
-            else if ( request.Method == ApiMethods.eth_signTypedData_v4.ToString() )
+                return ConvertResponse<T>(response);*/
+                throw new NotImplementedException();
+                //return null;
+            }
+            else if (request.Method == ApiMethods.eth_signTypedData_v4.ToString())
             {
-                var account = GetSelectedAccount();
+                Debug.Log(request.RawParameters[0]);
+                /*var account = GetSelectedAccount();
                 var parameters = new object[] { account, request.RawParameters[0] };
                 var response = await _metamaskInterop.SendAsync(new MetamaskRpcRequestMessage(request.Id, request.Method, GetSelectedAccount(),
                    parameters)).ConfigureAwait(false);
-                return ConvertResponse<T>(response);
+                return ConvertResponse<T>(response);*/
+                throw new NotImplementedException();
             }
             else if (request.Method == ApiMethods.personal_sign.ToString())
             {
-                var account = GetSelectedAccount();
-                var parameters = new object[] { request.RawParameters[0], account};
-                var response = await _metamaskInterop.SendAsync(new MetamaskRpcRequestMessage(request.Id, request.Method, GetSelectedAccount(),
-                   parameters)).ConfigureAwait(false);
-                return ConvertResponse<T>(response);
+                /* var account = GetSelectedAccount();
+                 var parameters = new object[] { request.RawParameters[0], account };
+                 var response = await _metamaskInterop.SendAsync(new MetamaskRpcRequestMessage(request.Id, request.Method, GetSelectedAccount(),
+                    parameters)).ConfigureAwait(false);
+                 return ConvertResponse<T>(response);*/
+                // return null;
+                throw new NotImplementedException();
             }
             else
             {
-                var response = await _metamaskInterop.SendAsync(new RpcRequestMessage(request.Id,
+                Debug.Log("Request Param" + request.RawParameters[0]);
+                /*var response = await _metamaskInterop.SendAsync(new RpcRequestMessage(request.Id,
                     request.Method,
                     request.RawParameters)).ConfigureAwait(false);
-                return ConvertResponse<T>(response); 
+                return ConvertResponse<T>(response);*/
+                //return null;
+                throw new NotImplementedException();
             }
 
         }
 
-    
 
-        private string GetSelectedAccount()
-        {
-            return _metamaskHostProvider.SelectedAccount;
-        }
+
+
 
         protected void HandleRpcError(RpcResponseMessage response)
         {
             if (response.HasError)
-                throw new RpcResponseException(new JsonRpc.Client.RpcError(response.Error.Code, response.Error.Message,
+                throw new RpcResponseException(new Nethereum.JsonRpc.Client.RpcError(response.Error.Code, response.Error.Message,
                     response.Error.Data));
         }
 
-        private  T ConvertResponse<T>(RpcResponseMessage response,
+        private T ConvertResponse<T>(RpcResponseMessage response,
             string route = null)
         {
             HandleRpcError(response);
@@ -99,4 +109,4 @@ namespace SequenceSharp
         }
 
     }
-}*/
+}
