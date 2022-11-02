@@ -9,6 +9,10 @@ using Nethereum.Unity.Contracts;
 using System.Numerics;
 using Nethereum.Hex.HexTypes;
 using UnityEngine.Events;
+using Nethereum.Unity.FeeSuggestions;
+using Nethereum.Util;
+using Nethereum.RPC.Eth.DTOs;
+using System.Runtime.InteropServices;
 
 namespace SequenceSharp
 {
@@ -25,6 +29,18 @@ namespace SequenceSharp
 
         public UnityEvent MetamaskConnectedEvent;
 
+
+
+        [DllImport("__Internal")]
+        private static extern string GetAccount();
+
+        [DllImport("__Internal")]
+        private static extern void SendTransaction(string to, string data, string returnObj, string returnFunc);
+
+        public void TransferRequest(string toAddress, string amount) {
+        
+            SendTransaction(toAddress, amount, gameObject.name, "TransactionCallback");
+        }
         public bool IsWebGL()
         {
 #if UNITY_WEBGL
@@ -75,7 +91,7 @@ namespace SequenceSharp
                     MetamaskInterop.EthereumInit(gameObject.name, nameof(NewAccountSelected), nameof(ChainChanged));
                     MetamaskInterop.GetChainId(gameObject.name, nameof(ChainChanged), nameof(DisplayError));
                     _isMetamaskInitialised = true;
-                    Debug.Log("is Metamask Initialized: " + _isMetamaskInitialised);
+                   
                     if(_isMetamaskInitialised)
                     {
                         MetamaskConnectedEvent.Invoke();
@@ -146,6 +162,32 @@ namespace SequenceSharp
         }
 
 
+
+
+        public IContractTransactionUnityRequest GetTransactionUnityRequest()
+        {
+#if UNITY_WEBGL
+
+            if (IsWebGL())
+            {
+                if (MetamaskInterop.IsMetamaskAvailable())
+                {
+                    return new MetamaskTransactionUnityRequest(_selectedAccountAddress, GetUnityRpcRequestClientFactory());
+                }
+                else
+                {
+                    DisplayError("Metamask is not available, please install it");
+                    return null;
+                }
+            }
+
+            return null;
+#endif
+        }
+
+
     }
+
+
 }
 
