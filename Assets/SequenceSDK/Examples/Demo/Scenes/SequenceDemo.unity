@@ -3676,6 +3676,7 @@ MonoBehaviour:
   metamaskPanel: {fileID: 1775346444}
   metamaskConnectBtn: {fileID: 883961946}
   metamaskSignMessageBtn: {fileID: 2147308188}
+  metamaskSendTransactionBtn: {fileID: 273074219}
   metamask: {fileID: 2081355877}
   testingBtn: {fileID: 1009372700}
   m_collection: {fileID: 1015191638}
@@ -6771,6 +6772,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87b2fa53f2d72b0449da38d1bb598674, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MetamaskConnectedEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &2081355878
 Transform:
   m_ObjectHideFlags: 0

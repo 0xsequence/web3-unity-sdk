@@ -43,6 +43,7 @@ public class DemoManager : MonoBehaviour
 
     [SerializeField] private Button metamaskConnectBtn;
     [SerializeField] private Button metamaskSignMessageBtn;
+    [SerializeField] private Button metamaskSendTransactionBtn;
     public Metamask metamask;
 
 
@@ -104,6 +105,7 @@ public class DemoManager : MonoBehaviour
         //Metamask Test
         metamaskConnectBtn.onClick.AddListener(ConnectMetamask);
         metamaskSignMessageBtn.onClick.AddListener(MetamaskSignMessage);
+        metamaskSendTransactionBtn.onClick.AddListener(MetamaskSendTransaction);
         metamask.MetamaskConnectedEvent.AddListener(DisplayMetamaskPanel);
     }
 
@@ -583,7 +585,7 @@ And that has made all the difference.
     {
         HideConnectPanel();
         metamaskPanel.SetActive(true);
-        web3.Client.OverridingRequestInterceptor = new MetamaskInterceptor(metamask);
+       // web3.Client.OverridingRequestInterceptor = new MetamaskInterceptor(metamask);
 
     }
     private void ConnectMetamask()
@@ -627,6 +629,14 @@ And that has made all the difference.
 
 \u2601 \u2600 \u2602";
         metamask.SignMessageRequest(message);
+    }
+
+    public void MetamaskSendTransaction()
+    {
+        var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
+        //Random To Account
+        var toAddress = randomWallet.GetAccount(0).Address;
+        metamask.TransferRequest(toAddress, "0.000000000000000001");
     }
 
 
