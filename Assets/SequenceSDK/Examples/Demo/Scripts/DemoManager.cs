@@ -551,11 +551,10 @@ And that has made all the difference.
     //-------------------abi encoding tests-------------------
     public async void ABITest()
     {
-        var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
-        //Random To Account
-        var toAddress = randomWallet.GetAccount(0).Address;
-        var erc20_name = await ERC20.Name(toAddress);
-        Debug.Log("erc20 name: "+ erc20_name);
+      
+        var address = "0x631998e91476DA5B870D741192fc5Cbc55F5a52E";
+        var erc20_testingFunc = await ERC20.TotalSupply(address);
+        Debug.Log("erc20 testing function: "+ erc20_testingFunc);
     }
     
     //------------------------------------------------------------------------

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using Nethereum.Unity.Rpc;
@@ -131,14 +132,9 @@ namespace SequenceSharp
                 yield break;
             }
             Debug.Log("[Sequence] Metamask:" + personalSignRequest.Result);
-#else
-       
-        PrivateKey = InputPrivateKey.text;
-        var signer = new EthereumMessageSigner();
-        LblSignedMessage.text = signer.EncodeUTF8AndSign(InputSignMessage.text, new EthECKey(PrivateKey));
-        yield break;
 
 #endif
+            throw new NotImplementedException();
         }
 
 
@@ -159,6 +155,7 @@ namespace SequenceSharp
             }
             return null;
 #endif
+            throw new NotImplementedException();
         }
 
 
@@ -183,6 +180,7 @@ namespace SequenceSharp
 
             return null;
 #endif
+            throw new NotImplementedException();
         }
 
 
