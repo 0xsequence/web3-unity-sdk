@@ -551,9 +551,9 @@ And that has made all the difference.
     //-------------------abi encoding tests-------------------
     public async void ABITest()
     {
-      
-        var address = "0x631998e91476DA5B870D741192fc5Cbc55F5a52E";
-        var erc20_testingFunc = await ERC20.TotalSupply(address);
+      // for testing erc20
+        var address = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
+        var erc20_testingFunc = await ERC20.Name(address,1);
         Debug.Log("erc20 testing function: "+ erc20_testingFunc);
     }
     
