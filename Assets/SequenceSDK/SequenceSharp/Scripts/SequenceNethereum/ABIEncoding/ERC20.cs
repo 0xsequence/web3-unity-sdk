@@ -6,7 +6,19 @@ namespace SequenceSharp
 {
     public class ERC20 : MonoBehaviour
     {
-        private static string abi = "[ { \"inputs\": [ { \"internalType\": \"string\", \"name\": \"name_\", \"type\": \"string\" }, { \"internalType\": \"string\", \"name\": \"symbol_\", \"type\": \"string\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"constructor\" }, { \"anonymous\": false, \"inputs\": [ { \"indexed\": true, \"internalType\": \"address\", \"name\": \"owner\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"spender\", \"type\": \"address\" }, { \"indexed\": false, \"internalType\": \"uint256\", \"name\": \"value\", \"type\": \"uint256\" } ], \"name\": \"Approval\", \"type\": \"event\" }, { \"anonymous\": false, \"inputs\": [ { \"indexed\": true, \"internalType\": \"address\", \"name\": \"from\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"indexed\": false, \"internalType\": \"uint256\", \"name\": \"value\", \"type\": \"uint256\" } ], \"name\": \"Transfer\", \"type\": \"event\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"owner\", \"type\": \"address\" }, { \"internalType\": \"address\", \"name\": \"spender\", \"type\": \"address\" } ], \"name\": \"allowance\", \"outputs\": [ { \"internalType\": \"uint256\", \"name\": \"\", \"type\": \"uint256\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"spender\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"amount\", \"type\": \"uint256\" } ], \"name\": \"approve\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"account\", \"type\": \"address\" } ], \"name\": \"balanceOf\", \"outputs\": [ { \"internalType\": \"uint256\", \"name\": \"\", \"type\": \"uint256\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [], \"name\": \"decimals\", \"outputs\": [ { \"internalType\": \"uint8\", \"name\": \"\", \"type\": \"uint8\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"spender\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"subtractedValue\", \"type\": \"uint256\" } ], \"name\": \"decreaseAllowance\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"spender\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"addedValue\", \"type\": \"uint256\" } ], \"name\": \"increaseAllowance\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [], \"name\": \"name\", \"outputs\": [ { \"internalType\": \"string\", \"name\": \"\", \"type\": \"string\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [], \"name\": \"symbol\", \"outputs\": [ { \"internalType\": \"string\", \"name\": \"\", \"type\": \"string\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [], \"name\": \"totalSupply\", \"outputs\": [ { \"internalType\": \"uint256\", \"name\": \"\", \"type\": \"uint256\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"recipient\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"amount\", \"type\": \"uint256\" } ], \"name\": \"transfer\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"sender\", \"type\": \"address\" }, { \"internalType\": \"address\", \"name\": \"recipient\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"amount\", \"type\": \"uint256\" } ], \"name\": \"transferFrom\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"function\" } ]";
+        private readonly static string abi = @"[
+    // Read-Only Functions
+    'function name() view returns (string)',
+    'function balanceOf(address owner) view returns (uint256)',
+    'function decimals() view returns (uint8)',
+    'function symbol() view returns (string)',
+    'function totalSupply() view returns (uint256)',
+
+    // Authenticated Functions
+    'function transfer(address to, uint amount) returns (bool)',
+
+    
+]";
 
         private static Wallet _wallet;
 
@@ -21,11 +33,10 @@ namespace SequenceSharp
             Debug.Log("erc20 name: "+ _wallet);
             string name = await _wallet.ExecuteSequenceJS(@"
                 const provider = seq.getWallet().getProvider();
-                console.log('provider: ',provider);
-                const erc20 = new ethers.Contract(" + address+@", "+abi+@", provider);
-                console.log('erc20 : ',erc20);
+                const network = provider.getNetwork();
+                const abi =" + abi + @";
+                const erc20 = new ethers.Contract('" + address+ @"', abi, provider);               
                 var name = await erc20.name();
-                console.log('js name:',name);
                 return name;
 
             ");
@@ -33,49 +44,60 @@ namespace SequenceSharp
             return name;
         }
 
-        public static async Task<string> Symbol(string address, string abi)
+        public static async Task<string> Symbol(string address)
         {
             //throw new NotImplementedException();
             string symbol = await _wallet.ExecuteSequenceJS(@"
                 const provider = seq.getWallet().getProvider();
-                const erc20 = new ethers.Contract(" + address + @", " + abi + @", provider);
+                const network = provider.getNetwork();
+                const abi =" + abi + @";
+                const erc20 = new ethers.Contract('" + address + @"', abi, provider);
+
                 var symbol = await erc20.symbol();
                 return symbol;
             ");
             return symbol;
         }
 
-        public static async Task<BigInteger> Decimals(string address, string abi)
+        public static async Task<BigInteger> Decimals(string address)
         {
             //throw new NotImplementedException();
             var decimals = BigInteger.Parse(await _wallet.ExecuteSequenceJS(@"
                 const provider = seq.getWallet().getProvider();
-                const erc20 = new ethers.Contract(" + address + @", " + abi + @", provider);
+                const network = provider.getNetwork();
+                const abi =" + abi + @";
+                const erc20 = new ethers.Contract('" + address + @"', abi, provider);
+
                 var decimals = await erc20.decimals();
                 return decimals;
             "));
             return decimals;
         }
-        public static async Task<BigInteger> TotalSupply(string address, string abi)
+        public static async Task<BigInteger> TotalSupply(string address)
         {
             //throw new NotImplementedException();
             var totalSupply = BigInteger.Parse(await _wallet.ExecuteSequenceJS(@"
                 const provider = seq.getWallet().getProvider();
-                const erc20 = new ethers.Contract(" + address + @", " + abi + @", provider);
+                const network = provider.getNetwork();
+                const abi =" + abi + @";
+                const erc20 = new ethers.Contract('" + address + @"', abi, provider);
+
                 var totalSupply = await erc20.totalSupply();
                 return totalSupply;
             "));
             return totalSupply;
         }
 
-        public static async Task<BigInteger> BalanceOf(string account, string address, string abi)
+        public static async Task<BigInteger> BalanceOf(string account, string address)
         {
             //throw new NotImplementedException();
             var balanceOf = BigInteger.Parse(await _wallet.ExecuteSequenceJS(@"
                 const provider = seq.getWallet().getProvider();
-                const signer = wallet.getSigner();
-                const erc20 = new ethers.Contract(" + address + @", " + abi + @", provider);
-                var balanceOf = await erc20.balanceOf(signer.getAddress()||"+account+@");
+                const signer = seq.getWallet().getSigner();
+                const network = provider.getNetwork();
+                const abi =" + abi + @";
+                const erc20 = new ethers.Contract('" + address + @"', abi, provider);
+                var balanceOf = await erc20.balanceOf(signer.getAddress()||" + account+@");
             "));
             return balanceOf;
         }
