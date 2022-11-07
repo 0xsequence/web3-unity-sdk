@@ -100,7 +100,7 @@ public class DemoManager : MonoBehaviour
 
         closeWalletBtn.onClick.AddListener(CloseWallet);
 
-       // testingBtn.onClick.AddListener();
+        testingBtn.onClick.AddListener(ABITest);
 
         //Metamask Test
         metamaskConnectBtn.onClick.AddListener(ConnectMetamask);
@@ -547,6 +547,15 @@ And that has made all the difference.
         {
             Debug.Log(e);
         }
+    }
+    //-------------------abi encoding tests-------------------
+    public async void ABITest()
+    {
+        var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
+        //Random To Account
+        var toAddress = randomWallet.GetAccount(0).Address;
+        var erc20_name = await ERC20.Name(toAddress);
+        Debug.Log("erc20 name: "+ erc20_name);
     }
     
     //------------------------------------------------------------------------
