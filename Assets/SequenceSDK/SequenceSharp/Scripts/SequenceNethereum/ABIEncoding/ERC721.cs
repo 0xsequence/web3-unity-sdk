@@ -12,7 +12,7 @@ namespace SequenceSharp
         {
             //throw new NotImplementedException();
             string name = await _wallet.ExecuteSequenceJS(@"
-                const provider = wallet.getProvider()!
+                const provider = seq.getWallet().getProvider();
                 const erc721 = new ethers.Contract(" + address + @", " + abi + @", provider);
                 var name = await erc721.name();
                 return name;
@@ -27,7 +27,7 @@ namespace SequenceSharp
         {
             //throw new NotImplementedException();
             string symbol = await _wallet.ExecuteSequenceJS(@"
-                const provider = wallet.getProvider()!
+                const provider = seq.getWallet().getProvider();
                 const erc721 = new ethers.Contract(" + address + @", " + abi + @", provider);
                 var symbol = await erc721.symbol();
                 return symbol;
@@ -40,7 +40,7 @@ namespace SequenceSharp
         {
             //throw new NotImplementedException();
             string tokenURI = await _wallet.ExecuteSequenceJS(@"
-                const provider = wallet.getProvider()!
+                const provider = seq.getWallet().getProvider();
                 const erc721 = new ethers.Contract(" + address + @", " + abi + @", provider);
                 var tokenURI = await erc721.tokenURI("+tokenId+@");
                 return tokenURI;
@@ -53,7 +53,7 @@ namespace SequenceSharp
         {
             //throw new NotImplementedException();
             var balanceOf = BigInteger.Parse(await _wallet.ExecuteSequenceJS(@"
-                const provider = wallet.getProvider()!
+                const provider = seq.getWallet().getProvider();
                 const signer = wallet.getSigner();
                 const erc721 = new ethers.Contract(" + address + @", " + abi + @", provider);
                 var balanceOf = await erc721.balanceOf(signer.getAddress()||" + owner + @");
@@ -65,7 +65,7 @@ namespace SequenceSharp
         {
             //throw new NotImplementedException();
             string ownerOf = await _wallet.ExecuteSequenceJS(@"
-                const provider = wallet.getProvider()!
+                const provider = seq.getWallet().getProvider();
                 const erc721 = new ethers.Contract(" + address + @", " + abi + @", provider);
                 var ownerOf = await erc721.ownerOf(" + tokenId + @");
                 return ownerOf;

@@ -13,7 +13,7 @@ namespace SequenceSharp
         {
             //throw new NotImplementedException();
             string URI = await _wallet.ExecuteSequenceJS(@"
-                const provider = wallet.getProvider()!
+                const provider = seq.getWallet().getProvider();
                 const erc1155 = new ethers.Contract(" + address + @", " + abi + @", provider);
                 var URI = await erc1155.URI(" + _id+ @");
                 return URI;
@@ -27,7 +27,7 @@ namespace SequenceSharp
         {
             // throw new NotImplementedException();
             string balanceOf = await _wallet.ExecuteSequenceJS(@"
-                const provider = wallet.getProvider()!
+                const provider = seq.getWallet().getProvider();
                 const erc1155 = new ethers.Contract(" + address + @", " + abi + @", provider);
                 var balanceOf = await erc1155.balanceOf(" + account+","+ id + @");
                 return balanceOf;
@@ -56,7 +56,7 @@ namespace SequenceSharp
 
 
             var balanceOfBatchRes = await _wallet.ExecuteSequenceJS(@"
-                const provider = wallet.getProvider()!
+                const provider = seq.getWallet().getProvider();
                 const erc1155 = new ethers.Contract(" + address + @", " + abi + @", provider);
                 var balanceOfBatch = await erc1155.balanceOfBatch(" + accountsJS + "," + idsJS + @");
                 return balanceOfBatch;
