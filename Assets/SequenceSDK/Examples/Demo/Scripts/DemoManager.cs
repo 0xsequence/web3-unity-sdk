@@ -552,9 +552,9 @@ And that has made all the difference.
     public async void ABITest()
     {
       // for testing erc20
-        var address = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
-        var erc20_testingFunc = await ERC20.Name(address,1);
-        Debug.Log("erc20 testing function: "+ erc20_testingFunc);
+        var address = "0xB2435253C71FcA27bE41206EB2793E44e1Df6b6D";
+        var erc721_testingFunc = await ERC721.Name(address,137);
+        Debug.Log("erc20 testing function: "+ erc721_testingFunc);
     }
     
     //------------------------------------------------------------------------
