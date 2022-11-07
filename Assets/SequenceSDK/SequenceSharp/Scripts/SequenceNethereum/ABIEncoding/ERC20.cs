@@ -27,31 +27,36 @@ namespace SequenceSharp
             _wallet = FindObjectOfType<Wallet>();
         }
 
-        public static async Task<string> Name(string address)
+        public static async Task<string> Name(string address, int chainId)
         {
             //throw new NotImplementedException();
             Debug.Log("erc20 name: "+ _wallet);
             string name = await _wallet.ExecuteSequenceJS(@"
-                const provider = seq.getWallet().getProvider();
-                const network = provider.getNetwork();
+                
+                const wallet = seq.getWallet();           
+                const networks = await wallet.getNetworks();
+                const n = networks.find(n => n['chainId']=="+chainId+@");
+                const signer = wallet.getSigner(n);
                 const abi =" + abi + @";
-                const erc20 = new ethers.Contract('" + address+ @"', abi, provider);               
+                const erc20 = new ethers.Contract('" + address+ @"', abi, signer);               
                 var name = await erc20.name();
-                return name;
+                return name;"
 
-            ");
+            );
 
             return name;
         }
 
-        public static async Task<string> Symbol(string address)
+        public static async Task<string> Symbol(string address, int chainId)
         {
             //throw new NotImplementedException();
             string symbol = await _wallet.ExecuteSequenceJS(@"
-                const provider = seq.getWallet().getProvider();
-                const network = provider.getNetwork();
+                const wallet = seq.getWallet();           
+                const networks = await wallet.getNetworks();
+                const n = networks.find(n => n['chainId']==" + chainId + @");
+                const signer = wallet.getSigner(n);
                 const abi =" + abi + @";
-                const erc20 = new ethers.Contract('" + address + @"', abi, provider);
+                const erc20 = new ethers.Contract('" + address + @"', abi, signer);  
 
                 var symbol = await erc20.symbol();
                 return symbol;
@@ -59,28 +64,32 @@ namespace SequenceSharp
             return symbol;
         }
 
-        public static async Task<BigInteger> Decimals(string address)
+        public static async Task<BigInteger> Decimals(string address, int chainId)
         {
             //throw new NotImplementedException();
             var decimals = BigInteger.Parse(await _wallet.ExecuteSequenceJS(@"
-                const provider = seq.getWallet().getProvider();
-                const network = provider.getNetwork();
+                const wallet = seq.getWallet();           
+                const networks = await wallet.getNetworks();
+                const n = networks.find(n => n['chainId']==" + chainId + @");
+                const signer = wallet.getSigner(n);
                 const abi =" + abi + @";
-                const erc20 = new ethers.Contract('" + address + @"', abi, provider);
+                const erc20 = new ethers.Contract('" + address + @"', abi, signer);  
 
                 var decimals = await erc20.decimals();
                 return decimals;
             "));
             return decimals;
         }
-        public static async Task<BigInteger> TotalSupply(string address)
+        public static async Task<BigInteger> TotalSupply(string address, int chainId)
         {
             //throw new NotImplementedException();
             var totalSupply = BigInteger.Parse(await _wallet.ExecuteSequenceJS(@"
-                const provider = seq.getWallet().getProvider();
-                const network = provider.getNetwork();
+                const wallet = seq.getWallet();           
+                const networks = await wallet.getNetworks();
+                const n = networks.find(n => n['chainId']==" + chainId + @");
+                const signer = wallet.getSigner(n);
                 const abi =" + abi + @";
-                const erc20 = new ethers.Contract('" + address + @"', abi, provider);
+                const erc20 = new ethers.Contract('" + address + @"', abi, signer);  
 
                 var totalSupply = await erc20.totalSupply();
                 return totalSupply;
@@ -88,15 +97,17 @@ namespace SequenceSharp
             return totalSupply;
         }
 
-        public static async Task<BigInteger> BalanceOf(string account, string address)
+        public static async Task<BigInteger> BalanceOf(string account, string address, int chainId)
         {
             //throw new NotImplementedException();
             var balanceOf = BigInteger.Parse(await _wallet.ExecuteSequenceJS(@"
-                const provider = seq.getWallet().getProvider();
-                const signer = seq.getWallet().getSigner();
-                const network = provider.getNetwork();
+                const wallet = seq.getWallet();           
+                const networks = await wallet.getNetworks();
+                const n = networks.find(n => n['chainId']==" + chainId + @");
+                const signer = wallet.getSigner(n);
                 const abi =" + abi + @";
-                const erc20 = new ethers.Contract('" + address + @"', abi, provider);
+                const erc20 = new ethers.Contract('" + address + @"', abi, signer);  
+
                 var balanceOf = await erc20.balanceOf(signer.getAddress()||" + account+@");
             "));
             return balanceOf;
