@@ -4,7 +4,7 @@ using System;
 using UnityEngine;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
+using System.Collections.Generic;
 namespace SequenceSharp
 {
     public struct ERC1155Balance
@@ -56,9 +56,14 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public static async Task<BigInteger> BalanceOf(string account, BigInteger id, string address, int chainId)
+        public static async Task<BigInteger> BalanceOf( BigInteger id, string address, int chainId, string account = null)
         {
-            // throw new NotImplementedException();
+            if (account == null)
+            {
+                //account address not provided
+
+                account = await _wallet.GetAddress();
+            }
             string balanceOf = await _wallet.ExecuteSequenceJS(@"
                 const wallet = seq.getWallet();           
                 const networks = await wallet.getNetworks();
@@ -84,7 +89,7 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public static async Task<BigInteger[]> BalanceOfBatch(string[] accounts, BigInteger[] ids, string address, int chainId)
+        public static async Task<BigInteger[]> BalanceOfBatch(List<string> accounts, List<int> ids, string address, int chainId)
         {
 
             //throw new NotImplementedException();
@@ -123,7 +128,7 @@ namespace SequenceSharp
 
             JArray balanceOfBatchList = JArray.Parse(balanceOfBatchRes);
             
-            BigInteger[] balanceOfBatch = new BigInteger[ids.Length];
+            BigInteger[] balanceOfBatch = new BigInteger[ids.Count];
             int j = 0;
             foreach (JObject balanceOf in balanceOfBatchList)
             {
