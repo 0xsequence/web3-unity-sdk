@@ -2,8 +2,20 @@ using System.Numerics;
 using System.Threading.Tasks;
 using System;
 using UnityEngine;
+using Newtonsoft.Json;
 namespace SequenceSharp
 {
+
+    public struct ERC20Supply
+    {
+        public string type;
+        public string hex;
+    }
+    public struct ERC20Balance
+    {
+        public string type;
+        public string hex;
+    }
     public class ERC20 : MonoBehaviour
     {
         private readonly static string abi = @"[
@@ -110,7 +122,7 @@ namespace SequenceSharp
         public static async Task<BigInteger> TotalSupply(string address, int chainId)
         {
             //throw new NotImplementedException();
-            var totalSupply = BigInteger.Parse(await _wallet.ExecuteSequenceJS(@"
+            var totalSupply = await _wallet.ExecuteSequenceJS(@"
                 const wallet = seq.getWallet();           
                 const networks = await wallet.getNetworks();
                 const n = networks.find(n => n['chainId']==" + chainId + @");
@@ -119,22 +131,30 @@ namespace SequenceSharp
                 const erc20 = new ethers.Contract('" + address + @"', abi, signer);  
 
                 var totalSupply = await erc20.totalSupply();
+                console.log(totalSupply);
                 return totalSupply;
-            "));
-            return totalSupply;
+            ");
+            ERC20Supply totalSupplyParsed = JsonConvert.DeserializeObject<ERC20Supply>(totalSupply);
+            return BigInteger.Parse(totalSupplyParsed.hex.Substring(2), System.Globalization.NumberStyles.HexNumber); ;
         }
 
         /// <summary>
         /// Returns the amount of tokens owned by account.
         /// </summary>
-        /// <param name="account"></param>
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
+        /// /// <param name="account">Account address, if not provided, it will be the account address from sequence wallet </param>
         /// <returns></returns>
-        public static async Task<BigInteger> BalanceOf(string account, string address, int chainId)
+        public static async Task<BigInteger> BalanceOf(string address, int chainId, string account = null)
         {
+            if(account == null)
+            {
+                //account address not provided
+
+                account = await _wallet.GetAddress();
+            }
             //throw new NotImplementedException();
-            var balanceOf = BigInteger.Parse(await _wallet.ExecuteSequenceJS(@"
+            var balanceOf = await _wallet.ExecuteSequenceJS(@"
                 const wallet = seq.getWallet();           
                 const networks = await wallet.getNetworks();
                 const n = networks.find(n => n['chainId']==" + chainId + @");
@@ -142,9 +162,14 @@ namespace SequenceSharp
                 const abi =" + abi + @";
                 const erc20 = new ethers.Contract('" + address + @"', abi, signer);  
 
-                var balanceOf = await erc20.balanceOf(signer.getAddress()||" + account+@");
-            "));
-            return balanceOf;
+                var balanceOf = await erc20.balanceOf('" + account+@"');
+                console.log(balanceOf);
+                return balanceOf;
+            ");
+            ERC20Balance balanceOfParsed = JsonConvert.DeserializeObject<ERC20Balance>(balanceOf);
+
+            return BigInteger.Parse(balanceOfParsed.hex.Substring(2), System.Globalization.NumberStyles.HexNumber);
+            
         }
 
         public static async Task<int> Transfer(string recipient, string amount)
