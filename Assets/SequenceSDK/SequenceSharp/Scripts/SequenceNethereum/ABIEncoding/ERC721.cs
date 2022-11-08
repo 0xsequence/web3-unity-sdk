@@ -14,6 +14,13 @@ namespace SequenceSharp
         {
             _wallet = FindObjectOfType<Wallet>();
         }
+
+        /// <summary>
+        /// Returns the token collection name.
+        /// </summary>
+        /// <param name="address">Contract address</param>
+        /// <param name="chainId"></param>
+        /// <returns></returns>
         public static async Task<string> Name(string address, int chainId)
         {
             //throw new NotImplementedException();
@@ -34,6 +41,12 @@ namespace SequenceSharp
 
         }
 
+        /// <summary>
+        /// Returns the token collection symbol.
+        /// </summary>
+        /// <param name="address">Contract address</param>
+        /// <param name="chainId"></param>
+        /// <returns></returns>
         public static async Task<string> Symbol(string address, int chainId)
         {
             //throw new NotImplementedException();
@@ -52,6 +65,13 @@ namespace SequenceSharp
             return symbol;
         }
 
+        /// <summary>
+        /// Returns the Uniform Resource Identifier (URI) for tokenId token.
+        /// </summary>
+        /// <param name="tokenId"></param>
+        /// <param name="address">Contract address</param>
+        /// <param name="chainId"></param>
+        /// <returns></returns>
         public static async Task<string> TokenURI(BigInteger tokenId, string address, int chainId)
         {
             //throw new NotImplementedException();
@@ -70,6 +90,14 @@ namespace SequenceSharp
 
             return tokenURI;
         }
+
+        /// <summary>
+        /// Returns the number of tokens in owner's account.
+        /// </summary>
+        /// <param name="owner"></param>
+        /// <param name="address">Contract address</param>
+        /// <param name="chainId"></param>
+        /// <returns></returns>
         public static async Task<BigInteger> BalanceOf(string owner, string address, int chainId)
         {
             //throw new NotImplementedException();
@@ -86,6 +114,13 @@ namespace SequenceSharp
             return balanceOf;
         }
 
+        /// <summary>
+        /// Returns the owner of the tokenId token.
+        /// </summary>
+        /// <param name="tokenId">tokenId must exist.</param>
+        /// <param name="address">Contract address</param>
+        /// <param name="chainId"></param>
+        /// <returns></returns>
         public static async Task OwnerOf(BigInteger tokenId, string address, int chainId)
         {
             //throw new NotImplementedException();

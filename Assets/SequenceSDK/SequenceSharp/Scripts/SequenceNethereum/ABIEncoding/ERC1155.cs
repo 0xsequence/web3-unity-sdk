@@ -21,6 +21,14 @@ namespace SequenceSharp
         {
             _wallet = FindObjectOfType<Wallet>();
         }
+
+        /// <summary>
+        /// Returns the URI for token type _id
+        /// </summary>
+        /// <param name="_id"></param>
+        /// <param name="address">Contract address</param>
+        /// <param name="chainId"></param>
+        /// <returns></returns>
         public static async Task<string> URI(BigInteger _id, string address, int chainId)
         {
             //throw new NotImplementedException();
@@ -40,6 +48,14 @@ namespace SequenceSharp
             return URI;
         }
 
+        /// <summary>
+        /// Returns the amount of tokens of token type id owned by account
+        /// </summary>
+        /// <param name="account"> cannot be zero address </param>
+        /// <param name="id"></param>
+        /// <param name="address">Contract address</param>
+        /// <param name="chainId"></param>
+        /// <returns></returns>
         public static async Task<BigInteger> BalanceOf(string account, BigInteger id, string address, int chainId)
         {
             // throw new NotImplementedException();
@@ -60,7 +76,14 @@ namespace SequenceSharp
             return BigInteger.Parse(balanceOfParsed.hex.Substring(2), System.Globalization.NumberStyles.HexNumber);
         }
 
-        
+        /// <summary>
+        /// Batched version of balanceOf, accounts and ids must have same length
+        /// </summary>
+        /// <param name="accounts"> must have same length as ids</param>
+        /// <param name="ids">must have same length as accounts</param>
+        /// <param name="address">Contract address</param>
+        /// <param name="chainId"></param>
+        /// <returns></returns>
         public static async Task<BigInteger[]> BalanceOfBatch(string[] accounts, BigInteger[] ids, string address, int chainId)
         {
 
@@ -94,7 +117,6 @@ namespace SequenceSharp
 
                 var balanceOfBatch = await erc1155.balanceOfBatch(" + accountsJS + "," + idsJS + @");
                 
-                console.log(balanceOfBatch);
                 return balanceOfBatch;
 
             ");
