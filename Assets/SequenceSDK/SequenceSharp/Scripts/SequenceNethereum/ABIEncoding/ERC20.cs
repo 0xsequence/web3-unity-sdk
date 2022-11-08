@@ -27,10 +27,16 @@ namespace SequenceSharp
             _wallet = FindObjectOfType<Wallet>();
         }
 
+        /// <summary>
+        /// Returns the name of the token
+        /// </summary>
+        /// <param name="address">Contract address</param>
+        /// <param name="chainId"></param>
+        /// <returns></returns>
         public static async Task<string> Name(string address, int chainId)
         {
             //throw new NotImplementedException();
-            Debug.Log("erc20 name: "+ _wallet);
+            
             string name = await _wallet.ExecuteSequenceJS(@"
                 
                 const wallet = seq.getWallet();           
@@ -47,6 +53,12 @@ namespace SequenceSharp
             return name;
         }
 
+        /// <summary>
+        /// Returns the symbol of the token, usually a shorter version of the name
+        /// </summary>
+        /// <param name="address">Contract address</param>
+        /// <param name="chainId"></param>
+        /// <returns></returns>
         public static async Task<string> Symbol(string address, int chainId)
         {
             //throw new NotImplementedException();
@@ -64,6 +76,14 @@ namespace SequenceSharp
             return symbol;
         }
 
+
+        /// <summary>
+        /// Returns the number of decimals used to get its user representation. 
+        /// Tokens usually opt for a value of 18, imitating the relationship between Ether and Wei. 
+        /// </summary>
+        /// <param name="address">Contract address</param>
+        /// <param name="chainId"></param>
+        /// <returns></returns>
         public static async Task<BigInteger> Decimals(string address, int chainId)
         {
             //throw new NotImplementedException();
@@ -80,6 +100,13 @@ namespace SequenceSharp
             "));
             return decimals;
         }
+
+        /// <summary>
+        /// Returns the amount of tokens in existence.
+        /// </summary>
+        /// <param name="address">Contract address</param>
+        /// <param name="chainId"></param>
+        /// <returns></returns>
         public static async Task<BigInteger> TotalSupply(string address, int chainId)
         {
             //throw new NotImplementedException();
@@ -97,6 +124,13 @@ namespace SequenceSharp
             return totalSupply;
         }
 
+        /// <summary>
+        /// Returns the amount of tokens owned by account.
+        /// </summary>
+        /// <param name="account"></param>
+        /// <param name="address">Contract address</param>
+        /// <param name="chainId"></param>
+        /// <returns></returns>
         public static async Task<BigInteger> BalanceOf(string account, string address, int chainId)
         {
             //throw new NotImplementedException();
