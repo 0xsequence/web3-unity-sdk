@@ -551,10 +551,12 @@ And that has made all the difference.
     //-------------------abi encoding tests-------------------
     public async void ABITest()
     {
-      // for testing erc20
-        var address = "0xB2435253C71FcA27bE41206EB2793E44e1Df6b6D";
-        var erc721_testingFunc = await ERC721.Name(address,137);
-        Debug.Log("erc20 testing function: "+ erc721_testingFunc);
+      // for testing erc1155, 
+       /* var address = "0x22d5f9B75c524Fec1D6619787e582644CD4D7422";//sunflower land inventory token
+        string[] accounts= { "0xe7643559193a4aede96adde2bba95171c30a7b61", "0xe7643559193a4aede96adde2bba95171c30a7b61", "0xf2ddd34527983997d89483d3292e1fca836bd424" };
+        BigInteger[] ids = { 404, 408, 429 };
+        var erc1155_testingFunc = await ERC1155.BalanceOfBatch(accounts, ids, address,137);
+        Debug.Log("erc20 testing function: "+ erc1155_testingFunc);*/
     }
     
     //------------------------------------------------------------------------
