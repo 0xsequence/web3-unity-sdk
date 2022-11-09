@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using System;
 using UnityEngine;
 using Newtonsoft.Json;
+using Nethereum.Web3;
+
 namespace SequenceSharp
 {
 
@@ -16,6 +18,7 @@ namespace SequenceSharp
         public string type;
         public string hex;
     }
+
     public class ERC20 : MonoBehaviour
     {
         private readonly static string abi = @"[
@@ -45,10 +48,22 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public static async Task<string> Name(string address, int chainId)
+        public static async Task<string> Name(string address, int chainId, string url="")
         {
-            //throw new NotImplementedException();
-            
+            /*var account = await _wallet.GetAddress();
+            var web3 = new Web3();
+            var contract = web3.Eth.GetContract(abi, address);
+            var nameFunc = contract.GetFunction("name");
+            var transactionHash = await nameFunc.SendTransactionAsync(account);
+            Debug.Log("transactionHash: " + transactionHash);
+            var receipt = await MineAndGetReceiptAsync(web3, transactionHash);
+            Debug.Log("receipt: " + receipt);*/
+            var web3 = new Web3();
+            var nameOfFunctionMessage = new NameFunction() { };
+            var nameHandler = web3.Eth.GetContractQueryHandler<NameFunction>();
+            var name_ = await nameHandler.QueryAsync<string>(address, nameOfFunctionMessage);
+            Debug.Log(name_);
+
             string name = await _wallet.ExecuteSequenceJS(@"
                 
                 const wallet = seq.getWallet();           
