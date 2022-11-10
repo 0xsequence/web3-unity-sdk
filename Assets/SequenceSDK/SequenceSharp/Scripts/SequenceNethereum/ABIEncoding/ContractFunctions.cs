@@ -32,4 +32,6 @@ namespace SequenceSharp
         [Parameter("uint256", "_value", 2)]
         public BigInteger TokenAmount { get; set; }
     }
+
+    
 }
