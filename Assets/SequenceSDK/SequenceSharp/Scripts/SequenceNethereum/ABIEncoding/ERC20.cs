@@ -4,6 +4,9 @@ using System;
 using UnityEngine;
 using Newtonsoft.Json;
 using Nethereum.Web3;
+using Nethereum.JsonRpc.Client.RpcMessages;
+using Nethereum.ABI;
+using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace SequenceSharp
 {
@@ -21,7 +24,7 @@ namespace SequenceSharp
 
     public class ERC20 : MonoBehaviour
     {
-        private readonly static string abi = @"[
+      /*  private readonly static string abi = @"[
     // Read-Only Functions
     'function name() view returns (string)',
     'function balanceOf(address owner) view returns (uint256)',
@@ -33,8 +36,9 @@ namespace SequenceSharp
     'function transfer(address to, uint amount) returns (bool)',
 
     
-]";
-
+]";*/
+      private readonly static string abi = "[ { \"inputs\": [ { \"internalType\": \"string\", \"name\": \"name_\", \"type\": \"string\" }, { \"internalType\": \"string\", \"name\": \"symbol_\", \"type\": \"string\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"constructor\" }, { \"anonymous\": false, \"inputs\": [ { \"indexed\": true, \"internalType\": \"address\", \"name\": \"owner\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"spender\", \"type\": \"address\" }, { \"indexed\": false, \"internalType\": \"uint256\", \"name\": \"value\", \"type\": \"uint256\" } ], \"name\": \"Approval\", \"type\": \"event\" }, { \"anonymous\": false, \"inputs\": [ { \"indexed\": true, \"internalType\": \"address\", \"name\": \"from\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"indexed\": false, \"internalType\": \"uint256\", \"name\": \"value\", \"type\": \"uint256\" } ], \"name\": \"Transfer\", \"type\": \"event\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"owner\", \"type\": \"address\" }, { \"internalType\": \"address\", \"name\": \"spender\", \"type\": \"address\" } ], \"name\": \"allowance\", \"outputs\": [ { \"internalType\": \"uint256\", \"name\": \"\", \"type\": \"uint256\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"spender\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"amount\", \"type\": \"uint256\" } ], \"name\": \"approve\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"account\", \"type\": \"address\" } ], \"name\": \"balanceOf\", \"outputs\": [ { \"internalType\": \"uint256\", \"name\": \"\", \"type\": \"uint256\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [], \"name\": \"decimals\", \"outputs\": [ { \"internalType\": \"uint8\", \"name\": \"\", \"type\": \"uint8\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"spender\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"subtractedValue\", \"type\": \"uint256\" } ], \"name\": \"decreaseAllowance\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"spender\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"addedValue\", \"type\": \"uint256\" } ], \"name\": \"increaseAllowance\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [], \"name\": \"name\", \"outputs\": [ { \"internalType\": \"string\", \"name\": \"\", \"type\": \"string\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [], \"name\": \"symbol\", \"outputs\": [ { \"internalType\": \"string\", \"name\": \"\", \"type\": \"string\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [], \"name\": \"totalSupply\", \"outputs\": [ { \"internalType\": \"uint256\", \"name\": \"\", \"type\": \"uint256\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"recipient\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"amount\", \"type\": \"uint256\" } ], \"name\": \"transfer\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"sender\", \"type\": \"address\" }, { \"internalType\": \"address\", \"name\": \"recipient\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"amount\", \"type\": \"uint256\" } ], \"name\": \"transferFrom\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"function\" } ]";
+        private static bool usingSequence = false;
         private static Wallet _wallet;
 
         private void Awake()
@@ -48,36 +52,40 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public static async Task<string> Name(string address, int chainId, string url="")
+        public static async Task<string> Name(string address, int chainId)
         {
-            /*var account = await _wallet.GetAddress();
-            var web3 = new Web3();
-            var contract = web3.Eth.GetContract(abi, address);
-            var nameFunc = contract.GetFunction("name");
-            var transactionHash = await nameFunc.SendTransactionAsync(account);
-            Debug.Log("transactionHash: " + transactionHash);
-            var receipt = await MineAndGetReceiptAsync(web3, transactionHash);
-            Debug.Log("receipt: " + receipt);*/
-            var web3 = new Web3();
-            var nameOfFunctionMessage = new NameFunction() { };
-            var nameHandler = web3.Eth.GetContractQueryHandler<NameFunction>();
-            var name_ = await nameHandler.QueryAsync<string>(address, nameOfFunctionMessage);
-            Debug.Log(name_);
 
-            string name = await _wallet.ExecuteSequenceJS(@"
+            
+            if (usingSequence)
+            {
+                string name = await _wallet.ExecuteSequenceJS(@"
                 
                 const wallet = seq.getWallet();           
                 const networks = await wallet.getNetworks();
-                const n = networks.find(n => n['chainId']=="+chainId+@");
+                const n = networks.find(n => n['chainId']==" + chainId + @");
                 const signer = wallet.getSigner(n);
                 const abi =" + abi + @";
-                const erc20 = new ethers.Contract('" + address+ @"', abi, signer);               
+                const erc20 = new ethers.Contract('" + address + @"', abi, signer);               
                 var name = await erc20.name();
                 return name;"
 
-            );
+                );
 
-            return name;
+                return name;
+            }
+            else
+            {
+                var web3 = new Web3();
+
+                web3.Client.OverridingRequestInterceptor = new SequenceInterceptor(_wallet);
+                var nameOfFunctionMessage = new NameFunction() { };
+                var contract = web3.Eth.GetContract(abi, address);
+                var nameFunction = contract.GetFunction("name");
+                var name = await nameFunction.CallAsync<string>();
+                Debug.Log("result : "+ name);
+                
+                return name;
+            }
         }
 
         /// <summary>
@@ -88,8 +96,10 @@ namespace SequenceSharp
         /// <returns></returns>
         public static async Task<string> Symbol(string address, int chainId)
         {
-            //throw new NotImplementedException();
-            string symbol = await _wallet.ExecuteSequenceJS(@"
+            if (usingSequence)
+            {
+                //throw new NotImplementedException();
+                string symbol = await _wallet.ExecuteSequenceJS(@"
                 const wallet = seq.getWallet();           
                 const networks = await wallet.getNetworks();
                 const n = networks.find(n => n['chainId']==" + chainId + @");
@@ -100,7 +110,25 @@ namespace SequenceSharp
                 var symbol = await erc20.symbol();
                 return symbol;
             ");
-            return symbol;
+                return symbol;
+            }
+            else
+            {
+                /*var web3 = new Web3();
+
+                web3.Client.OverridingRequestInterceptor = new SequenceInterceptor(_wallet);
+                var symbolFunctionMessage = new SymbolFunction() { };
+                *//*var abiEncode = new ABIEncode();
+                var result = abiEncode.GetSha3ABIParamsEncodedPacked(nameOfFunctionMessage);
+                Debug.Log("from abiEncode: " + result.ToHex());*//*
+                var symbolHandler = web3.Eth.GetContractQueryHandler<SymbolFunction>();
+                Debug.Log(symbolHandler.ToString());
+                var symbol_ = await symbolHandler.QueryAsync<string>(address, symbolFunctionMessage);
+                Debug.Log(symbol_);
+                //return name_;
+                return null;*/
+                return null;
+            }
         }
 
 

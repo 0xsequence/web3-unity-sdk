@@ -8,7 +8,10 @@ using Nethereum.JsonRpc.Client.RpcMessages;
 using Nethereum.RPC;
 using Nethereum.RPC.Eth.DTOs;
 using Newtonsoft.Json;
+using System.Numerics;
+using Nethereum.Hex.HexTypes;
 using Newtonsoft.Json.Linq;
+using System.Globalization;
 
 namespace SequenceSharp
 {
@@ -25,7 +28,7 @@ namespace SequenceSharp
             Func<RpcRequest, string, Task<T>> interceptedSendRequestAsync, RpcRequest request,
             string route = null)
         {
-            
+            Debug.Log("interceptsendrequestasync called");
             Debug.Log("METHOD!!"+ request.Method);
             if (request.Method == ApiMethods.eth_sendTransaction.ToString())
             {
@@ -57,7 +60,7 @@ namespace SequenceSharp
                 return txnResponse;
 
             }
-            else if (request.Method == ApiMethods.eth_gasPrice.ToString() || request.Method == ApiMethods.eth_call.ToString())
+            else if (request.Method == ApiMethods.eth_gasPrice.ToString())
             {
                 
                 Debug.Log(request.RawParameters);
@@ -78,6 +81,38 @@ namespace SequenceSharp
                 return estimatedGas;
                 
 
+            }
+            else if(request.Method == ApiMethods.eth_call.ToString())
+            {
+                
+                var callInput = (CallInput)request.RawParameters[0];
+
+
+                if (callInput.From == null)
+                {
+                    var address = _wallet.GetAddress();
+                }
+                string rpcResponse =  await _wallet.ExecuteSequenceJS(@"
+                var wallet = seq.getWallet();
+                var provider = wallet.getProvider();
+                var hexString = await provider.call({to:'" + callInput.To + @"',data:'" + callInput.Data + @"'});
+                console.log(hexString);
+                
+                let rpcResponse = {
+                        jsonrpc: '2.0',
+                        result: hexString,
+                        id: 0, //parsedMessage.id,(???)
+                        error: null
+                    };
+                return rpcResponse;
+                
+                ");
+
+                RpcResponseMessage rpcResponseMessage= JsonConvert.DeserializeObject<RpcResponseMessage>(rpcResponse);
+                var response = ConvertResponse<string>(rpcResponseMessage);
+                
+                return response;
+                
             }
             else if (request.Method == ApiMethods.eth_signTypedData_v4.ToString())
             {
@@ -169,6 +204,8 @@ namespace SequenceSharp
                 throw new RpcResponseFormatException("Invalid format found in RPC response", formatException);
             }
         }
+
+
 
     }
 }
