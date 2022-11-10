@@ -2,9 +2,8 @@ using System.Numerics;
 using System.Threading.Tasks;
 using System;
 using UnityEngine;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using Nethereum.Web3;
 namespace SequenceSharp
 {
     public struct ERC1155Balance
@@ -17,9 +16,12 @@ namespace SequenceSharp
         private static string abi = "[ { \"inputs\": [ { \"internalType\": \"string\", \"name\": \"uri_\", \"type\": \"string\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"constructor\" }, { \"anonymous\": false, \"inputs\": [ { \"indexed\": true, \"internalType\": \"address\", \"name\": \"account\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"operator\", \"type\": \"address\" }, { \"indexed\": false, \"internalType\": \"bool\", \"name\": \"approved\", \"type\": \"bool\" } ], \"name\": \"ApprovalForAll\", \"type\": \"event\" }, { \"anonymous\": false, \"inputs\": [ { \"indexed\": true, \"internalType\": \"address\", \"name\": \"operator\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"from\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"indexed\": false, \"internalType\": \"uint256[]\", \"name\": \"ids\", \"type\": \"uint256[]\" }, { \"indexed\": false, \"internalType\": \"uint256[]\", \"name\": \"values\", \"type\": \"uint256[]\" } ], \"name\": \"TransferBatch\", \"type\": \"event\" }, { \"anonymous\": false, \"inputs\": [ { \"indexed\": true, \"internalType\": \"address\", \"name\": \"operator\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"from\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"indexed\": false, \"internalType\": \"uint256\", \"name\": \"id\", \"type\": \"uint256\" }, { \"indexed\": false, \"internalType\": \"uint256\", \"name\": \"value\", \"type\": \"uint256\" } ], \"name\": \"TransferSingle\", \"type\": \"event\" }, { \"anonymous\": false, \"inputs\": [ { \"indexed\": false, \"internalType\": \"string\", \"name\": \"value\", \"type\": \"string\" }, { \"indexed\": true, \"internalType\": \"uint256\", \"name\": \"id\", \"type\": \"uint256\" } ], \"name\": \"URI\", \"type\": \"event\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"account\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"id\", \"type\": \"uint256\" } ], \"name\": \"balanceOf\", \"outputs\": [ { \"internalType\": \"uint256\", \"name\": \"\", \"type\": \"uint256\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address[]\", \"name\": \"accounts\", \"type\": \"address[]\" }, { \"internalType\": \"uint256[]\", \"name\": \"ids\", \"type\": \"uint256[]\" } ], \"name\": \"balanceOfBatch\", \"outputs\": [ { \"internalType\": \"uint256[]\", \"name\": \"\", \"type\": \"uint256[]\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"account\", \"type\": \"address\" }, { \"internalType\": \"address\", \"name\": \"operator\", \"type\": \"address\" } ], \"name\": \"isApprovedForAll\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"_address\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"_amount\", \"type\": \"uint256\" } ], \"name\": \"ownerMint\", \"outputs\": [], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"from\", \"type\": \"address\" }, { \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"internalType\": \"uint256[]\", \"name\": \"ids\", \"type\": \"uint256[]\" }, { \"internalType\": \"uint256[]\", \"name\": \"amounts\", \"type\": \"uint256[]\" }, { \"internalType\": \"bytes\", \"name\": \"data\", \"type\": \"bytes\" } ], \"name\": \"safeBatchTransferFrom\", \"outputs\": [], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"from\", \"type\": \"address\" }, { \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"id\", \"type\": \"uint256\" }, { \"internalType\": \"uint256\", \"name\": \"amount\", \"type\": \"uint256\" }, { \"internalType\": \"bytes\", \"name\": \"data\", \"type\": \"bytes\" } ], \"name\": \"safeTransferFrom\", \"outputs\": [], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"operator\", \"type\": \"address\" }, { \"internalType\": \"bool\", \"name\": \"approved\", \"type\": \"bool\" } ], \"name\": \"setApprovalForAll\", \"outputs\": [], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"bytes4\", \"name\": \"interfaceId\", \"type\": \"bytes4\" } ], \"name\": \"supportsInterface\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"uint256\", \"name\": \"\", \"type\": \"uint256\" } ], \"name\": \"uri\", \"outputs\": [ { \"internalType\": \"string\", \"name\": \"\", \"type\": \"string\" } ], \"stateMutability\": \"view\", \"type\": \"function\" } ]";
 
         public static Wallet _wallet;
+        private static Web3 web3 = null;
         private void Awake()
         {
             _wallet = FindObjectOfType<Wallet>();
+            web3 = new Web3();
+            web3.Client.OverridingRequestInterceptor = new SequenceInterceptor(_wallet);
         }
 
         /// <summary>
@@ -29,23 +31,14 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public static async Task<string> URI(BigInteger _id, string address, int chainId)
+        public static async Task<string> URI(BigInteger _id, string address)
         {
-            //throw new NotImplementedException();
-            string URI = await _wallet.ExecuteSequenceJS(@"
-                const wallet = seq.getWallet();           
-                const networks = await wallet.getNetworks();
-                const n = networks.find(n => n['chainId']==" + chainId + @");
-                const signer = wallet.getSigner(n);
-                const abi =" + abi + @";
-                const erc1155 = new ethers.Contract('" + address + @"', abi, signer); 
-
-                var uri = await erc1155.uri(" + _id+ @");
-                return uri;
-
-            ");
+            var contract = web3.Eth.GetContract(abi, address);
+            var URIFunction = contract.GetFunction("uri");
+            var URI = await URIFunction.CallAsync<string>(_id);
 
             return URI;
+            
         }
 
         /// <summary>
@@ -56,7 +49,7 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public static async Task<BigInteger> BalanceOf( BigInteger id, string address, int chainId, string account = null)
+        public static async Task<BigInteger> BalanceOf( BigInteger id, string address,  string account = null)
         {
             if (account == null)
             {
@@ -64,21 +57,14 @@ namespace SequenceSharp
 
                 account = await _wallet.GetAddress();
             }
-            string balanceOf = await _wallet.ExecuteSequenceJS(@"
-                const wallet = seq.getWallet();           
-                const networks = await wallet.getNetworks();
-                const n = networks.find(n => n['chainId']==" + chainId + @");
-                const signer = wallet.getSigner(n);
-                const abi =" + abi + @";
-                const erc1155 = new ethers.Contract('" + address + @"', abi, signer); 
 
-                var balanceOf = await erc1155.balanceOf('" + account+"',"+ id + @");
-                return balanceOf;
+            var contract = web3.Eth.GetContract(abi, address);
+            var balanceOfFunction = contract.GetFunction("balanceOf");
+            var balanceOf = await balanceOfFunction.CallAsync<BigInteger>(account,id);
 
-            ");
-            ERC1155Balance balanceOfParsed = JsonConvert.DeserializeObject<ERC1155Balance>(balanceOf);
+            return balanceOf;
+
             
-            return BigInteger.Parse(balanceOfParsed.hex.Substring(2), System.Globalization.NumberStyles.HexNumber);
         }
 
         /// <summary>
@@ -89,57 +75,16 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public static async Task<BigInteger[]> BalanceOfBatch(List<string> accounts, List<int> ids, string address, int chainId)
+        public static async Task<List<BigInteger>> BalanceOfBatch(List<string> accounts, List<int> ids, string address)
         {
 
-            //throw new NotImplementedException();
-            string accountsJS = "[";
-            foreach(var acc in accounts)
-            {
-                accountsJS += "'"+ acc+"'" +",";
-            }
-            accountsJS = accountsJS.Remove(accountsJS.Length - 1, 1);
-            accountsJS += "]";
 
-            string idsJS = "[";
-            foreach (var id in ids)
-            {
-                
-                idsJS += id.ToString() + ",";
-            }
-            idsJS = idsJS.Remove(idsJS.Length - 1, 1);
-            idsJS += "]";
- 
+            var contract = web3.Eth.GetContract(abi, address);
+            var balanceOfBatchFunction = contract.GetFunction("balanceOfBatch");
+            var balanceOfBatch = await balanceOfBatchFunction.CallAsync<List<BigInteger>>(accounts,ids);
 
-
-            var balanceOfBatchRes = await _wallet.ExecuteSequenceJS(@"
-                const wallet = seq.getWallet();           
-                const networks = await wallet.getNetworks();
-                const n = networks.find(n => n['chainId']==" + chainId + @");
-                const signer = wallet.getSigner(n);
-                const abi =" + abi + @";
-                const erc1155 = new ethers.Contract('" + address + @"', abi, signer); 
-
-                var balanceOfBatch = await erc1155.balanceOfBatch(" + accountsJS + "," + idsJS + @");
-                
-                return balanceOfBatch;
-
-            ");
-
-            JArray balanceOfBatchList = JArray.Parse(balanceOfBatchRes);
-            
-            BigInteger[] balanceOfBatch = new BigInteger[ids.Count];
-            int j = 0;
-            foreach (JObject balanceOf in balanceOfBatchList)
-            {
-                
-                
-                ERC1155Balance balanceOfParsed = JsonConvert.DeserializeObject<ERC1155Balance>(balanceOf.ToString());
-                balanceOfBatch[j++] = BigInteger.Parse(balanceOfParsed.hex.Substring(2), System.Globalization.NumberStyles.HexNumber);
-                
-            }
-            
             return balanceOfBatch;
+
         }
 
         public static async Task SetApprovalForAll(string operatorAddress, bool approved)

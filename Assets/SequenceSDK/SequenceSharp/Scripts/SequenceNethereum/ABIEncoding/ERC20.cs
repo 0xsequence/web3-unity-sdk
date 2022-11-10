@@ -2,11 +2,8 @@ using System.Numerics;
 using System.Threading.Tasks;
 using System;
 using UnityEngine;
-using Newtonsoft.Json;
 using Nethereum.Web3;
-using Nethereum.JsonRpc.Client.RpcMessages;
-using Nethereum.ABI;
-using Nethereum.Hex.HexConvertors.Extensions;
+
 
 namespace SequenceSharp
 {
@@ -121,7 +118,7 @@ namespace SequenceSharp
             }
             var contract = web3.Eth.GetContract(abi, address);
             var balanceOfFunction = contract.GetFunction("balanceOf");
-            var balanceOf = await balanceOfFunction.CallAsync<BigInteger>(address);
+            var balanceOf = await balanceOfFunction.CallAsync<BigInteger>(account);
 
             return balanceOf;
             

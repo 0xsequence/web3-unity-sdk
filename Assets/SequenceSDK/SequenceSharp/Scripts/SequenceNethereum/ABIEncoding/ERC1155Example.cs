@@ -8,7 +8,7 @@ namespace SequenceSharp
     public class ERC1155Example : MonoBehaviour
     {
         //Set in inspector
-        public int chainId = 137;
+
         public string contractAddress = "";
         public List<int> tokenIds = new List<int>();
         public List<string> accounts = new List<string>();
@@ -22,13 +22,13 @@ namespace SequenceSharp
         public async void ERC1155Examples()
         {
             Debug.Log("[Sequence] ERC1155 Token Example:");
-            var URI = await ERC1155.URI(tokenIds[0], contractAddress, chainId);
+            var URI = await ERC1155.URI(tokenIds[0], contractAddress);
             Debug.Log("URI: " + URI);
 
 
-            var balanceOf = await ERC1155.BalanceOf(tokenIds[0], contractAddress, chainId, accounts[0]);
+            var balanceOf = await ERC1155.BalanceOf(tokenIds[0], contractAddress,  accounts[0]);
             Debug.Log("balanceOf: " + balanceOf);
-            var balanceOfBatch = await ERC1155.BalanceOfBatch(accounts, tokenIds, contractAddress, chainId);
+            var balanceOfBatch = await ERC1155.BalanceOfBatch(accounts, tokenIds, contractAddress);
             foreach(var balance in balanceOfBatch)
             {
                 Debug.Log("balanceOfBatch: " + balance);
