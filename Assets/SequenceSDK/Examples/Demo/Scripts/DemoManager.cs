@@ -461,6 +461,9 @@ And that has made all the difference.
 
 
     }
+
+    //Issue:
+    //https://forum.openzeppelin.com/t/cannot-estimate-gas/22245
     public async void SendNFT()
     {
         try
