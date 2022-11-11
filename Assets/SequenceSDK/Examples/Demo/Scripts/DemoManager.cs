@@ -100,7 +100,7 @@ public class DemoManager : MonoBehaviour
 
         closeWalletBtn.onClick.AddListener(CloseWallet);
 
-        testingBtn.onClick.AddListener(ABITest);
+        testingBtn.onClick.AddListener(GetEstimatedGas);
 
         //Metamask Test
         metamaskConnectBtn.onClick.AddListener(ConnectMetamask);
@@ -414,19 +414,7 @@ And that has made all the difference.
 
     public async void SendUSDC()
     {
-
-        
-
-        var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
-        //Random To Account
-        var toAddress = randomWallet.GetAccount(0).Address;
-        string gasLimitHex = "055555";
-        //TODO: Gas Limit is not parsed properly yet.
-        HexBigInteger gasLimit = new HexBigInteger(BigInteger.Parse(gasLimitHex, System.Globalization.NumberStyles.AllowHexSpecifier));
-
-        var USDCData = new
-        {
-            abi = @" [
+        var abi = @" [
                 {
                     constant: false,
                     inputs: [
@@ -453,15 +441,23 @@ And that has made all the difference.
                     stateMutability: 'nonpayable',
                     type: 'function'
                 }
-                ]",
-            contractAddress = "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-            functionData = "'transfer', ['" + toAddress + @"', ethers.utils.parseUnits('5', 18).toHexString()]"
-        };
+                ]";
+        var contractAddress = "0xfCFdE38A1EeaE0ee7e130BbF66e94844Bc5D5B6B";
+        var contract = web3.Eth.GetContract(abi, contractAddress);
+        var transferFunction = contract.GetFunction("transfer");
+        var senderAddress =await wallet.GetAddress();
 
+        var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
+        //Random To Account
+        var newAddress = randomWallet.GetAccount(0).Address;
 
+        var amountToSend = 0;//?
+        var gas = await transferFunction.EstimateGasAsync(senderAddress, null, null, newAddress, amountToSend);
         var value = new HexBigInteger(0);
-        TransactionInput transactionInput = new TransactionInput(JsonConvert.SerializeObject(USDCData), toAddress,await wallet.GetAddress(),gasLimit, value);
-        await web3.Eth.Transactions.SendTransaction.SendRequestAsync(transactionInput);
+        var receiptAmountSend =
+            await transferFunction.SendTransactionAndWaitForReceiptAsync(senderAddress, gas, value, null, newAddress,
+                amountToSend);
+        Debug.Log("[Sequence] ReceiptAmountSend:" + receiptAmountSend);
 
 
     }
@@ -469,19 +465,7 @@ And that has made all the difference.
     {
         try
         {
-            
-            var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
-            //Random To Account
-            var toAddress = randomWallet.GetAccount(0).Address;
-            string gasLimitHex = "055555";
-            //TODO: Gas Limit is not parsed properly yet.
-            HexBigInteger gasLimit = new HexBigInteger(BigInteger.Parse(gasLimitHex, System.Globalization.NumberStyles.AllowHexSpecifier));
-            string fromAddress = await wallet.GetAddress();
- 
-            //var amount = Web3.Convert.ToWei(5, UnitConversion.EthUnit.Gwei);
-            var NFTData = new
-            {
-                abi = @"[
+            var abi = @"[
             {
                 inputs: [
                 {
@@ -515,14 +499,23 @@ And that has made all the difference.
             stateMutability: 'nonpayable',
             type: 'function'
             }
-        ]",
-                contractAddress = "0x631998e91476DA5B870D741192fc5Cbc55F5a52E",
-                functionData = "'safeBatchTransferFrom', ['"+fromAddress+@"', '"+toAddress+@"', ['0x20001'], ['0x64'], []]"
-            };
+        ]";
+            var contractAddress = "0x631998e91476DA5B870D741192fc5Cbc55F5a52E";
+            var contract = web3.Eth.GetContract(abi, contractAddress);
+            var transferFunction = contract.GetFunction("safeBatchTransferFrom");
+            var senderAddress = await wallet.GetAddress();
 
+            var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
+            //Random To Account
+            var newAddress = randomWallet.GetAccount(0).Address;
+
+            var amountToSend = 0;//?
+            var gas = await transferFunction.EstimateGasAsync(senderAddress, null, null, newAddress, amountToSend);
             var value = new HexBigInteger(0);
-            TransactionInput transactionInput = new TransactionInput(JsonConvert.SerializeObject(NFTData), toAddress, fromAddress, gasLimit, value);
-            await web3.Eth.Transactions.SendTransaction.SendRequestAsync(transactionInput);
+            var receiptAmountSend =
+                await transferFunction.SendTransactionAndWaitForReceiptAsync(senderAddress, gas, value, null, newAddress,
+                    amountToSend);
+            Debug.Log("[Sequence] ReceiptAmountSend:" + receiptAmountSend);
 
 
         }
@@ -571,15 +564,47 @@ And that has made all the difference.
     {
         try
         {
-            //TODO: will modify this 
-            var contractAddress = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
-            var data = new
-            {
-                to = contractAddress,
-                data = " new ethers.utils.Interface(['function withdraw(uint256 amount)']).encodeFunctionData('withdraw', ['1000000000000000000'])"
-            };
-            var estimatedGas = await web3.Eth.GasPrice.SendRequestAsync(JsonConvert.SerializeObject(data));
-            Debug.Log("estimated gas:" + estimatedGas);
+            var abi = @" [
+                {
+                    constant: false,
+                    inputs: [
+                            {
+                                internalType: 'address',
+                                name: 'recipient',
+                                type: 'address'
+                            },
+                            {
+                                internalType: 'uint256',
+                                name: 'amount',
+                                type: 'uint256'
+                            }
+                            ],
+                    name: 'transfer',
+                    outputs: [
+                            {
+                                internalType: 'bool',
+                                name: '',
+                                type: 'bool'
+                            }
+                            ],
+                    payable: false,
+                    stateMutability: 'nonpayable',
+                    type: 'function'
+                }
+                ]";
+            var contractAddress = "0xfCFdE38A1EeaE0ee7e130BbF66e94844Bc5D5B6B";
+            var contract = web3.Eth.GetContract(abi, contractAddress);
+            var transferFunction = contract.GetFunction("transfer");
+            var senderAddress = await wallet.GetAddress();
+
+            var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
+            //Random To Account
+            var newAddress = randomWallet.GetAccount(0).Address;
+
+            var amountToSend = 0;
+            var value =new HexBigInteger(0);
+            var gas = await transferFunction.EstimateGasAsync(senderAddress, null, value, newAddress, amountToSend);
+            Debug.Log("[Sequence Estimated Gas: ]"+ gas.ToString());
         }
         catch (Exception e)
         {
