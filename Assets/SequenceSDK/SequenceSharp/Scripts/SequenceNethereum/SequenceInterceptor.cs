@@ -8,13 +8,15 @@ using Nethereum.JsonRpc.Client.RpcMessages;
 using Nethereum.RPC;
 using Nethereum.RPC.Eth.DTOs;
 using Newtonsoft.Json;
-using System.Numerics;
 using Nethereum.Hex.HexTypes;
-using Newtonsoft.Json.Linq;
-using System.Globalization;
 
 namespace SequenceSharp
 {
+    public struct EstimatedGas
+    {
+        public string type;
+        public string hex;
+    }
     public class SequenceInterceptor : RequestInterceptor
     {
         private readonly Wallet _wallet;
@@ -28,56 +30,62 @@ namespace SequenceSharp
             Func<RpcRequest, string, Task<T>> interceptedSendRequestAsync, RpcRequest request,
             string route = null)
         {
-
+            Debug.Log("method:"+  request.Method);
             if (request.Method == ApiMethods.eth_sendTransaction.ToString())
             {
-                TransactionInput transactionInput =(TransactionInput)request.RawParameters[0];
-                var dataType = new {abi = "", contractAddress = "", functionData="" };
-
-
-                var data = JsonConvert.DeserializeAnonymousType(transactionInput.Data.Substring(2), dataType);
-                //Debug.Log("data" + data);
-
-                var txnResponse = await _wallet.ExecuteSequenceJS(@"
-
+                TransactionInput transactionInput =(TransactionInput)request.RawParameters[0];               
+                string rpcResponse = await _wallet.ExecuteSequenceJS(@"
                 const signer = seq.getWallet().getSigner();
-  
-                const tx = {
+                
+                 const tx = {
                     delegateCall: false,
                     revertOnError: false,
-                    gasLimit: '0x55555',
-                    to: '"+ data.contractAddress+@"',
-                    value: "+ transactionInput.Value.ToString()+@",
-                    data: new ethers.utils.Interface("+data.abi+@").encodeFunctionData("+data.functionData+@")
+                    gasLimit: '0x"+ transactionInput.Gas +@"',
+                    to: '" + transactionInput.To + @"',
+                    value: " + transactionInput.Value + @",
+                    data: '"+ transactionInput.Data + @"'
                 }
-
                 const txnResponse = await signer.sendTransactionBatch([tx]);
-
-                return txnResponse;
-;");
+                console.log(txnResponse);
                 
-                return txnResponse;
+                
+                let rpcResponse = {
+                        jsonrpc: '2.0',
+                        result: txnResponse,
+                        id: 0, //parsedMessage.id,(???)
+                        error: null
+                    };
+                return rpcResponse;
+                
+                ");
+
+                RpcResponseMessage rpcResponseMessage = JsonConvert.DeserializeObject<RpcResponseMessage>(rpcResponse);
+                var response = ConvertResponse<string>(rpcResponseMessage);
+
+                return response;
 
             }
-            else if (request.Method == ApiMethods.eth_gasPrice.ToString())
+            else if (request.Method == ApiMethods.eth_estimateGas.ToString())
             {
-                
-                Debug.Log(request.RawParameters);
-                var dataType = new { to= "", data = "" };
-                var data = JsonConvert.DeserializeAnonymousType("", dataType);
-                Debug.Log("data" + data);
+
+                CallInput callInput = (CallInput)request.RawParameters[0];
+
                 var estimatedGas = await _wallet.ExecuteSequenceJS(@"
-                    const wallet = sequence.getWallet();
-                    const provider = wallet.getProvider()!
+                    const wallet = seq.getWallet();
+                    const provider = wallet.getProvider();
+                    console.log(provider);
+                    const estimate = await provider.estimateGas({
+                        to: '" + callInput.To + @"',
+                        data:'" + callInput.Data + @"'
+                    });
 
-                    const tx ={
-                        to: '"+data.to+@"',
-                        data:'"+data.data+@"'
-                    }
-                    const estimate = await provider.estimateGas(tx);
+                    return estimate;
 ");
+                EstimatedGas gas = JsonConvert.DeserializeObject<EstimatedGas>(estimatedGas);
+                
 
-                return estimatedGas;
+                return new HexBigInteger(gas.hex);
+                
                 
 
             }
@@ -95,7 +103,7 @@ namespace SequenceSharp
                 var wallet = seq.getWallet();
                 var provider = wallet.getProvider();
                 var hexString = await provider.call({to:'" + callInput.To + @"',data:'" + callInput.Data + @"'});
-                console.log(hexString);
+                
                 
                 let rpcResponse = {
                         jsonrpc: '2.0',
@@ -151,37 +159,6 @@ namespace SequenceSharp
 
         }
 
-        public override async Task<object> InterceptSendRequestAsync<T>(
-            Func<string, string, object[], Task<T>> interceptedSendRequestAsync, string method,
-            string route = null, params object[] paramList)
-        {
-            if (method == ApiMethods.eth_sendTransaction.ToString())
-            {
-                return null;
-
-            }
-            else if (method == ApiMethods.eth_estimateGas.ToString() || method == ApiMethods.eth_call.ToString())
-            {
-                return null;
-
-            }
-            else if (method == ApiMethods.eth_signTypedData_v4.ToString() || method == ApiMethods.personal_sign.ToString())
-            {
-                return null;
-
-            }
-            else
-            {
-                return null;
-
-            }
-
-        }
-
-        private string GetSelectedAccount()
-        {
-            return "";
-        }
 
         protected void HandleRpcError(RpcResponseMessage response)
         {
