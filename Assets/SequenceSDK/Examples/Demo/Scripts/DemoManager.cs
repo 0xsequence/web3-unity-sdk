@@ -34,7 +34,8 @@ public class DemoManager : MonoBehaviour
     [SerializeField] private Button signMessageBtn;
     [SerializeField] private Button sendUSDCBtn;
     [SerializeField] private Button sendNFTBtn;
-    [SerializeField] private Button disconnectBtn;
+    [SerializeField] private Button disconnectBtn; 
+
     [Header("Wallet")]
     [SerializeField] private Button closeWalletBtn;
 
@@ -263,9 +264,8 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
-            await wallet.OpenWallet("wallet/add-funds", new ConnectOptions
-            {
-                settings = new WalletSettings
+            await wallet.OpenWallet("wallet",null,null);
+                /*settings = new WalletSettings
                 {
                     theme = "goldDark",
                     includedPaymentProviders = new string[] { PaymentProviderOption.Moonpay, PaymentProviderOption.Ramp, PaymentProviderOption.Wyre },
@@ -273,7 +273,7 @@ public class DemoManager : MonoBehaviour
                     defaultPurchaseAmount = 400,
                     lockFundingCurrencyToDefault = false
                 }
-            }, null);
+            }, null);*/
             Debug.Log("[DemoDapp] Wallet Opened with settings.");
 
         }

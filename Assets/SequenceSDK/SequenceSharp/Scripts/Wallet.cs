@@ -50,7 +50,7 @@ namespace SequenceSharp
         public UnityEvent onReadyToConnect;
         public bool readyToConnect = false;
 
-        [SerializeField] private ProviderConfig providerConfig;
+        //[SerializeField] private ProviderConfig providerConfig;
 
         /// <summary>
         /// Allow debugging the Sequence WebViews through http://localhost:8080
@@ -123,9 +123,10 @@ namespace SequenceSharp
 
             _internalWebView = Web.CreateWebView();
 #endif
+            _HideWallet();
         }
 
-        private async void Start()
+        public async void Initialize(ProviderConfig providerConfig)
         {
             _HideWallet();
 #if IS_EDITOR_OR_NOT_WEBGL
