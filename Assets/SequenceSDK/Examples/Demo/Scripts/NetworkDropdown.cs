@@ -41,7 +41,7 @@ public class NetworkDropdown : MonoBehaviour
     {
         chosenProviderConfig = networks[dropdown.value];
 
-        if(dropdown.value  == 1)
+        if(dropdown.value  == 2)
         {
             //"testnet"
             selectionText.text = "NOTE: to use mumbai, first go to https://sequence.app and click on 'Enable Testnet'.";
@@ -54,6 +54,7 @@ public class NetworkDropdown : MonoBehaviour
 
     void InitializeWallet()
     {
+        
         _wallet.Initialize(chosenProviderConfig);
         networkCanvas.SetActive(false);
     }

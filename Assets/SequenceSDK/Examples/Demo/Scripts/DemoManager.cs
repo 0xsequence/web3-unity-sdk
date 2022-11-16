@@ -101,7 +101,7 @@ public class DemoManager : MonoBehaviour
 
         closeWalletBtn.onClick.AddListener(CloseWallet);
 
-        testingBtn.onClick.AddListener(GetEstimatedGas);
+        testingBtn.onClick.AddListener(SendTetherUSD);
 
         //Metamask Test
         metamaskConnectBtn.onClick.AddListener(ConnectMetamask);
@@ -265,15 +265,7 @@ public class DemoManager : MonoBehaviour
         try
         {
             await wallet.OpenWallet("wallet",null,null);
-                /*settings = new WalletSettings
-                {
-                    theme = "goldDark",
-                    includedPaymentProviders = new string[] { PaymentProviderOption.Moonpay, PaymentProviderOption.Ramp, PaymentProviderOption.Wyre },
-                    defaultFundingCurrency = CurrencyOption.Ether,
-                    defaultPurchaseAmount = 400,
-                    lockFundingCurrencyToDefault = false
-                }
-            }, null);*/
+                
             Debug.Log("[DemoDapp] Wallet Opened with settings.");
 
         }
@@ -527,6 +519,58 @@ And that has made all the difference.
             Debug.Log(e);
         }
 
+    }
+
+    public async void SendTetherUSD()
+    {
+        var abi = @" [
+                {
+                    constant: false,
+                    inputs: [
+                            {
+                                internalType: 'address',
+                                name: 'recipient',
+                                type: 'address'
+                            },
+                            {
+                                internalType: 'uint256',
+                                name: 'amount',
+                                type: 'uint256'
+                            }
+                            ],
+                    name: 'transfer',
+                    outputs: [
+                            {
+                                internalType: 'bool',
+                                name: '',
+                                type: 'bool'
+                            }
+                            ],
+                    payable: false,
+                    stateMutability: 'nonpayable',
+                    type: 'function'
+                }
+                ]";
+        var contractAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
+        var contract = web3.Eth.GetContract(abi, contractAddress);
+        var transferFunction = contract.GetFunction("transfer");
+        var senderAddress = await wallet.GetAddress();
+
+        var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
+        //Random To Account
+        var newAddress = randomWallet.GetAccount(0).Address;
+
+        var amountToSend = 0;//?
+
+        var networkId = await web3.Net.Version.SendRequestAsync();
+        Debug.Log("networkID:" + networkId);
+
+        var gas = await transferFunction.EstimateGasAsync(senderAddress, null, null, newAddress, amountToSend);
+        var value = new HexBigInteger(0);
+        var receiptAmountSend =
+            await transferFunction.SendTransactionAndWaitForReceiptAsync(senderAddress, gas, value, null, newAddress,
+                amountToSend);
+        Debug.Log("[Sequence] ReceiptAmountSend:" + receiptAmountSend);
     }
 
     public async void Disconnect()
