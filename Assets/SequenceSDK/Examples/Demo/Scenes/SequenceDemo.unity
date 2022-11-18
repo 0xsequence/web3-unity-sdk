@@ -9293,6 +9293,9 @@ MonoBehaviour:
     defaultNetworkId: mainnet
     networkRpcUrl: 
   - walletAppURL: https://sequence.app
+    defaultNetworkId: optimism
+    networkRpcUrl: 
+  - walletAppURL: https://sequence.app
     defaultNetworkId: mumbai
     networkRpcUrl: https://matic-mumbai.chainstacklabs.com
   initializeButton: {fileID: 795412878}
