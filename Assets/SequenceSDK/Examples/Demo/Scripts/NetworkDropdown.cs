@@ -41,7 +41,7 @@ public class NetworkDropdown : MonoBehaviour
     {
         chosenProviderConfig = networks[dropdown.value];
 
-        if(dropdown.value  == 2)
+        if(chosenProviderConfig.defaultNetworkId == "mumbai")
         {
             //"testnet"
             selectionText.text = "NOTE: to use mumbai, first go to https://sequence.app and click on 'Enable Testnet'.";
