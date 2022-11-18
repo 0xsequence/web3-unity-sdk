@@ -9290,7 +9290,7 @@ MonoBehaviour:
     defaultNetworkId: polygon
     networkRpcUrl: 
   - walletAppURL: https://sequence.app
-    defaultNetworkId: ethereum
+    defaultNetworkId: mainnet
     networkRpcUrl: 
   - walletAppURL: https://sequence.app
     defaultNetworkId: mumbai
