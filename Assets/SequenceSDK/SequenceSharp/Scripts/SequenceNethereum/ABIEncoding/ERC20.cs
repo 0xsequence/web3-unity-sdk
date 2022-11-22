@@ -41,13 +41,19 @@ namespace SequenceSharp
         /// <returns></returns>
         public static async Task<string> Name(string address)
         {
-                         
+            try
+            {
                 var contract = web3.Eth.GetContract(abi, address);
                 var nameFunction = contract.GetFunction("name");
                 var name = await nameFunction.CallAsync<string>();
-                
-                
+
+
                 return name;
+            }catch(Exception e)
+            {
+                Debug.Log(e);
+                return "";
+            }
             
         }
 
@@ -59,12 +65,20 @@ namespace SequenceSharp
         /// <returns></returns>
         public static async Task<string> Symbol(string address)
         {
-            var contract = web3.Eth.GetContract(abi, address);
-            var symbolFunction = contract.GetFunction("symbol");
-            var symbol = await symbolFunction.CallAsync<string>();
+            try
+            {
+                var contract = web3.Eth.GetContract(abi, address);
+                var symbolFunction = contract.GetFunction("symbol");
+                var symbol = await symbolFunction.CallAsync<string>();
 
 
-            return symbol;
+                return symbol;
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+                return "";
+            }
         }
 
 
@@ -77,11 +91,20 @@ namespace SequenceSharp
         /// <returns></returns>
         public static async Task<BigInteger> Decimals(string address)
         {
-            var contract = web3.Eth.GetContract(abi, address);
-            var decimalsFunction = contract.GetFunction("decimals");
-            var decimals = await decimalsFunction.CallAsync<BigInteger>();
-           
-            return decimals;
+            try
+            {
+                var contract = web3.Eth.GetContract(abi, address);
+                var decimalsFunction = contract.GetFunction("decimals");
+                var decimals = await decimalsFunction.CallAsync<BigInteger>();
+
+                return decimals;
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+
+                return -1;
+            }
         }
 
         /// <summary>
@@ -92,11 +115,19 @@ namespace SequenceSharp
         /// <returns></returns>
         public static async Task<BigInteger> TotalSupply(string address)
         {
-            var contract = web3.Eth.GetContract(abi, address);
-            var totalSupplyFunction = contract.GetFunction("totalSupply");
-            var totalSupply = await totalSupplyFunction.CallAsync<BigInteger>();
+            try
+            {
+                var contract = web3.Eth.GetContract(abi, address);
+                var totalSupplyFunction = contract.GetFunction("totalSupply");
+                var totalSupply = await totalSupplyFunction.CallAsync<BigInteger>();
 
-            return totalSupply;
+                return totalSupply;
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+                return -1;
+            }
         }
 
     
@@ -110,18 +141,26 @@ namespace SequenceSharp
         /// <returns></returns>
         public static async Task<BigInteger> BalanceOf(string address,  string account = null)
         {
-            if(account == null)
+            try
             {
-                //account address not provided
+                if (account == null)
+                {
+                    //account address not provided
 
-                account = await _wallet.GetAddress();
+                    account = await _wallet.GetAddress();
+                }
+                var contract = web3.Eth.GetContract(abi, address);
+                var balanceOfFunction = contract.GetFunction("balanceOf");
+                var balanceOf = await balanceOfFunction.CallAsync<BigInteger>(account);
+
+                return balanceOf;
             }
-            var contract = web3.Eth.GetContract(abi, address);
-            var balanceOfFunction = contract.GetFunction("balanceOf");
-            var balanceOf = await balanceOfFunction.CallAsync<BigInteger>(account);
+            catch (Exception e)
+            {
+                Debug.Log(e);
+                return -1;
+            }
 
-            return balanceOf;
-            
         }
 
         public static async Task<int> Transfer(string recipient, string amount)

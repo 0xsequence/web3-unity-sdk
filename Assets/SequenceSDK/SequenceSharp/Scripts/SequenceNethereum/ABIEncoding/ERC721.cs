@@ -32,12 +32,19 @@ namespace SequenceSharp
         /// <returns></returns>
         public static async Task<string> Name(string address)
         {
-            //throw new NotImplementedException();
-            var contract = web3.Eth.GetContract(abi, address);
-            var nameFunction = contract.GetFunction("name");
-            var name = await nameFunction.CallAsync<string>();
+            try
+            {
+                var contract = web3.Eth.GetContract(abi, address);
+                var nameFunction = contract.GetFunction("name");
+                var name = await nameFunction.CallAsync<string>();
 
-            return name;
+                return name;
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+                return "";
+            }
 
         }
 
@@ -49,12 +56,20 @@ namespace SequenceSharp
         /// <returns></returns>
         public static async Task<string> Symbol(string address)
         {
-            var contract = web3.Eth.GetContract(abi, address);
-            var symbolFunction = contract.GetFunction("symbol");
-            var symbol = await symbolFunction.CallAsync<string>();
+            try
+            {
+                var contract = web3.Eth.GetContract(abi, address);
+                var symbolFunction = contract.GetFunction("symbol");
+                var symbol = await symbolFunction.CallAsync<string>();
 
 
-            return symbol;
+                return symbol;
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+                return "";
+            }
         }
 
         /// <summary>
@@ -66,14 +81,21 @@ namespace SequenceSharp
         /// <returns></returns>
         public static async Task<string> TokenURI(BigInteger tokenId, string address)
         {
-            //throw new NotImplementedException();
-            var contract = web3.Eth.GetContract(abi, address);
-            var tokenURIFunction = contract.GetFunction("tokenURI");
-            var tokenURI = await tokenURIFunction.CallAsync<string>(tokenId);
+            try
+            {
+                var contract = web3.Eth.GetContract(abi, address);
+                var tokenURIFunction = contract.GetFunction("tokenURI");
+                var tokenURI = await tokenURIFunction.CallAsync<string>(tokenId);
 
 
-            return tokenURI;
-            
+                return tokenURI;
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+                return "";
+            }
+
         }
 
         /// <summary>
@@ -85,17 +107,25 @@ namespace SequenceSharp
         /// <returns></returns>
         public static async Task<BigInteger> BalanceOf( string address, string owner=null)
         {
-            if (owner == null)
+            try
             {
-                //account address not provided
+                if (owner == null)
+                {
+                    //account address not provided
 
-                owner = await _wallet.GetAddress();
+                    owner = await _wallet.GetAddress();
+                }
+                var contract = web3.Eth.GetContract(abi, address);
+                var balanceOfFunction = contract.GetFunction("balanceOf");
+                var balanceOf = await balanceOfFunction.CallAsync<BigInteger>(owner);
+
+                return balanceOf;
             }
-            var contract = web3.Eth.GetContract(abi, address);
-            var balanceOfFunction = contract.GetFunction("balanceOf");
-            var balanceOf = await balanceOfFunction.CallAsync<BigInteger>(owner);
-
-            return balanceOf;
+            catch (Exception e)
+            {
+                Debug.Log(e);
+                return -1;
+            }
 
         }
 
@@ -108,11 +138,19 @@ namespace SequenceSharp
         /// <returns></returns>
         public static async Task<string> OwnerOf(BigInteger tokenId, string address)
         {
-            var contract = web3.Eth.GetContract(abi, address);
-            var ownerOfFunction = contract.GetFunction("ownerOf");
-            var ownerOf = await ownerOfFunction.CallAsync<string>(tokenId);
+            try
+            {
+                var contract = web3.Eth.GetContract(abi, address);
+                var ownerOfFunction = contract.GetFunction("ownerOf");
+                var ownerOf = await ownerOfFunction.CallAsync<string>(tokenId);
 
-            return ownerOf;
+                return ownerOf;
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+                return "";
+            }
 
         }
 

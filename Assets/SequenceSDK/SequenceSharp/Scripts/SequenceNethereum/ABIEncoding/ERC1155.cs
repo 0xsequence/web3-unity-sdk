@@ -33,12 +33,20 @@ namespace SequenceSharp
         /// <returns></returns>
         public static async Task<string> URI(BigInteger _id, string address)
         {
-            var contract = web3.Eth.GetContract(abi, address);
-            var URIFunction = contract.GetFunction("uri");
-            var URI = await URIFunction.CallAsync<string>(_id);
+            try
+            {
+                var contract = web3.Eth.GetContract(abi, address);
+                var URIFunction = contract.GetFunction("uri");
+                var URI = await URIFunction.CallAsync<string>(_id);
 
-            return URI;
-            
+                return URI;
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+                return "";
+            }
+
         }
 
         /// <summary>
@@ -51,20 +59,28 @@ namespace SequenceSharp
         /// <returns></returns>
         public static async Task<BigInteger> BalanceOf( BigInteger id, string address,  string account = null)
         {
-            if (account == null)
+            try
             {
-                //account address not provided
+                if (account == null)
+                {
+                    //account address not provided
 
-                account = await _wallet.GetAddress();
+                    account = await _wallet.GetAddress();
+                }
+
+                var contract = web3.Eth.GetContract(abi, address);
+                var balanceOfFunction = contract.GetFunction("balanceOf");
+                var balanceOf = await balanceOfFunction.CallAsync<BigInteger>(account, id);
+
+                return balanceOf;
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+                return -1;
             }
 
-            var contract = web3.Eth.GetContract(abi, address);
-            var balanceOfFunction = contract.GetFunction("balanceOf");
-            var balanceOf = await balanceOfFunction.CallAsync<BigInteger>(account,id);
 
-            return balanceOf;
-
-            
         }
 
         /// <summary>
@@ -78,12 +94,19 @@ namespace SequenceSharp
         public static async Task<List<BigInteger>> BalanceOfBatch(List<string> accounts, List<int> ids, string address)
         {
 
+            try
+            {
+                var contract = web3.Eth.GetContract(abi, address);
+                var balanceOfBatchFunction = contract.GetFunction("balanceOfBatch");
+                var balanceOfBatch = await balanceOfBatchFunction.CallAsync<List<BigInteger>>(accounts, ids);
 
-            var contract = web3.Eth.GetContract(abi, address);
-            var balanceOfBatchFunction = contract.GetFunction("balanceOfBatch");
-            var balanceOfBatch = await balanceOfBatchFunction.CallAsync<List<BigInteger>>(accounts,ids);
-
-            return balanceOfBatch;
+                return balanceOfBatch;
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+                return null;
+            }
 
         }
 
