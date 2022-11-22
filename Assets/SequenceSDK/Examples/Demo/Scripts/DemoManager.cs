@@ -34,7 +34,8 @@ public class DemoManager : MonoBehaviour
     [SerializeField] private Button signMessageBtn;
     [SerializeField] private Button sendUSDCBtn;
     [SerializeField] private Button sendNFTBtn;
-    [SerializeField] private Button disconnectBtn; 
+    [SerializeField] private Button disconnectBtn;
+
 
     [Header("Wallet")]
     [SerializeField] private Button closeWalletBtn;
@@ -349,7 +350,7 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
-            string accountAddress = await wallet.GetAddress(); //to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
+            string accountAddress = "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";// await wallet.GetAddress(); //to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
             var transactions = await Indexer.FetchMultiplePages(async (pageNumber) =>
             {
                 var args = new GetTransactionHistoryArgs(new TransactionHistoryFilter
@@ -361,12 +362,49 @@ public class DemoManager : MonoBehaviour
                 });
                 BlockChainType blockChainType = BlockChainType.Polygon;
                 var history = await Indexer.GetTransactionHistory(blockChainType, args);
+                int count = 0;
+                foreach (var transaction in history.transactions)
+                {
+                    Debug.Log("History (time): " + transaction.timestamp);
+                    
+                    foreach(var transfer in transaction.transfers)
+                    {
+                        count++;
+                        // Try to get token name, but got a "missing revert data in call exception" from ether.js for some contract address.
+                        string name = "";
+                        switch (transfer.contractType)
+                        {
+                            case ContractType.ERC20:
+                                
+                                name = await ERC20.Name(transfer.contractAddress);
+                                break;
+                            case ContractType.ERC721:
+                                
+                                name = await ERC721.Name(transfer.contractAddress);
+                                break;
+                            default:
+                                break;
+                        }
+                        Debug.Log("token name:" + name);
+
+
+                        Debug.Log("Transfer Type: " + transfer.transferType.ToString());
+
+                        Debug.Log("tokens: " + transfer.tokenIds.Length);
+                        /*foreach(var tokenId in transfer.tokenIds)
+                        {
+                            Debug.Log("tokenId: "+ tokenId);
+                        }*/
+                    }
+                    
+                }
+                Debug.Log("count: " + count);
                 return (history.page, history.transactions);
             }, 9999);
         }
-        catch (Exception e)
+        catch
         {
-            Debug.Log(e);
+            
         }
     }
     public async void SignMessage()
