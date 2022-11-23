@@ -324,8 +324,7 @@ public class DemoManager : MonoBehaviour
                 {
                     page = pageNumber
                 });
-                BlockChainType blockChainType = BlockChainType.Polygon;
-                var balances = await Indexer.GetTokenBalances(blockChainType, tokenBalancesArgs);
+                var balances = await Indexer.GetTokenBalances(Chain.Polygon, tokenBalancesArgs);
 
                 return (balances.page, balances.balances);
             }, 9999);
@@ -338,8 +337,7 @@ public class DemoManager : MonoBehaviour
                     {
                         page = pageNumber
                     });
-                    BlockChainType blockChainType = BlockChainType.Polygon;
-                    var balances = await Indexer.GetTokenBalances(blockChainType, tokenBalancesArgs);
+                    var balances = await Indexer.GetTokenBalances(Chain.Polygon, tokenBalancesArgs);
 
                     return (balances.page, balances.balances);
                 }, 9999);
@@ -368,8 +366,7 @@ public class DemoManager : MonoBehaviour
                 {
                     page = pageNumber
                 });
-                BlockChainType blockChainType = BlockChainType.Polygon;
-                var history = await Indexer.GetTransactionHistory(blockChainType, args);
+                var history = await Indexer.GetTransactionHistory(Chain.Polygon, args);
                 int count = 0;
                 foreach (var transaction in history.transactions)
                 {
