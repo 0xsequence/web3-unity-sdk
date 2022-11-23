@@ -17,18 +17,25 @@ public class NetworkDropdown : MonoBehaviour
 {
     public TMP_Dropdown _dropdown;
     //Set in Inspector
+    [Header("Network")]
     public List<Network> networks = new List<Network>();
+    [Header("TESTNET")]
+    public List<Network> testnetNetworks = new List<Network>();
 
     void Awake()
     {
  
         _dropdown.options.Clear();
+
         foreach(Network network in networks)
         {
             _dropdown.options.Add(new TMP_Dropdown.OptionData() { text = network.name });
             
         }
         _dropdown.onValueChanged.AddListener(delegate { NetworkSelected(_dropdown); });
+
+        //initialize to polygon
+        _dropdown.SetValueWithoutNotify(1);
         
     }
 

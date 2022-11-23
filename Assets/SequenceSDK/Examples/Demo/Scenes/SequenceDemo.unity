@@ -7647,9 +7647,9 @@ MonoBehaviour:
   m_Vertical: 1
   m_MovementType: 2
   m_Elasticity: 0.1
-  m_Inertia: 1
+  m_Inertia: 0
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 100
   m_Viewport: {fileID: 67188852}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 818278405}
@@ -8933,10 +8933,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _dropdown: {fileID: 2011060868}
   networks:
-  - name: polygon
-    chainID: 137
-  - name: ethereum
+  - name: Ethereum
     chainID: 1
+  - name: Polygon
+    chainID: 137
+  - name: BNBSmartChain
+    chainID: 56
+  - name: ArbitrumOne
+    chainID: 42161
+  - name: ArbitrumNova
+    chainID: 42170
+  - name: Optimism
+    chainID: 10
+  - name: Avalanche
+    chainID: 43114
+  - name: Gnosis
+    chainID: 100
+  testnetNetworks:
+  - name: TestnetGoerli
+    chainID: 5
+  - name: TestnetPolygonMumbai
+    chainID: 80001
+  - name: TestnetBNBSmartChain
+    chainID: 97
 --- !u!1 &2047948563
 GameObject:
   m_ObjectHideFlags: 0

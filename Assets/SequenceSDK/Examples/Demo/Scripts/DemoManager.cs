@@ -477,8 +477,6 @@ And that has made all the difference.
                     type: 'function'
                 }
                 ]";
-        var network = await wallet.GetNetworks();
-        Debug.Log("network: " + network[0].title);
 
         var contractAddress = "0xfCFdE38A1EeaE0ee7e130BbF66e94844Bc5D5B6B";
         var contract = web3.Eth.GetContract(abi, contractAddress);
