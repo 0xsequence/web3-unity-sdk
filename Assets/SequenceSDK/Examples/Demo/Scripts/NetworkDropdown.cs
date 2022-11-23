@@ -22,15 +22,12 @@ public class NetworkDropdown : MonoBehaviour
     void Awake()
     {
  
-
-        //set up dropdowns
         _dropdown.options.Clear();
         foreach(Network network in networks)
         {
             _dropdown.options.Add(new TMP_Dropdown.OptionData() { text = network.name });
             
         }
-
         _dropdown.onValueChanged.AddListener(delegate { NetworkSelected(_dropdown); });
         
     }
