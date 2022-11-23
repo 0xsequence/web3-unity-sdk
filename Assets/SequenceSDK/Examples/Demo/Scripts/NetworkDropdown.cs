@@ -6,31 +6,33 @@ using TMPro;
 using SequenceSharp;
 
 [System.Serializable]
+public class Network
+{
+    public string name;
+    public int chainID;
+}
+
+[System.Serializable]
 public class NetworkDropdown : MonoBehaviour
 {
-    private Wallet _wallet;
     public TMP_Dropdown _dropdown;
     //Set in Inspector
-    public List<ProviderConfig> networks = new List<ProviderConfig>();
-    public Button initializeButton;
-    private ProviderConfig chosenProviderConfig = null;
+    public List<Network> networks = new List<Network>();
 
-    public TMP_Text selectionText;
-    public GameObject networkCanvas;
     void Awake()
     {
-        _wallet = FindObjectOfType<Wallet>();
-        chosenProviderConfig = networks[0]; //default polygon
+ 
+
         //set up dropdowns
         _dropdown.options.Clear();
-        foreach(ProviderConfig network in networks)
+        foreach(Network network in networks)
         {
-            _dropdown.options.Add(new TMP_Dropdown.OptionData() { text = network.defaultNetworkId });
+            _dropdown.options.Add(new TMP_Dropdown.OptionData() { text = network.name });
             
         }
 
         _dropdown.onValueChanged.AddListener(delegate { NetworkSelected(_dropdown); });
-        initializeButton.onClick.AddListener(InitializeWallet);
+        
     }
 
     /// <summary>
@@ -39,25 +41,12 @@ public class NetworkDropdown : MonoBehaviour
     /// <param name="dropdown"></param>
     void NetworkSelected(TMP_Dropdown dropdown)
     {
-        chosenProviderConfig = networks[dropdown.value];
+        var chainId = networks[dropdown.value].chainID;
 
-        if(chosenProviderConfig.defaultNetworkId == "mumbai")
-        {
-            //"testnet"
-            selectionText.text = "NOTE: to use mumbai, first go to https://sequence.app and click on 'Enable Testnet'.";
-        }
-        else
-        {
-            selectionText.text = "";
-        }
-    }
-
-    void InitializeWallet()
-    {
+        DemoManager.Instance.ChangeNetwork(chainId);
         
-        _wallet.Initialize(chosenProviderConfig);
-        networkCanvas.SetActive(false);
     }
 
+    
     
 }
