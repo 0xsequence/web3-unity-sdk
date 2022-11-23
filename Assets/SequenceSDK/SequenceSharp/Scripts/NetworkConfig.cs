@@ -1,11 +1,13 @@
-﻿namespace SequenceSharp
+﻿using System.Numerics;
+
+namespace SequenceSharp
 {
     public class NetworkConfig
     {
 #nullable enable
         public string? title;
         public string name;
-        public ulong chainId;
+        public BigInteger chainId;
         public string? ensAddress;
         public bool? testnet;
         public BlockExplorerConfig? blockExplorer;

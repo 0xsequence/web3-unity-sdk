@@ -1,8 +1,10 @@
+using System.Numerics;
+
 namespace SequenceSharp
 {
     [System.Serializable]
     public class GetChainIDReturn
     {
-        public int chainID;
+        public BigInteger chainID;
     }
 }

@@ -6,17 +6,11 @@ using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using UnityEngine.Networking;
+using System.Numerics;
 
 namespace SequenceSharp
 {
     #region Enums
-    public enum BlockChainType
-    {
-        Polygon = 0,
-        Arbitrum = 1,
-        Optimism = 2,
-        Avalanche = 3
-    }
 
     public enum ContractType
     {
@@ -62,24 +56,43 @@ namespace SequenceSharp
     {
         private const string PATH = "/rpc/Indexer/";
 
+        private static readonly Dictionary<BigInteger, string> IndexerNames
+        = new Dictionary<BigInteger, string>
+    {
+        { Chain.Ethereum, "mainnet" },
+        { Chain.Polygon, "polygon" },
+        { Chain.BNBSmartChain, "bsc" },
+        { Chain.ArbitrumOne, "arbitrum" },
+        { Chain.ArbitrumNova, "arbitrum-nova" },
+        { Chain.Optimism, "optimism" },
+        { Chain.Avalanche, "avalanche" },
+        { Chain.Gnosis, "gnosis" },
+
+        { Chain.TestnetGoerli, "goerli" },
+        { Chain.TestnetPolygonMumbai, "mumbai" },
+        { Chain.TestnetBNBSmartChain, "bsc-testnet" },
+    };
+
         /// <summary>
         /// Combines <see cref="PATH"/> and <paramref name="name"/> to suffix on to the Base Address
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        private static string Url(BlockChainType blockChainName, string endPoint)
+        private static string Url(BigInteger chainID, string endPoint)
         {
-            return $"{HostName(blockChainName)}{PATH}{endPoint}";
+            return $"{HostName(chainID)}{PATH}{endPoint}";
         }
 
         /// <summary>
-        /// Get HostName directing to specific <paramref name="blockChainType"/>
+        /// Get HostName directing to specific <paramref name="chainID"/>
         /// </summary>
-        /// <param name="blockChainType"></param>
+        /// <param name="chainID"></param>
         /// <returns></returns>
-        private static string HostName(BlockChainType blockChainType)
+        /// <exception>Throws if the chainID isn't a Sequence-supported chain.</exception>
+        private static string HostName(BigInteger chainID)
         {
-            return $"https://{blockChainType.ToString().ToLower()}-indexer.sequence.app";
+            var indexerName = IndexerNames[chainID];
+            return $"https://{indexerName}-indexer.sequence.app";
         }
 
         public static async Task<T[]> FetchMultiplePages<T>(Func<int, Task<(Page, T[])>> func, int maxPages)
@@ -106,9 +119,9 @@ namespace SequenceSharp
         /// </summary>
         /// <returns>true if this chain's indexer is good, false otherwise</returns>
         /// <exception cref="HttpRequestException">If the network request fails</exception>
-        public static async Task<bool> Ping(BlockChainType blockChainType)
+        public static async Task<bool> Ping(BigInteger chainID)
         {
-            string responseBody = await HTTPPost(blockChainType, "Ping", null);
+            string responseBody = await HTTPPost(chainID, "Ping", null);
             return BuildResponse<PingReturn>(responseBody).status;
         }
 
@@ -116,11 +129,11 @@ namespace SequenceSharp
         /// Retrieve indexer version information.
         /// </summary>
         /// <exception cref="HttpRequestException">If the network request fails</exception>
-        public static async Task<Version> Version(BlockChainType blockChainType)
+        public static async Task<Version> Version(BigInteger chainID)
         {
 
 
-            var responseBody = await HTTPPost(blockChainType, "Version", null);
+            var responseBody = await HTTPPost(chainID, "Version", null);
             return BuildResponse<VersionReturn>(responseBody).version;
         }
 
@@ -128,9 +141,9 @@ namespace SequenceSharp
         /// Retrieve indexer runtime status information
         /// </summary>
         /// <exception cref="HttpRequestException">If the network request fails</exception>
-        public static async Task<RuntimeStatus> RuntimeStatus(BlockChainType blockChainType)
+        public static async Task<RuntimeStatus> RuntimeStatus(BigInteger chainID)
         {
-            var responseBody = await HTTPPost(blockChainType, "RuntimeStatus", null);
+            var responseBody = await HTTPPost(chainID, "RuntimeStatus", null);
             return BuildResponse<RuntimeStatusReturn>(responseBody).status;
         }
 
@@ -139,9 +152,9 @@ namespace SequenceSharp
         /// </summary>
         /// <exception cref="HttpRequestException">If the network request fails</exception>
 
-        public static async Task<int> GetChainID(BlockChainType blockChainType)
+        public static async Task<BigInteger> GetChainID(BigInteger chainID)
         {
-            var responseBody = await HTTPPost(blockChainType, "GetChainID", null);
+            var responseBody = await HTTPPost(chainID, "GetChainID", null);
             return BuildResponse<GetChainIDReturn>(responseBody).chainID;
         }
 
@@ -149,9 +162,9 @@ namespace SequenceSharp
         /// Retrieve the balance of a network's native token for a given account address
         /// </summary>
         /// <exception cref="HttpRequestException">If the network request fails</exception>
-        public static async Task<EtherBalance> GetEtherBalance(BlockChainType blockChainType, string accountAddress)
+        public static async Task<EtherBalance> GetEtherBalance(BigInteger chainID, string accountAddress)
         {
-            var responseBody = await HTTPPost(blockChainType, "GetEtherBalance", new GetEtherBalanceArgs(accountAddress));
+            var responseBody = await HTTPPost(chainID, "GetEtherBalance", new GetEtherBalanceArgs(accountAddress));
             return BuildResponse<GetEtherBalanceReturn>(responseBody).balance;
         }
 
@@ -159,9 +172,9 @@ namespace SequenceSharp
         /// Retrieve an account's token balances, optionally for a specific contract
         /// </summary>
         /// <exception cref="HttpRequestException">If the network request fails</exception>
-        public static async Task<GetTokenBalancesReturn> GetTokenBalances(BlockChainType blockChainType, GetTokenBalancesArgs args)
+        public static async Task<GetTokenBalancesReturn> GetTokenBalances(BigInteger chainID, GetTokenBalancesArgs args)
         {
-            var responseBody = await HTTPPost(blockChainType, "GetTokenBalances", args);
+            var responseBody = await HTTPPost(chainID, "GetTokenBalances", args);
             //Debug.Log(responseBody);
             return BuildResponse<GetTokenBalancesReturn>(responseBody);
         }
@@ -170,9 +183,9 @@ namespace SequenceSharp
         /// Retrieve the token supply for a given contract
         /// </summary>
         /// <exception cref="HttpRequestException">If the network request fails</exception>
-        public static async Task<GetTokenSuppliesReturn> GetTokenSupplies(BlockChainType blockChainType, GetTokenSuppliesArgs args)
+        public static async Task<GetTokenSuppliesReturn> GetTokenSupplies(BigInteger chainID, GetTokenSuppliesArgs args)
         {
-            var responseBody = await HTTPPost(blockChainType, "GetTokenSupplies", args);
+            var responseBody = await HTTPPost(chainID, "GetTokenSupplies", args);
             return BuildResponse<GetTokenSuppliesReturn>(responseBody);
         }
 
@@ -180,9 +193,9 @@ namespace SequenceSharp
         /// Retrieve <see cref="GetTokenSuppliesMapReturn"/>
         /// </summary>
         /// <exception cref="HttpRequestException">If the network request fails</exception>
-        public static async Task<GetTokenSuppliesMapReturn> GetTokenSuppliesMap(BlockChainType blockChainType, GetTokenSuppliesMapArgs args)
+        public static async Task<GetTokenSuppliesMapReturn> GetTokenSuppliesMap(BigInteger chainID, GetTokenSuppliesMapArgs args)
         {
-            var responseBody = await HTTPPost(blockChainType, "GetTokenSuppliesMap", args);
+            var responseBody = await HTTPPost(chainID, "GetTokenSuppliesMap", args);
             return BuildResponse<GetTokenSuppliesMapReturn>(responseBody);
 
         }
@@ -191,9 +204,9 @@ namespace SequenceSharp
         /// Retrieve <see cref="GetBalanceUpdatesReturn"/>
         /// </summary>
         /// <exception cref="HttpRequestException">If the network request fails</exception>
-        public static async Task<GetBalanceUpdatesReturn> GetBalanceUpdates(BlockChainType blockChainType, GetBalanceUpdatesArgs args)
+        public static async Task<GetBalanceUpdatesReturn> GetBalanceUpdates(BigInteger chainID, GetBalanceUpdatesArgs args)
         {
-            var responseBody = await HTTPPost(blockChainType, "GetBalanceUpdates", args);
+            var responseBody = await HTTPPost(chainID, "GetBalanceUpdates", args);
             return BuildResponse<GetBalanceUpdatesReturn>(responseBody);
         }
 
@@ -202,19 +215,19 @@ namespace SequenceSharp
         /// </summary>
         /// <exception cref="HttpRequestException">If the network request fails</exception>
 
-        public static async Task<GetTransactionHistoryReturn> GetTransactionHistory(BlockChainType blockChainType, GetTransactionHistoryArgs args)
+        public static async Task<GetTransactionHistoryReturn> GetTransactionHistory(BigInteger chainID, GetTransactionHistoryArgs args)
         {
-            var responseBody = await HTTPPost(blockChainType, "GetTransactionHistory", args);
+            var responseBody = await HTTPPost(chainID, "GetTransactionHistory", args);
             return BuildResponse<GetTransactionHistoryReturn>(responseBody);
         }
 
         /// <summary>
-        /// Makes an HTTP Post Request with content-5ype set to application/json
+        /// Makes an HTTP Post Request with content-type set to application/json
         /// </summary>
         /// <returns></returns>
-        private static async Task<string> HTTPPost(BlockChainType blockChainType, string endPoint, object args)
+        private static async Task<string> HTTPPost(BigInteger chainID, string endPoint, object args)
         {
-            var req = UnityWebRequest.Put(Url(blockChainType, endPoint), JsonConvert.SerializeObject(args));
+            var req = UnityWebRequest.Put(Url(chainID, endPoint), JsonConvert.SerializeObject(args));
             req.SetRequestHeader("Content-Type", "application/json");
             req.SetRequestHeader("Accept", "application/json");
             req.method = UnityWebRequest.kHttpVerbPOST;
