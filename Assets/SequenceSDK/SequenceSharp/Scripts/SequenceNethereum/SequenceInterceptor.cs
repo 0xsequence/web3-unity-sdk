@@ -9,6 +9,7 @@ using Nethereum.RPC;
 using Nethereum.RPC.Eth.DTOs;
 using Newtonsoft.Json;
 using Nethereum.Hex.HexTypes;
+using System.Numerics;
 
 namespace SequenceSharp
 {
@@ -19,11 +20,13 @@ namespace SequenceSharp
     }
     public class SequenceInterceptor : RequestInterceptor
     {
+        public BigInteger chainID;
         private readonly Wallet _wallet;
 
-        public SequenceInterceptor(Wallet wallet)
+        public SequenceInterceptor(Wallet wallet, BigInteger chainID)
         {
             _wallet = wallet;
+            this.chainID = chainID;
         }
 
         public override async Task<object> InterceptSendRequestAsync<T>(
@@ -35,7 +38,7 @@ namespace SequenceSharp
             {
                 TransactionInput transactionInput =(TransactionInput)request.RawParameters[0];               
                 string rpcResponse = await _wallet.ExecuteSequenceJS(@"
-                const signer = seq.getWallet().getSigner();
+                const signer = seq.getWallet().getSigner(" + chainID.ToString() + @");
                 
                  const tx = {
                     delegateCall: false,
@@ -72,7 +75,7 @@ namespace SequenceSharp
 
                 var estimatedGas = await _wallet.ExecuteSequenceJS(@"
                     const wallet = seq.getWallet();
-                    const provider = wallet.getProvider();
+                    const provider = wallet.getProvider(" + chainID.ToString() + @");
                     console.log(provider);
                     const estimate = await provider.estimateGas({
                         to: '" + callInput.To + @"',
@@ -91,9 +94,7 @@ namespace SequenceSharp
             }
             else if(request.Method == ApiMethods.eth_call.ToString())
             {
-                
                 var callInput = (CallInput)request.RawParameters[0];
-
 
                 if (callInput.From == null)
                 {
@@ -101,7 +102,7 @@ namespace SequenceSharp
                 }
                 string rpcResponse =  await _wallet.ExecuteSequenceJS(@"
                 var wallet = seq.getWallet();
-                var provider = wallet.getProvider();
+                var provider = wallet.getProvider(" + chainID.ToString() + @");
                 var hexString = await provider.call({to:'" + callInput.To + @"',data:'" + callInput.Data + @"'});
                 
                 
@@ -127,11 +128,10 @@ namespace SequenceSharp
             }
             else if (request.Method == ApiMethods.eth_sign.ToString())
             {
-                
                 return await _wallet.ExecuteSequenceJS(@"
                 const wallet = sequence.getWallet();
 
-                const signer = wallet.getSigner();
+                const signer = wallet.getSigner(" + chainID.ToString() + @");
 
                 const message = `" + request.RawParameters[1] + @"`
 
@@ -141,6 +141,7 @@ namespace SequenceSharp
                  
             }else if(request.Method == ApiMethods.eth_getBalance.ToString())
             {
+                // TODO fix chain
                 Debug.Log(request.Method);
                 var accountAddress = await _wallet.GetAddress();
                 var ethBalance = await Indexer.GetEtherBalance(BlockChainType.Polygon, accountAddress);
@@ -148,6 +149,7 @@ namespace SequenceSharp
 
             }else if(request.Method == ApiMethods.eth_chainId.ToString())
             {
+                // TODO Fix chain
                 var chainID = await Indexer.GetChainID(BlockChainType.Polygon);
                 return chainID;
             }
