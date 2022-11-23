@@ -506,6 +506,49 @@ And that has made all the difference.
     {
         try
         {
+            //Contract Address
+            var contractAddress = "0x631998e91476DA5B870D741192fc5Cbc55F5a52E";
+            switch ((int)_sequenceInterceptor.chainID)
+            {
+                case 1:
+                    contractAddress = "0x5c891d76584b46bC7F1E700169a76569Bb77d2Db";
+                    break;
+                case 137:
+                    contractAddress = "0x631998e91476DA5B870D741192fc5Cbc55F5a52E";
+                    break;
+                case 56:
+                    contractAddress = "0x3d24C45565834377b59fCeAA6864D6C25144aD6c";
+                    break;
+                case 42161:
+                    contractAddress = "0x9e22a752C4eD3D6C5DaB0123ED6A1C7eCF575200";
+                    break;
+                case 42170:
+                    contractAddress = "0x61A119dAA01179dbAa33780D42E75b960e57f6B7";
+                    break;
+                case 10:
+                    contractAddress = "0xfa14e1157f35e1dad95dc3f822a9d18c40e360e2";
+                    break;
+                case 43114:
+                    contractAddress = "0xDb05DA15A08B59e6227f2d5047723243Be5b8525";
+                    break;
+                case 100:
+                    contractAddress = "0x4330e8d1Cf427F878636d2614Dc13c356A71Be14";
+                    break;
+                //Testnet:
+                case 5:
+                    contractAddress = "0xff02b7d59975E76F67B63b20b813a9Ec0f6AbD60";
+                    break;
+                case 80001:
+                    contractAddress = "0xD2b0e73725918EA5F6ec25361D96D04977a86F88";
+                    break;
+                case 97:
+                    contractAddress = "0x35c847059890178486841aE31d8C5f8d2C22Aea9";
+                    break;
+                default:
+                    Debug.Log("[Sequence] Incorrect Chain Id");
+                    break;
+            }
+
             var abi = @"[
             {
                 inputs: [
@@ -541,7 +584,7 @@ And that has made all the difference.
             type: 'function'
             }
         ]";
-            var contractAddress = "0x631998e91476DA5B870D741192fc5Cbc55F5a52E";
+            
             var contract = web3.Eth.GetContract(abi, contractAddress);
             var transferFunction = contract.GetFunction("safeBatchTransferFrom");
             var senderAddress = await wallet.GetAddress();
