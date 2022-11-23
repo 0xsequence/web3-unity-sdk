@@ -50,7 +50,7 @@ namespace SequenceSharp
         public UnityEvent onReadyToConnect;
         public bool readyToConnect = false;
 
-        //[SerializeField] private ProviderConfig providerConfig;
+        [SerializeField] private ProviderConfig providerConfig;
 
         /// <summary>
         /// Allow debugging the Sequence WebViews through http://localhost:8080
@@ -126,7 +126,13 @@ namespace SequenceSharp
             _HideWallet();
         }
 
-        public async void Initialize(ProviderConfig providerConfig)
+        public async void Start()
+        {
+
+            await Initialize(providerConfig);
+        }
+
+        public async Task Initialize(ProviderConfig providerConfig)
         {
             _HideWallet();
 #if IS_EDITOR_OR_NOT_WEBGL
@@ -318,6 +324,7 @@ namespace SequenceSharp
             readyToConnect = true;
         }
 
+
         /// <summary>
         /// Execute JS in a context with Sequence.js and Ethers.js
         /// You have a global named `seq`, and a global named `ethers`. To get the wallet, use `seq.getWallet()`.
@@ -463,7 +470,7 @@ namespace SequenceSharp
         /// Get the connected wallet's networks.
         /// </summary>
         /// <exception cref="JSExecutionException">Thrown if the wallet isn't connected.</exception>
-        public Task<NetworkConfig[]> GetNetworks(string? chainId)
+        public Task<NetworkConfig[]> GetNetworks(string? chainId = null)
         {
             return ExecuteSequenceJSAndParseJSON<NetworkConfig[]>(@"return seq
                 .getWallet()

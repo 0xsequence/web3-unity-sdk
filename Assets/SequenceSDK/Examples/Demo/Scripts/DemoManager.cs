@@ -37,6 +37,7 @@ public class DemoManager : MonoBehaviour
     [SerializeField] private Button disconnectBtn;
 
 
+
     [Header("Wallet")]
     [SerializeField] private Button closeWalletBtn;
 
@@ -61,6 +62,7 @@ public class DemoManager : MonoBehaviour
     private bool m_connected = false; //For UI Only
 
     private Web3 web3 = new Web3();
+    private SequenceInterceptor _sequenceInterceptor;
     public static DemoManager Instance { get; private set; }
     private void Awake()
     {
@@ -73,7 +75,8 @@ public class DemoManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        web3.Client.OverridingRequestInterceptor = new SequenceInterceptor(wallet);
+        _sequenceInterceptor = new SequenceInterceptor(wallet, 137);
+        web3.Client.OverridingRequestInterceptor = _sequenceInterceptor;
         
     }
     private void OnEnable()
@@ -231,6 +234,11 @@ public class DemoManager : MonoBehaviour
         {
             connectCanvas.SetActive(false);
         });
+    }
+
+    public void ChangeNetwork(int chainId)
+    {
+        _sequenceInterceptor.chainID = chainId;
     }
     public async void Connect()
     {
@@ -472,6 +480,9 @@ And that has made all the difference.
                     type: 'function'
                 }
                 ]";
+        var network = await wallet.GetNetworks();
+        Debug.Log("network: " + network[0].title);
+
         var contractAddress = "0xfCFdE38A1EeaE0ee7e130BbF66e94844Bc5D5B6B";
         var contract = web3.Eth.GetContract(abi, contractAddress);
         var transferFunction = contract.GetFunction("transfer");

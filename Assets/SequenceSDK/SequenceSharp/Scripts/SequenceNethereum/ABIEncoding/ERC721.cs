@@ -21,7 +21,7 @@ namespace SequenceSharp
         {
             _wallet = FindObjectOfType<Wallet>();
             web3 = new Web3();
-            web3.Client.OverridingRequestInterceptor = new SequenceInterceptor(_wallet);
+            web3.Client.OverridingRequestInterceptor = new SequenceInterceptor(_wallet,137);
         }
 
         /// <summary>
