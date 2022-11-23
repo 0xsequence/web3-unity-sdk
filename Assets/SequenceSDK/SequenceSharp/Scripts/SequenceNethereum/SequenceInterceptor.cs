@@ -33,40 +33,36 @@ namespace SequenceSharp
             Func<RpcRequest, string, Task<T>> interceptedSendRequestAsync, RpcRequest request,
             string route = null)
         {
-            
+
             if (request.Method == ApiMethods.eth_sendTransaction.ToString())
             {
-                TransactionInput transactionInput =(TransactionInput)request.RawParameters[0];               
+                TransactionInput transactionInput = (TransactionInput)request.RawParameters[0];
                 string rpcResponse = await _wallet.ExecuteSequenceJS(@"
-                const signer = seq.getWallet().getSigner(" + chainID.ToString() + @");
+                    const signer = seq.getWallet().getSigner(" + chainID.ToString() + @");
                 
-                 const tx = {
-                    delegateCall: false,
-                    revertOnError: false,
-                    gasLimit: '0x"+ transactionInput.Gas +@"',
-                    to: '" + transactionInput.To + @"',
-                    value: " + transactionInput.Value + @",
-                    data: '"+ transactionInput.Data + @"'
-                }
-                const txnResponse = await signer.sendTransactionBatch([tx]);
-                console.log(txnResponse);
+                    const tx = {
+                        delegateCall: false,
+                        revertOnError: false,
+                        gasLimit: '0x" + transactionInput.Gas + @"',
+                        to: '" + transactionInput.To + @"',
+                        value: " + transactionInput.Value + @",
+                        data: '" + transactionInput.Data + @"'
+                    };
+
+                    const txnResponse = await signer.sendTransactionBatch([tx]);
                 
-                
-                let rpcResponse = {
+                    return {
                         jsonrpc: '2.0',
                         result: txnResponse,
                         id: 0, //parsedMessage.id,(???)
                         error: null
                     };
-                return rpcResponse;
-                
                 ");
 
                 RpcResponseMessage rpcResponseMessage = JsonConvert.DeserializeObject<RpcResponseMessage>(rpcResponse);
                 var response = ConvertResponse<string>(rpcResponseMessage);
 
                 return response;
-
             }
             else if (request.Method == ApiMethods.eth_estimateGas.ToString())
             {
@@ -85,14 +81,14 @@ namespace SequenceSharp
                     return estimate;
 ");
                 EstimatedGas gas = JsonConvert.DeserializeObject<EstimatedGas>(estimatedGas);
-                
+
 
                 return new HexBigInteger(gas.hex);
-                
-                
+
+
 
             }
-            else if(request.Method == ApiMethods.eth_call.ToString())
+            else if (request.Method == ApiMethods.eth_call.ToString())
             {
                 var callInput = (CallInput)request.RawParameters[0];
 
@@ -100,7 +96,7 @@ namespace SequenceSharp
                 {
                     var address = _wallet.GetAddress();
                 }
-                string rpcResponse =  await _wallet.ExecuteSequenceJS(@"
+                string rpcResponse = await _wallet.ExecuteSequenceJS(@"
                 var wallet = seq.getWallet();
                 var provider = wallet.getProvider(" + chainID.ToString() + @");
                 var hexString = await provider.call({to:'" + callInput.To + @"',data:'" + callInput.Data + @"'});
@@ -116,11 +112,11 @@ namespace SequenceSharp
                 
                 ");
 
-                RpcResponseMessage rpcResponseMessage= JsonConvert.DeserializeObject<RpcResponseMessage>(rpcResponse);
+                RpcResponseMessage rpcResponseMessage = JsonConvert.DeserializeObject<RpcResponseMessage>(rpcResponse);
                 var response = ConvertResponse<string>(rpcResponseMessage);
-                
+
                 return response;
-                
+
             }
             else if (request.Method == ApiMethods.eth_signTypedData_v4.ToString())
             {
@@ -129,38 +125,32 @@ namespace SequenceSharp
             else if (request.Method == ApiMethods.eth_sign.ToString())
             {
                 return await _wallet.ExecuteSequenceJS(@"
-                const wallet = sequence.getWallet();
+                    const wallet = sequence.getWallet();
 
-                const signer = wallet.getSigner(" + chainID.ToString() + @");
+                    const signer = wallet.getSigner(" + chainID.ToString() + @");
 
-                const message = `" + request.RawParameters[1] + @"`
+                    const message = `" + request.RawParameters[1] + @"`
 
-            // sign
-            const sig = await signer.signMessage(message);
-            return sig;");
-                 
-            }else if(request.Method == ApiMethods.eth_getBalance.ToString())
+                    return signer.signMessage(message);
+                ");
+
+            }
+            else if (request.Method == ApiMethods.eth_getBalance.ToString())
             {
-                // TODO fix chain
-                Debug.Log(request.Method);
                 var accountAddress = await _wallet.GetAddress();
-                var ethBalance = await Indexer.GetEtherBalance(BlockChainType.Polygon, accountAddress);
+                var ethBalance = await Indexer.GetEtherBalance(chainID, accountAddress);
                 return ethBalance;
 
-            }else if(request.Method == ApiMethods.eth_chainId.ToString())
+            }
+            else if (request.Method == ApiMethods.eth_chainId.ToString())
             {
-                // TODO Fix chain
-                var chainID = await Indexer.GetChainID(BlockChainType.Polygon);
                 return chainID;
             }
             else
             {
                 return null;
-
             }
-
         }
-
 
         protected void HandleRpcError(RpcResponseMessage response)
         {

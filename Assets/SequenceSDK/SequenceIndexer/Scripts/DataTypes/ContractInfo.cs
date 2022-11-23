@@ -1,9 +1,11 @@
+using System.Numerics;
+
 namespace SequenceSharp
 {
     [System.Serializable]
     public class ContractInfo
     {
-        public int chainId;
+        public BigInteger chainId;
         public string address;
         public string name;
         public string type;

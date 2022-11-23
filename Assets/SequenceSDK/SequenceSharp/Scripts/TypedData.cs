@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 
 namespace SequenceSharp
 {
@@ -27,7 +28,7 @@ namespace SequenceSharp
         /// <summary>
         /// BigNumber
         /// </summary>
-        public string? chainId;
+        public BigInteger? chainId;
         public string? verifyingContract;
         /// <summary>
         /// WARNING this may not behave as expected. Does sequence.js return a string or byte array here?
