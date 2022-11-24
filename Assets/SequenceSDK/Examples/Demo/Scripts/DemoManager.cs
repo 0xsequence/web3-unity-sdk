@@ -345,7 +345,7 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
-            string accountAddress = await wallet.GetAddress(); //to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
+            string accountAddress = "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
             var tokenBalances = await Indexer.FetchMultiplePages(async (pageNumber) =>
             {
                 GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, true, new Page

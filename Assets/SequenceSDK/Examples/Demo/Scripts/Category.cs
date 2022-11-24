@@ -107,13 +107,12 @@ public class Category : MonoBehaviour
     private void OnButtonClick()
     {
         Debug.Log("contract type:" + _contractType);
-        if(_contractType == ContractType.ERC1155)
-        {
+        
             //Send Transaction On Click
-            Debug.Log("contract address:" + _contractAddress);
-            DemoManager.Instance.SendNFT(_contractAddress);
+        Debug.Log("contract address:" + _contractAddress);
+        DemoManager.Instance.SendNFT(_contractAddress);
             
-        }
+        
     }
 
     private void ApplyIcon(Texture tex)
