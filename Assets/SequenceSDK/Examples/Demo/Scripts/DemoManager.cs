@@ -20,6 +20,7 @@ public class DemoManager : MonoBehaviour
     [SerializeField] private GameObject welcomeCanvas;
     [SerializeField] private GameObject addressCanvas;
     [SerializeField] private GameObject collectionCanvas;
+    [SerializeField] private GameObject historyCanvas;
     [SerializeField] private DemoUIManager uiManager;
 
 
@@ -52,7 +53,10 @@ public class DemoManager : MonoBehaviour
 
     [Header("Test method")]
     [SerializeField] private Button testingBtn;
-
+    [Header("History")]
+    [SerializeField] private GameObject historyUnitPrefab;
+    [SerializeField] private HistoryUI historyUI;
+    [SerializeField] private Transform historyScroll;
 
     [Header("Collection")]
     [SerializeField] private Collection m_collection;
@@ -160,6 +164,7 @@ public class DemoManager : MonoBehaviour
             HideWelcomePanel();
             HideConnectPanel();
             HideCollectionPanel();
+            HideHistoryPanel();
             m_address.DisplayAccountAddress(accountAddress);
         });
     }
@@ -168,6 +173,26 @@ public class DemoManager : MonoBehaviour
         MainThread.wkr.AddJob(() =>
         {
             addressCanvas.SetActive(false);
+        });
+    }
+
+    private void DisplayHistoryPanel()
+    {
+        MainThread.wkr.AddJob(() =>
+        {
+            historyCanvas.SetActive(true);
+            HideWelcomePanel();
+            HideConnectPanel();
+            HideCollectionPanel();
+            HideAddressPanel();
+        });
+    }
+
+    public void HideHistoryPanel()
+    {
+        MainThread.wkr.AddJob(() =>
+        {
+            historyCanvas.SetActive(false);
         });
     }
     private void DisplayCollectionPanel(TokenBalance[] tokenBalances)
@@ -180,6 +205,7 @@ public class DemoManager : MonoBehaviour
             HideConnectPanel();
             HideWelcomePanel();
             HideAddressPanel();
+            HideHistoryPanel();
 
             m_collection.RetriveContractInfoData(tokenBalances);
 
@@ -204,6 +230,7 @@ public class DemoManager : MonoBehaviour
                 HideConnectPanel();
                 HideAddressPanel();
                 HideCollectionPanel();
+                HideHistoryPanel();
 
             }
             HideCloseWalletButton();
@@ -226,6 +253,7 @@ public class DemoManager : MonoBehaviour
             HideAddressPanel();
             HideCollectionPanel();
             HideCloseWalletButton();
+            HideHistoryPanel();
         });
     }
     public void HideConnectPanel()
@@ -317,7 +345,7 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
-            string accountAddress = await wallet.GetAddress(); //to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
+            string accountAddress = "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";// await wallet.GetAddress(); //to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
             var tokenBalances = await Indexer.FetchMultiplePages(async (pageNumber) =>
             {
                 GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, true, new Page
@@ -354,8 +382,10 @@ public class DemoManager : MonoBehaviour
 
     public async void ViewHistory()
     {
+        DisplayHistoryPanel();
+        historyUI.ClearHistories();
         try
-        {
+        {   
             string accountAddress = "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";// await wallet.GetAddress(); //to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
             var transactions = await Indexer.FetchMultiplePages(async (pageNumber) =>
             {
@@ -367,35 +397,33 @@ public class DemoManager : MonoBehaviour
                     page = pageNumber
                 });
                 var history = await Indexer.GetTransactionHistory(Chain.Polygon, args);
-                int count = 0;
+                
                 foreach (var transaction in history.transactions)
                 {
-                    Debug.Log("History (time): " + transaction.timestamp);
                     
                     foreach(var transfer in transaction.transfers)
                     {
-                        count++;
+                        
                         // Try to get token name, but got a "missing revert data in call exception" from ether.js for some contract address.
                         string name = "";
                         switch (transfer.contractType)
                         {
                             case ContractType.ERC20:
-                                
                                 name = await ERC20.Name(transfer.contractAddress);
                                 break;
                             case ContractType.ERC721:
-                                
                                 name = await ERC721.Name(transfer.contractAddress);
                                 break;
                             default:
                                 break;
                         }
-                        Debug.Log("token name:" + name);
 
-
-                        Debug.Log("Transfer Type: " + transfer.transferType.ToString());
-
-                        Debug.Log("tokens: " + transfer.tokenIds.Length);
+                        GameObject unitGO = Instantiate(historyUnitPrefab);
+                        unitGO.transform.SetParent(historyScroll);
+                        unitGO.transform.localScale = new UnityEngine.Vector3(1f, 1f, 1f);
+                        HistoryUnit historyUnit = unitGO.GetComponent<HistoryUnit>();
+                        historyUnit.SetUnit(transaction.timestamp, name, transfer.tokenIds.Length.ToString());
+                        historyUI.AddToHistoryList(historyUnit);
                         /*foreach(var tokenId in transfer.tokenIds)
                         {
                             Debug.Log("tokenId: "+ tokenId);
@@ -403,9 +431,10 @@ public class DemoManager : MonoBehaviour
                     }
                     
                 }
-                Debug.Log("count: " + count);
                 return (history.page, history.transactions);
             }, 9999);
+
+            
         }
         catch
         {
