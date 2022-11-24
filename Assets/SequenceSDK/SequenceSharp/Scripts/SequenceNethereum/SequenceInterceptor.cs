@@ -33,7 +33,7 @@ namespace SequenceSharp
             Func<RpcRequest, string, Task<T>> interceptedSendRequestAsync, RpcRequest request,
             string route = null)
         {
-
+            
             if (request.Method == ApiMethods.eth_sendTransaction.ToString())
             {
                 TransactionInput transactionInput = (TransactionInput)request.RawParameters[0];
