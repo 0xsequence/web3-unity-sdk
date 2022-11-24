@@ -345,7 +345,7 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
-            string accountAddress = "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
+            string accountAddress = await wallet.GetAddress();
             var tokenBalances = await Indexer.FetchMultiplePages(async (pageNumber) =>
             {
                 GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, true, new Page
@@ -516,13 +516,11 @@ And that has made all the difference.
         //Random To Account
         var newAddress = randomWallet.GetAccount(0).Address;
 
-        var amountToSend = 0;//?
-        var gas = await transferFunction.EstimateGasAsync(senderAddress, null, null, newAddress, amountToSend);
-        var value = new HexBigInteger(0);
+        var zero = new HexBigInteger(0);
         var receiptAmountSend =
-            await transferFunction.SendTransactionAndWaitForReceiptAsync(senderAddress, gas, value, null, newAddress,
-                amountToSend);
-        Debug.Log("[Sequence] ReceiptAmountSend:" + receiptAmountSend);
+            await transferFunction.SendTransactionAndWaitForReceiptAsync(senderAddress, zero, zero, null, newAddress,
+                0);
+        Debug.Log("[Sequence] sent:" + receiptAmountSend);
 
 
     }
@@ -687,19 +685,16 @@ And that has made all the difference.
             //Random To Account
             var newAddress = randomWallet.GetAccount(0).Address;
 
-            var amountToSend = 0;//?
-            var gas = await transferFunction.EstimateGasAsync(senderAddress, null, null, newAddress, amountToSend);
-            var value = new HexBigInteger(0);
+            var zero = new HexBigInteger(0);
             var receiptAmountSend =
-                await transferFunction.SendTransactionAndWaitForReceiptAsync(senderAddress, gas, value, null, newAddress,
-                    amountToSend);
+                await transferFunction.SendTransactionAndWaitForReceiptAsync(senderAddress, newAddress, [/*token ID*/], [/* balance */], null);
             Debug.Log("[Sequence] ReceiptAmountSend:" + receiptAmountSend);
 
 
         }
         catch (Exception e)
         {
-            Debug.Log(e);
+                Debug.Log(e);
         }
 
     }
