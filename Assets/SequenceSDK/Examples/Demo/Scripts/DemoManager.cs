@@ -345,7 +345,7 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
-            string accountAddress = "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";// await wallet.GetAddress(); //to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
+            string accountAddress = await wallet.GetAddress(); //to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
             var tokenBalances = await Indexer.FetchMultiplePages(async (pageNumber) =>
             {
                 GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(accountAddress, true, new Page
@@ -612,6 +612,73 @@ And that has made all the difference.
             }
         ]";
             
+            var contract = web3.Eth.GetContract(abi, contractAddress);
+            var transferFunction = contract.GetFunction("safeBatchTransferFrom");
+            var senderAddress = await wallet.GetAddress();
+
+            var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
+            //Random To Account
+            var newAddress = randomWallet.GetAccount(0).Address;
+
+            var amountToSend = 0;//?
+            var gas = await transferFunction.EstimateGasAsync(senderAddress, null, null, newAddress, amountToSend);
+            var value = new HexBigInteger(0);
+            var receiptAmountSend =
+                await transferFunction.SendTransactionAndWaitForReceiptAsync(senderAddress, gas, value, null, newAddress,
+                    amountToSend);
+            Debug.Log("[Sequence] ReceiptAmountSend:" + receiptAmountSend);
+
+
+        }
+        catch (Exception e)
+        {
+            Debug.Log(e);
+        }
+
+    }
+
+    public async void SendNFT(string contractAddress)
+    {
+        try
+        {
+
+
+            var abi = @"[
+            {
+                inputs: [
+                {
+                    internalType: 'address',
+                    name: '_from',
+                    type: 'address'
+                },
+                {
+                    internalType: 'address',
+                    name: '_to',
+                    type: 'address'
+                },
+                {
+                    internalType: 'uint256[]',
+                    name: '_ids',
+                    type: 'uint256[]'
+                },
+                {
+                    internalType: 'uint256[]',
+                    name: '_amounts',
+                    type: 'uint256[]'
+                },
+                {
+                    internalType: 'bytes',
+                    name: '_data',
+                    type: 'bytes'
+                }
+                ],
+            name: 'safeBatchTransferFrom',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function'
+            }
+        ]";
+
             var contract = web3.Eth.GetContract(abi, contractAddress);
             var transferFunction = contract.GetFunction("safeBatchTransferFrom");
             var senderAddress = await wallet.GetAddress();

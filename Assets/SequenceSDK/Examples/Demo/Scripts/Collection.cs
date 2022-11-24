@@ -58,12 +58,13 @@ public class Collection : MonoBehaviour
         Texture logoTex = null;
         UnityWebRequest imgRequest;
         TokenMetadata tokenMetadata = null;
+        string contractAddress;
         for (int i = 0; i < tokenBalances.Length; i++)
         {
             //check for metadata 
             tokenMetadata = tokenBalances[i].tokenMetadata;
             contractInfo = tokenBalances[i].contractInfo;
-
+            contractAddress = tokenBalances[i].contractAddress;
 
             newCatGo = Instantiate(categoryTemplate, tokensRoot);
             newCategory = newCatGo.GetComponent<Category>();
@@ -128,13 +129,13 @@ public class Collection : MonoBehaviour
             var type = ContractType.UNKNOWN;
             try
             {
-                Enum.Parse<ContractType>(contractInfo.type);
+                type = Enum.Parse<ContractType>(contractInfo.type);
             }
             catch
             {
                 // ok!
             }
-            newCategory.Init(tokenMetadata != null ? ($"{tokenMetadata.name} ({contractInfo.name})") : contractInfo.name, logoTex, type);
+            newCategory.Init(tokenMetadata != null ? ($"{tokenMetadata.name} ({contractInfo.name})") : contractInfo.name, logoTex, type, contractAddress);
         }
 
 

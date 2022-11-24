@@ -18,7 +18,7 @@ public class Category : MonoBehaviour
     [SerializeField] private TextMeshProUGUI btnLbl = null;
 
     public string _catName { get; private set; }
-    public string _contactAddress { get; private set; }
+    public string _contractAddress { get; private set; }
     public Texture _icon { get; private set; }
     public ContractType _contractType { get; private set; }
 
@@ -84,12 +84,36 @@ public class Category : MonoBehaviour
         }
     }
 
+    public void Init(string name, Texture icon, ContractType contractType, string contractAddress)
+    {
+        _catName = name;
+        this._icon = icon;
+        this._contractType = contractType;
+        this._contractAddress = contractAddress;
+        btnLbl.text = name;
+
+        if (icon != null)
+        {
+            ApplyIcon(icon);
+        }
+        else
+        {
+            iconImg.gameObject.SetActive(false);
+            //StretchLabel();
+        }
+    }
 
 
     private void OnButtonClick()
     {
-        // TODO: Load metadata content
-
+        Debug.Log("contract type:" + _contractType);
+        if(_contractType == ContractType.ERC1155)
+        {
+            //Send Transaction On Click
+            Debug.Log("contract address:" + _contractAddress);
+            DemoManager.Instance.SendNFT(_contractAddress);
+            
+        }
     }
 
     private void ApplyIcon(Texture tex)
