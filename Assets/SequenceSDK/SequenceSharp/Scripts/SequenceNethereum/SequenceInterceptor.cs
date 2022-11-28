@@ -39,12 +39,6 @@ namespace SequenceSharp
             if (request.Method == ApiMethods.eth_sendTransaction.ToString())
             {
                 TransactionInput transactionInput = (TransactionInput)request.RawParameters[0];
-                
-                Debug.Log("gas: " + transactionInput.Gas);
-                Debug.Log("data: " + transactionInput.Data);
-                Debug.Log("to: " + transactionInput.To);
-                Debug.Log("from: " + transactionInput.From);
-                Debug.Log("value: " + transactionInput.Value);
 
                 string rpcResponse = await _wallet.ExecuteSequenceJS(@"
                     const signer = seq.getWallet().getSigner(" + chainID.ToString() + @");

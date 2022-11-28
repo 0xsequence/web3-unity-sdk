@@ -530,49 +530,61 @@ And that has made all the difference.
     }
 
  
-    //Issue:
-    //https://forum.openzeppelin.com/t/cannot-estimate-gas/22245
+  
     public async void SendNFT()
     {
         try
         {
             //Contract Address
             var contractAddress = "";
+            BigInteger[] tokenIds = new BigInteger[1]; 
+            
             switch ((int)_sequenceInterceptor.chainID)
             {
                 case 1:
-                    contractAddress = "0x5c891d76584b46bC7F1E700169a76569Bb77d2Db";
+                    contractAddress = "0x697ed880c89C55a004003318690981d708E0d9ed";
+                    tokenIds[0] = 4605;
                     break;
                 case 137:
                     contractAddress = "0x631998e91476DA5B870D741192fc5Cbc55F5a52E";
+                    tokenIds[0] = 16646145;
                     break;
                 case 56:
-                    contractAddress = "0x3d24C45565834377b59fCeAA6864D6C25144aD6c";
+                    contractAddress = "0xa23b58EA2eE75A30075B3D071444Da35d4947Cc9";
+                    tokenIds[0] = 81690;
                     break;
                 case 42161:
-                    contractAddress = "0x9e22a752C4eD3D6C5DaB0123ED6A1C7eCF575200";
+                    contractAddress = "0x925f6348cFD83D3cc0e77830F7A176A33b550111";
+                    tokenIds[0] = 66277;
                     break;
                 case 42170:
-                    contractAddress = "0x61A119dAA01179dbAa33780D42E75b960e57f6B7";
+                    contractAddress = "0x1B3e11E78D082eF0acA690d0B918aEbb216E20E5";
+                    tokenIds[0] = 999;
                     break;
                 case 10:
-                    contractAddress = "0xfa14e1157f35e1dad95dc3f822a9d18c40e360e2";
+                    contractAddress = "0xfA14e1157F35E1dAD95dC3F822A9d18c40e360E2";
+                    tokenIds[0] = 619046;
                     break;
                 case 43114:
-                    contractAddress = "0xDb05DA15A08B59e6227f2d5047723243Be5b8525";
+                    contractAddress = "";
+                    tokenIds[0] = 0;
                     break;
                 case 100:
-                    contractAddress = "0x4330e8d1Cf427F878636d2614Dc13c356A71Be14";
+                    contractAddress = "0xf0A93Ad0184cF1e5f29d7b5579358C99b9010F17";
+                    tokenIds[0] =7957 ;
                     break;
                 //Testnet:
                 case 5:
                     contractAddress = "0xff02b7d59975E76F67B63b20b813a9Ec0f6AbD60";
+                    tokenIds[0] = 0;
                     break;
                 case 80001:
-                    contractAddress = "0xD2b0e73725918EA5F6ec25361D96D04977a86F88";
+                    contractAddress = "0xF399feCf01C3b8f115807c2f4E8117c57a570f36";
+                    tokenIds[0] = 16695550197660;
                     break;
                 case 97:
-                    contractAddress = "0x35c847059890178486841aE31d8C5f8d2C22Aea9";
+                    contractAddress = "0x7246611e05A926D0214d70fD5207f988fECaAa68";
+                    tokenIds[0] = 1;
                     break;
                 default:
                     Debug.Log("[Sequence] Incorrect Chain Id");
@@ -622,14 +634,12 @@ And that has made all the difference.
             var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
             //Random To Account
             var newAddress = randomWallet.GetAccount(0).Address;
-            Debug.Log("new Address:" + newAddress);
             var zero = new HexBigInteger(0);
-
-            BigInteger[] tokenIds = {16646145};
-            BigInteger[] amounts = {1};
+            BigInteger[] amounts = { 1 };
             Byte[] bytes = { };
             BigInteger value = new HexBigInteger(1);
-      
+
+
             var transactionResp =
             await safeBatchTransferFunction.SendTransactionAndWaitForReceiptAsync(senderAddress, zero, zero, null, senderAddress, newAddress, tokenIds, amounts, bytes);
           
