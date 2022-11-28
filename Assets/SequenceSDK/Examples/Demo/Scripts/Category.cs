@@ -110,7 +110,7 @@ public class Category : MonoBehaviour
         
             //Send Transaction On Click
         Debug.Log("contract address:" + _contractAddress);
-        DemoManager.Instance.SendNFT(_contractAddress, );
+        DemoManager.Instance.SendNFT(_contractAddress);
             
         
     }
