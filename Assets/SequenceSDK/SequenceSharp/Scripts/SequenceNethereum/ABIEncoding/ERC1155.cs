@@ -122,9 +122,22 @@ namespace SequenceSharp
         {
             throw new NotImplementedException();
         }
-        public static async Task SafeBatchTransferFrom(string from, string to, BigInteger[] ids, BigInteger[] amounts, string data)
+        public static async Task SafeBatchTransferFrom(string from, string to, List<BigInteger> ids, List<BigInteger> amounts, string data, string address)
         {
             throw new NotImplementedException();
+            /*try
+            {
+                var contract = web3.Eth.GetContract(abi, address);
+                var safeBatchTransferFromFunction = contract.GetFunction("safeBatchTransferFrom");
+                var balanceOfBatch = await safeBatchTransferFromFunction.CallAsync<List<BigInteger>>(accounts, ids);
+
+                return balanceOfBatch;
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+                return null;
+            }*/
         }
     }
 }

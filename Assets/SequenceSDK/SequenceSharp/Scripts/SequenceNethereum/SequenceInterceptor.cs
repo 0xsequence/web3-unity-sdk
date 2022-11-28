@@ -33,22 +33,31 @@ namespace SequenceSharp
             Func<RpcRequest, string, Task<T>> interceptedSendRequestAsync, RpcRequest request,
             string route = null)
         {
+
+            Debug.Log("request method" + request.Method);
             
             if (request.Method == ApiMethods.eth_sendTransaction.ToString())
             {
                 TransactionInput transactionInput = (TransactionInput)request.RawParameters[0];
+                
+                Debug.Log("gas: " + transactionInput.Gas);
+                Debug.Log("data: " + transactionInput.Data);
+                Debug.Log("to: " + transactionInput.To);
+                Debug.Log("from: " + transactionInput.From);
+                Debug.Log("value: " + transactionInput.Value);
+
                 string rpcResponse = await _wallet.ExecuteSequenceJS(@"
                     const signer = seq.getWallet().getSigner(" + chainID.ToString() + @");
                 
                     const tx = {
                         delegateCall: false,
                         revertOnError: false,
-                        gasLimit: '0x" + transactionInput.Gas + @"',
+                        gasLimit: '0x55555',
                         to: '" + transactionInput.To + @"',
                         value: " + transactionInput.Value + @",
                         data: '" + transactionInput.Data + @"'
                     };
-
+                    console.log(signer);
                     const txnResponse = await signer.sendTransactionBatch([tx]);
                 
                     return {

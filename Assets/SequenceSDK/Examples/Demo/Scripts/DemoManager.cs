@@ -1,4 +1,6 @@
 using NBitcoin;
+using Nethereum.Contracts;
+using Nethereum.Contracts.MessageEncodingServices;
 using Nethereum.Hex.HexTypes;
 using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Web3;
@@ -7,8 +9,10 @@ using SequenceSharp;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
+
 
 
 public class DemoManager : MonoBehaviour
@@ -525,6 +529,7 @@ And that has made all the difference.
 
     }
 
+ 
     //Issue:
     //https://forum.openzeppelin.com/t/cannot-estimate-gas/22245
     public async void SendNFT()
@@ -532,7 +537,7 @@ And that has made all the difference.
         try
         {
             //Contract Address
-            var contractAddress = "0x631998e91476DA5B870D741192fc5Cbc55F5a52E";
+            var contractAddress = "";
             switch ((int)_sequenceInterceptor.chainID)
             {
                 case 1:
@@ -611,21 +616,25 @@ And that has made all the difference.
         ]";
             
             var contract = web3.Eth.GetContract(abi, contractAddress);
-            var transferFunction = contract.GetFunction("safeBatchTransferFrom");
+            var safeBatchTransferFunction = contract.GetFunction("safeBatchTransferFrom");
             var senderAddress = await wallet.GetAddress();
 
             var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
             //Random To Account
             var newAddress = randomWallet.GetAccount(0).Address;
+            Debug.Log("new Address:" + newAddress);
+            var zero = new HexBigInteger(0);
 
-            var amountToSend = 0;//?
-            var gas = await transferFunction.EstimateGasAsync(senderAddress, null, null, newAddress, amountToSend);
-            var value = new HexBigInteger(0);
-            var receiptAmountSend =
-                await transferFunction.SendTransactionAndWaitForReceiptAsync(senderAddress, gas, value, null, newAddress,
-                    amountToSend);
-            Debug.Log("[Sequence] ReceiptAmountSend:" + receiptAmountSend);
-
+            BigInteger[] tokenIds = {16646145};
+            BigInteger[] amounts = {1};
+            Byte[] bytes = { };
+            BigInteger value = new HexBigInteger(1);
+      
+            var transactionResp =
+            await safeBatchTransferFunction.SendTransactionAndWaitForReceiptAsync(senderAddress, zero, zero, null, senderAddress, newAddress, tokenIds, amounts, bytes);
+          
+            Debug.Log("[Sequence] ReceiptAmountSend:" + transactionResp);
+            
 
         }
         catch (Exception e)
@@ -678,7 +687,7 @@ And that has made all the difference.
         ]";
 
             var contract = web3.Eth.GetContract(abi, contractAddress);
-            var transferFunction = contract.GetFunction("safeBatchTransferFrom");
+            var safeBatchTransferFunction = contract.GetFunction("safeBatchTransferFrom");
             var senderAddress = await wallet.GetAddress();
 
             var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
@@ -687,7 +696,8 @@ And that has made all the difference.
 
             var zero = new HexBigInteger(0);
             var receiptAmountSend =
-                await transferFunction.SendTransactionAndWaitForReceiptAsync(senderAddress, newAddress, [/*token ID*/], [/* balance */], null);
+                await safeBatchTransferFunction.SendTransactionAndWaitForReceiptAsync(senderAddress, zero, zero, null, newAddress,
+                0);
             Debug.Log("[Sequence] ReceiptAmountSend:" + receiptAmountSend);
 
 
