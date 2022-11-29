@@ -19,6 +19,7 @@ namespace SequenceSharp
         /// <summary>
         /// Call after signing in sequence wallet
         /// </summary>
+
         public async void ERC721Examples()
         {
             _wallet = FindObjectOfType<Wallet>();
