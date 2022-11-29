@@ -55,7 +55,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3970198421023624013}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 09641b77e06d0fe45bffeedb50a1bf21, type: 3}
+  m_Script: {fileID: 11500000, guid: 04a1e7d949e0c447997cf8b5c980eefe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   onWalletOpened:
@@ -64,9 +64,13 @@ MonoBehaviour:
   onWalletClosed:
     m_PersistentCalls:
       m_Calls: []
+  onReadyToConnect:
+    m_PersistentCalls:
+      m_Calls: []
+  readyToConnect: 0
   providerConfig:
-    walletAppURL: https://sequence.app
+    walletAppURL: https://sequence.app/
     defaultNetworkId: polygon
     networkRpcUrl: 
   enableRemoteDebugging: 0
-  native2DMode: 1
+  native2DMode: 0

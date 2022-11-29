@@ -1,8 +1,8 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using SequenceSharp;
+using BigInteger = System.Numerics.BigInteger;
 
 /*
 
@@ -13,15 +13,21 @@ Categories are sorted into sub menus based on Contract Type
 [System.Serializable]
 public class Category : MonoBehaviour
 {
-    [SerializeField] private Button catBtn = null;
-    [SerializeField] private Image iconImg = null;
-    [SerializeField] private TextMeshProUGUI btnLbl = null;
+    [SerializeField]
+    private Button catBtn = null;
+
+    [SerializeField]
+    private Image iconImg = null;
+
+    [SerializeField]
+    private TextMeshProUGUI btnLbl = null;
 
     public string _catName { get; private set; }
     public string _contractAddress { get; private set; }
     public Texture _icon { get; private set; }
     public ContractType _contractType { get; private set; }
 
+    private BigInteger _tokenID;
 
     private void OnDisable()
     {
@@ -38,58 +44,22 @@ public class Category : MonoBehaviour
         catBtn.onClick.AddListener(OnButtonClick);
     }
 
-    public void Init(string name)
-    {
-        _catName = name;
-
-        btnLbl.text = name;
-
-        iconImg.gameObject.SetActive(false);
-
-    }
-
-    public void Init(string name, Texture icon)
-    {
-        _catName = name;
-        this._icon = icon;
-
-        btnLbl.text = name;
-
-        if (icon != null)
-        {
-            ApplyIcon(icon);
-        }
-        else
-        {
-
-        }
-    }
-
-    public void Init(string name, Texture icon, ContractType contractType)
-    {
-        _catName = name;
-        this._icon = icon;
-        this._contractType = contractType;
-
-        btnLbl.text = name;
-
-        if (icon != null)
-        {
-            ApplyIcon(icon);
-        }
-        else
-        {
-            iconImg.gameObject.SetActive(false);
-            //StretchLabel();
-        }
-    }
-
-    public void Init(string name, Texture icon, ContractType contractType, string contractAddress)
+    public void Init(
+        string name,
+        Texture icon,
+        ContractType contractType,
+        string contractAddress,
+        BigInteger? tokenID
+    )
     {
         _catName = name;
         this._icon = icon;
         this._contractType = contractType;
         this._contractAddress = contractAddress;
+        if (tokenID != null)
+        {
+            this._tokenID = (BigInteger)tokenID;
+        }
         btnLbl.text = name;
 
         if (icon != null)
@@ -103,20 +73,38 @@ public class Category : MonoBehaviour
         }
     }
 
-
-    private void OnButtonClick()
+    private async void OnButtonClick()
     {
         Debug.Log("contract type:" + _contractType);
-        
-            //Send Transaction On Click
+
         Debug.Log("contract address:" + _contractAddress);
-        // DemoManager.Instance.web3;
-        if(_contractType == ContractType.ERC20) {
-            var contract = new ERC20(DemoManager.Instance.web3, _contractAddress);
+
+        var web3 = DemoManager.Instance.web3;
+        var address = (await web3.Eth.Accounts.SendRequestAsync())[0];
+        if (_contractType == ContractType.ERC20)
+        {
+            var contract = new ERC20(web3, _contractAddress);
+            await contract.Transfer(DemoManager.exampleToAccount, BigInteger.One);
         }
-        DemoManager.Instance.SendNFT(_contractAddress);
-            
-        
+        else if (_contractType == ContractType.ERC721)
+        {
+            var contract = new ERC721(web3, _contractAddress);
+            await contract.SafeTransferFrom(address, DemoManager.exampleToAccount, _tokenID);
+        }
+        else if (_contractType == ContractType.ERC1155)
+        {
+            var contract = new ERC1155(web3, _contractAddress);
+            await contract.SafeTransferFrom(
+                address,
+                DemoManager.exampleToAccount,
+                _tokenID,
+                BigInteger.One
+            );
+        }
+        else
+        {
+            Debug.LogWarning($"Can't send asset for contract type ${_contractType}");
+        }
     }
 
     private void ApplyIcon(Texture tex)
@@ -125,7 +113,12 @@ public class Category : MonoBehaviour
         {
             float width = iconImg.rectTransform.rect.width;
             float height = iconImg.rectTransform.rect.height;
-            iconImg.sprite = Sprite.Create(TextureHelper.ConvertToTexture2D(tex, (int)width, (int)height), new Rect(0f, 0f, width, height), new Vector2(0.5f, 0.5f), 100f);
+            iconImg.sprite = Sprite.Create(
+                TextureHelper.ConvertToTexture2D(tex, (int)width, (int)height),
+                new Rect(0f, 0f, width, height),
+                new Vector2(0.5f, 0.5f),
+                100f
+            );
         }
     }
 }

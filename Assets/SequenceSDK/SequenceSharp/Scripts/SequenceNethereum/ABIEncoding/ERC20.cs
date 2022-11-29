@@ -1,18 +1,17 @@
 using System.Numerics;
 using System.Threading.Tasks;
-using System;
 using UnityEngine;
 using Nethereum.Web3;
 using Nethereum.Hex.HexTypes;
 
 namespace SequenceSharp
 {
-
     public struct ERC20Supply
     {
         public string type;
         public string hex;
     }
+
     public struct ERC20Balance
     {
         public string type;
@@ -21,8 +20,8 @@ namespace SequenceSharp
 
     public class ERC20
     {
-      
-      private readonly static string abi = @"
+        private readonly string abi =
+            @"
       [
   {
     ""inputs"": [],
@@ -247,10 +246,10 @@ namespace SequenceSharp
     ""type"": ""event""
   }
 ]";
-        private static Web3 _web3 = null;
+        private Web3 _web3 = null;
         private string _contractAddress = "";
         private Nethereum.Contracts.Contract _contract;
-        private HexBigInteger zero = new HexBigInteger(0);
+
         public ERC20(Web3 web3, string contractAddress)
         {
             _web3 = web3;
@@ -275,8 +274,8 @@ namespace SequenceSharp
         }
 
         /// <summary>
-        /// Returns the number of decimals this ERC20 uses to get its user representation. 
-        /// Tokens usually opt for a value of 18, imitating the relationship between Ether and Wei. 
+        /// Returns the number of decimals this ERC20 uses to get its user representation.
+        /// Tokens usually opt for a value of 18, imitating the relationship between Ether and Wei.
         /// </summary>
         public Task<BigInteger> Decimals()
         {
@@ -291,7 +290,6 @@ namespace SequenceSharp
             return _contract.GetFunction("totalSupply").CallAsync<BigInteger>();
         }
 
-
         /// <summary>
         /// Returns the amount of this ERC20 owned by an account.
         /// </summary>
@@ -304,35 +302,65 @@ namespace SequenceSharp
         /// <summary>
         /// Transfers some amount of this ERC20 to another address.
         /// </summary>
-        public async Task<string> Transfer(string senderAddress, string recipientAddress, string amount)
+        public async Task<string> Transfer(
+            string senderAddress,
+            string recipientAddress,
+            string amount
+        )
         {
             //return _contract.GetFunction("transfer").SendTransactionAsync(senderAddress, recipientAddress, amount);
-            var receiptAmountSend = await _contract.GetFunction("transfer").SendTransactionAndWaitForReceiptAsync(senderAddress, zero, zero, null,  recipientAddress, amount);
-            return receiptAmountSend.ToString();
+            var receiptAmountSend = await _contract
+                .GetFunction("transfer")
+                .SendTransactionAndWaitForReceiptAsync(
+                    senderAddress,
+                    new HexBigInteger(BigInteger.Zero),
+                    new HexBigInteger(BigInteger.Zero),
+                    null,
+                    recipientAddress,
+                    amount
+                );
+            return ""; //TODO
         }
 
         public Task<BigInteger> Allowance(string owner, string spender)
         {
-            
             return _contract.GetFunction("allowance").CallAsync<BigInteger>(owner, spender);
-            
         }
 
         public async Task<bool> Approve(string spenderAddress, string amount)
         {
-            var receipt = await _contract.GetFunction("approve").SendTransactionAndWaitForReceiptAsync(spenderAddress, zero, zero, null, spenderAddress, amount);
+            var receipt = await _contract
+                .GetFunction("approve")
+                .SendTransactionAndWaitForReceiptAsync(
+                    spenderAddress,
+                    new HexBigInteger(BigInteger.Zero),
+                    new HexBigInteger(BigInteger.Zero),
+                    null,
+                    spenderAddress,
+                    amount
+                );
             Debug.Log("[Sequence] receipt form function TransferFrom: " + receipt);
             return true;
-
         }
 
-        public async Task<bool> TransferFrom(string senderAddress, string recipientAddress, string amount)
-        {            
-            var receipt = await _contract.GetFunction("transferFrom").SendTransactionAndWaitForReceiptAsync(senderAddress, zero, zero, null, recipientAddress, amount);
+        public async Task<bool> TransferFrom(
+            string senderAddress,
+            string recipientAddress,
+            string amount
+        )
+        {
+            var receipt = await _contract
+                .GetFunction("transferFrom")
+                .SendTransactionAndWaitForReceiptAsync(
+                    senderAddress,
+                    new HexBigInteger(BigInteger.Zero),
+                    new HexBigInteger(BigInteger.Zero),
+                    null,
+                    recipientAddress,
+                    amount
+                );
             Debug.Log("[Sequence] receipt form function TransferFrom: " + receipt);
             return true;
-
         }
-
     }
 }
