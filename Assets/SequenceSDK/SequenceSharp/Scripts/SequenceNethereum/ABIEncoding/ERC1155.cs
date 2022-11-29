@@ -15,13 +15,13 @@ namespace SequenceSharp
     {
         private static string abi = "[ { \"inputs\": [ { \"internalType\": \"string\", \"name\": \"uri_\", \"type\": \"string\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"constructor\" }, { \"anonymous\": false, \"inputs\": [ { \"indexed\": true, \"internalType\": \"address\", \"name\": \"account\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"operator\", \"type\": \"address\" }, { \"indexed\": false, \"internalType\": \"bool\", \"name\": \"approved\", \"type\": \"bool\" } ], \"name\": \"ApprovalForAll\", \"type\": \"event\" }, { \"anonymous\": false, \"inputs\": [ { \"indexed\": true, \"internalType\": \"address\", \"name\": \"operator\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"from\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"indexed\": false, \"internalType\": \"uint256[]\", \"name\": \"ids\", \"type\": \"uint256[]\" }, { \"indexed\": false, \"internalType\": \"uint256[]\", \"name\": \"values\", \"type\": \"uint256[]\" } ], \"name\": \"TransferBatch\", \"type\": \"event\" }, { \"anonymous\": false, \"inputs\": [ { \"indexed\": true, \"internalType\": \"address\", \"name\": \"operator\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"from\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"indexed\": false, \"internalType\": \"uint256\", \"name\": \"id\", \"type\": \"uint256\" }, { \"indexed\": false, \"internalType\": \"uint256\", \"name\": \"value\", \"type\": \"uint256\" } ], \"name\": \"TransferSingle\", \"type\": \"event\" }, { \"anonymous\": false, \"inputs\": [ { \"indexed\": false, \"internalType\": \"string\", \"name\": \"value\", \"type\": \"string\" }, { \"indexed\": true, \"internalType\": \"uint256\", \"name\": \"id\", \"type\": \"uint256\" } ], \"name\": \"URI\", \"type\": \"event\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"account\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"id\", \"type\": \"uint256\" } ], \"name\": \"balanceOf\", \"outputs\": [ { \"internalType\": \"uint256\", \"name\": \"\", \"type\": \"uint256\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address[]\", \"name\": \"accounts\", \"type\": \"address[]\" }, { \"internalType\": \"uint256[]\", \"name\": \"ids\", \"type\": \"uint256[]\" } ], \"name\": \"balanceOfBatch\", \"outputs\": [ { \"internalType\": \"uint256[]\", \"name\": \"\", \"type\": \"uint256[]\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"account\", \"type\": \"address\" }, { \"internalType\": \"address\", \"name\": \"operator\", \"type\": \"address\" } ], \"name\": \"isApprovedForAll\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"_address\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"_amount\", \"type\": \"uint256\" } ], \"name\": \"ownerMint\", \"outputs\": [], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"from\", \"type\": \"address\" }, { \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"internalType\": \"uint256[]\", \"name\": \"ids\", \"type\": \"uint256[]\" }, { \"internalType\": \"uint256[]\", \"name\": \"amounts\", \"type\": \"uint256[]\" }, { \"internalType\": \"bytes\", \"name\": \"data\", \"type\": \"bytes\" } ], \"name\": \"safeBatchTransferFrom\", \"outputs\": [], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"from\", \"type\": \"address\" }, { \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"id\", \"type\": \"uint256\" }, { \"internalType\": \"uint256\", \"name\": \"amount\", \"type\": \"uint256\" }, { \"internalType\": \"bytes\", \"name\": \"data\", \"type\": \"bytes\" } ], \"name\": \"safeTransferFrom\", \"outputs\": [], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"operator\", \"type\": \"address\" }, { \"internalType\": \"bool\", \"name\": \"approved\", \"type\": \"bool\" } ], \"name\": \"setApprovalForAll\", \"outputs\": [], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"bytes4\", \"name\": \"interfaceId\", \"type\": \"bytes4\" } ], \"name\": \"supportsInterface\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"uint256\", \"name\": \"\", \"type\": \"uint256\" } ], \"name\": \"uri\", \"outputs\": [ { \"internalType\": \"string\", \"name\": \"\", \"type\": \"string\" } ], \"stateMutability\": \"view\", \"type\": \"function\" } ]";
 
-        public static Wallet _wallet;
-        private static Web3 web3 = null;
-        private void Awake()
+        
+        private static Web3 _web3 = null;
+
+
+        public static void SetWeb3(Web3 web3)
         {
-            _wallet = FindObjectOfType<Wallet>();
-            web3 = new Web3();
-            web3.Client.OverridingRequestInterceptor = new SequenceInterceptor(_wallet, 137);
+            _web3 = web3;
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace SequenceSharp
         {
             try
             {
-                var contract = web3.Eth.GetContract(abi, address);
+                var contract = _web3.Eth.GetContract(abi, address);
                 var URIFunction = contract.GetFunction("uri");
                 var URI = await URIFunction.CallAsync<string>(_id);
 
@@ -57,18 +57,13 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public static async Task<BigInteger> BalanceOf( BigInteger id, string address,  string account = null)
+        public static async Task<BigInteger> BalanceOf( BigInteger id, string address,  string account)
         {
             try
             {
-                if (account == null)
-                {
-                    //account address not provided
+                
 
-                    account = await _wallet.GetAddress();
-                }
-
-                var contract = web3.Eth.GetContract(abi, address);
+                var contract = _web3.Eth.GetContract(abi, address);
                 var balanceOfFunction = contract.GetFunction("balanceOf");
                 var balanceOf = await balanceOfFunction.CallAsync<BigInteger>(account, id);
 
@@ -96,7 +91,7 @@ namespace SequenceSharp
 
             try
             {
-                var contract = web3.Eth.GetContract(abi, address);
+                var contract = _web3.Eth.GetContract(abi, address);
                 var balanceOfBatchFunction = contract.GetFunction("balanceOfBatch");
                 var balanceOfBatch = await balanceOfBatchFunction.CallAsync<List<BigInteger>>(accounts, ids);
 
@@ -125,19 +120,7 @@ namespace SequenceSharp
         public static async Task SafeBatchTransferFrom(string from, string to, List<BigInteger> ids, List<BigInteger> amounts, string data, string address)
         {
             throw new NotImplementedException();
-            /*try
-            {
-                var contract = web3.Eth.GetContract(abi, address);
-                var safeBatchTransferFromFunction = contract.GetFunction("safeBatchTransferFrom");
-                var balanceOfBatch = await safeBatchTransferFromFunction.CallAsync<List<BigInteger>>(accounts, ids);
-
-                return balanceOfBatch;
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e);
-                return null;
-            }*/
+            
         }
     }
 }
