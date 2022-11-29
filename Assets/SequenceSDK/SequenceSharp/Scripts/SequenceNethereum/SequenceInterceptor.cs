@@ -34,7 +34,7 @@ namespace SequenceSharp
             string route = null)
         {
 
-            Debug.Log("request method" + request.Method);
+            Debug.Log("request method: " + request.Method);
             
             if (request.Method == ApiMethods.eth_sendTransaction.ToString())
             {
