@@ -42,7 +42,6 @@ public class Collection : MonoBehaviour
     public void RetriveContractInfoData(TokenBalance[] tokenBalances)
     {
         ClearCategories();
-        //_currentAccountAddress = accountAddress;
 
         if (tokenBalances != null && tokenBalances.Length > 0)
         {
@@ -137,8 +136,6 @@ public class Collection : MonoBehaviour
             }
             newCategory.Init(tokenMetadata != null ? ($"{tokenMetadata.name} ({contractInfo.name})") : contractInfo.name, logoTex, type, contractAddress);
         }
-
-
         yield return null;
     }
 
@@ -176,10 +173,8 @@ public class Collection : MonoBehaviour
                 if (_categoryGroups.TryGetValue(cType, out currentGroup))
                 {
                     currentGroup.HideCategories();
-
                 }
             }
-
         }
     }
 }
