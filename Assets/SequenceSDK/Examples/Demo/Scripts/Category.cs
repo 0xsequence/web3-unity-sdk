@@ -110,6 +110,10 @@ public class Category : MonoBehaviour
         
             //Send Transaction On Click
         Debug.Log("contract address:" + _contractAddress);
+        // DemoManager.Instance.web3;
+        if(_contractType == ContractType.ERC20) {
+            var contract = new ERC20(DemoManager.Instance.web3, _contractAddress);
+        }
         DemoManager.Instance.SendNFT(_contractAddress);
             
         

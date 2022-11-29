@@ -1,15 +1,11 @@
 using NBitcoin;
-using Nethereum.Contracts;
-using Nethereum.Contracts.MessageEncodingServices;
 using Nethereum.Hex.HexTypes;
-using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Web3;
 using Newtonsoft.Json;
 using SequenceSharp;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -69,7 +65,7 @@ public class DemoManager : MonoBehaviour
 
     private bool m_connected = false; //For UI Only
 
-    private Web3 web3 = new Web3();
+    public Web3 web3 = new Web3();
     private SequenceInterceptor _sequenceInterceptor;
     public static DemoManager Instance { get; private set; }
     private void Awake()
@@ -212,7 +208,6 @@ public class DemoManager : MonoBehaviour
             HideHistoryPanel();
 
             m_collection.RetriveContractInfoData(tokenBalances);
-
         });
     }
     public void HideCollectionPanel()
@@ -875,7 +870,7 @@ And that has made all the difference.
         bool metamaskInitialized = metamask.IsMetamaskInitialised();
         if(metamaskInitialized)
         {
-            DisplayMetamaskPanel();  
+            DisplayMetamaskPanel();
         }
     }
 
@@ -920,11 +915,9 @@ And that has made all the difference.
         metamask.TransferRequest(toAddress, "0.000000000000000001");
     }
 
-
-    //private variables:
     private static Mnemonic exampleMnemo = new Mnemonic(Wordlist.English, WordCount.Twelve);
-    private string exampleWords = exampleMnemo.ToString();//"ripple scissors kick mammal hire column oak again sun offer wealth tomorrow wagon turn fatal";
-    private string examplePassword = "password";
-
-
+    private static string exampleWords = exampleMnemo.ToString(); // "ripple scissors kick mammal hire column oak again sun offer wealth tomorrow wagon turn fatal"
+    private static string examplePassword = "password";
+    private static Nethereum.HdWallet.Wallet exampleWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
+    private static string exampleToAccount = exampleWallet.GetAccount(0).Address;
 }

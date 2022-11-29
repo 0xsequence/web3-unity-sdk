@@ -100,19 +100,18 @@ namespace SequenceSharp
                     var address = _wallet.GetAddress();
                 }
                 string rpcResponse = await _wallet.ExecuteSequenceJS(@"
-                var wallet = seq.getWallet();
-                var provider = wallet.getProvider(" + chainID.ToString() + @");
-                var hexString = await provider.call({to:'" + callInput.To + @"',data:'" + callInput.Data + @"'});
-                
-                
-                let rpcResponse = {
-                        jsonrpc: '2.0',
-                        result: hexString,
-                        id: 0, //parsedMessage.id,(???)
-                        error: null
-                    };
-                return rpcResponse;
-                
+                    var wallet = seq.getWallet();
+                    var provider = wallet.getProvider(" + chainID.ToString() + @");
+                    var hexString = await provider.call({to:'" + callInput.To + @"',data:'" + callInput.Data + @"'});
+                    
+                    
+                    let rpcResponse = {
+                            jsonrpc: '2.0',
+                            result: hexString,
+                            id: 0, //parsedMessage.id,(???)
+                            error: null
+                        };
+                    return rpcResponse;
                 ");
 
                 RpcResponseMessage rpcResponseMessage = JsonConvert.DeserializeObject<RpcResponseMessage>(rpcResponse);
@@ -150,6 +149,7 @@ namespace SequenceSharp
                 return chainID;
             } else if (request.Method == ApiMethods.wallet_switchEthereumChain.ToString()) {
                 this.chainID = BigInteger.Parse((string)request.RawParameters[0]);
+                return null; // should throw 4902 if it's not valid
             }
             else
             {
