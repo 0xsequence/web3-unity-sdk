@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using System;
 using UnityEngine;
 using Nethereum.Web3;
+using Nethereum.Hex.HexTypes;
+
 namespace SequenceSharp
 {
     public struct ERC721Balance
@@ -17,10 +19,14 @@ namespace SequenceSharp
 
         private static Web3 _web3 = null;
         private string _contractAddress = "";
+        private string _accountAddress = ""; //TODO : Needs account address from the wallet
+        private Nethereum.Contracts.Contract _contract;
+        private HexBigInteger zero = new HexBigInteger(0);
         public ERC721(Web3 web3, string contractAddress)
         {
             _web3 = web3;
             _contractAddress = contractAddress;
+            _contract = _web3.Eth.GetContract(abi, _contractAddress);
         }
 
         /// <summary>
@@ -29,21 +35,10 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public async Task<string> Name()
+        public Task<string> Name()
         {
-            try
-            {
-                var contract = _web3.Eth.GetContract(abi, _contractAddress);
-                var nameFunction = contract.GetFunction("name");
-                var name = await nameFunction.CallAsync<string>();
-
-                return name;
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e);
-                return "";
-            }
+            return _contract.GetFunction("name").CallAsync<string>();
+            
 
         }
 
@@ -53,22 +48,9 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public async Task<string> Symbol()
+        public Task<string> Symbol()
         {
-            try
-            {
-                var contract = _web3.Eth.GetContract(abi, _contractAddress);
-                var symbolFunction = contract.GetFunction("symbol");
-                var symbol = await symbolFunction.CallAsync<string>();
-
-
-                return symbol;
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e);
-                return "";
-            }
+            return _contract.GetFunction("symbol").CallAsync<string>();
         }
 
         /// <summary>
@@ -78,23 +60,10 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public async Task<string> TokenURI(BigInteger tokenId)
+        public Task<string> TokenURI(BigInteger tokenId)
         {
-            try
-            {
-                var contract = _web3.Eth.GetContract(abi, _contractAddress);
-                var tokenURIFunction = contract.GetFunction("tokenURI");
-                var tokenURI = await tokenURIFunction.CallAsync<string>(tokenId);
-
-
-                return tokenURI;
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e);
-                return "";
-            }
-
+            return _contract.GetFunction("tokenURI").CallAsync<string>(tokenId);
+            
         }
 
         /// <summary>
@@ -104,22 +73,9 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public async Task<BigInteger> BalanceOf( string owner)
+        public Task<BigInteger> BalanceOf(string owner)
         {
-            try
-            {
-                
-                var contract = _web3.Eth.GetContract(abi, _contractAddress);
-                var balanceOfFunction = contract.GetFunction("balanceOf");
-                var balanceOf = await balanceOfFunction.CallAsync<BigInteger>(owner);
-
-                return balanceOf;
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e);
-                return -1;
-            }
+            return _contract.GetFunction("balanceOf").CallAsync<BigInteger>(owner);
 
         }
 
@@ -130,64 +86,48 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public async Task<string> OwnerOf(BigInteger tokenId)
+        public Task<string> OwnerOf(BigInteger tokenId)
         {
-            try
-            {
-                var contract = _web3.Eth.GetContract(abi, _contractAddress);
-                var ownerOfFunction = contract.GetFunction("ownerOf");
-                var ownerOf = await ownerOfFunction.CallAsync<string>(tokenId);
+            return _contract.GetFunction("ownerOf").CallAsync<string>(tokenId);
+            
+        }
 
-                return ownerOf;
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e);
-                return "";
-            }
+        public async Task SafeTransferFrom(string from, string to, BigInteger tokenId, Byte data)
+        {
+            var receipt = await _contract.GetFunction("safeTransferFrom").SendTransactionAndWaitForReceiptAsync(from, zero, zero, null, from,to,tokenId,data);
+            Debug.Log("[Sequence] receipt form function SafeTransferFrom: " + receipt);
 
         }
 
-        public async Task<bool> SafeTransferFrom(string from, string to, BigInteger tokenId, string senderAddress, string receiverAddress)
+        public async Task TransferFrom(string from, string to, BigInteger tokenId)
         {
-            /*try
-            {
-
-                var contract = _web3.Eth.GetContract(abi, _contractAddress);
-                var safeTransferFromFunction = contract.GetFunction("SafeTransferFrom");
-
-                return true;
-
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e);
-                return false;
-            }*/
-            throw new NotImplementedException();
-
+            var receipt = await _contract.GetFunction("transferFrom").SendTransactionAndWaitForReceiptAsync(from, zero, zero, null, from, to, tokenId);
+            Debug.Log("[Sequence] receipt form function TransferFrom: " + receipt);           
+        }
+        public async Task Approve(string to, BigInteger tokenId)
+        {
+            
+            
+            var receipt = await _contract.GetFunction("approve").SendTransactionAndWaitForReceiptAsync(_accountAddress, zero, zero, null, to, tokenId);
+            Debug.Log("[Sequence] receipt form function TransferFrom: " + receipt);
+        }
+        public async Task<string> GetApproved(BigInteger tokenId)
+        {
+            var receipt = await _contract.GetFunction("getApproved").SendTransactionAndWaitForReceiptAsync(_accountAddress, zero, zero, null, tokenId);
+            Debug.Log("[Sequence] receipt form function Approve: " + receipt);
+            return receipt.ToString();
+        }
+        public async Task SetApprovalForAll(string operatorAddress, bool _approved)
+        {
+            var receipt = await _contract.GetFunction("setApprovalForAll").SendTransactionAndWaitForReceiptAsync(_accountAddress, zero, zero, null, operatorAddress,_approved);
+            Debug.Log("[Sequence] receipt form function SetApprovalForAll: " + receipt);
         }
 
-        public static async Task TransferFrom(string from, string to, BigInteger tokenId)
+        public async Task<bool> IsApprovedForAll(string owner, string operatorAddress)
         {
-            throw new NotImplementedException();
-        }
-        public static async Task Approve(string to, BigInteger tokenId)
-        {
-            throw new NotImplementedException();
-        }
-        public static async Task GetApproved(BigInteger tokenId)
-        {
-            throw new NotImplementedException();
-        }
-        public static async Task SetApprovalForAll(string operatorAddress, bool _approved)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static async Task IsApprovedForAll(string owner, string operatorAddress)
-        {
-            throw new NotImplementedException();
+            var receipt = await _contract.GetFunction("isApprovedForAall").SendTransactionAndWaitForReceiptAsync(_accountAddress, zero, zero, null, owner, operatorAddress);
+            Debug.Log("[Sequence] receipt form function IsApprovedForAll: " + receipt);
+            return false;
         }
 
         
