@@ -320,16 +320,17 @@ namespace SequenceSharp
 
         public async Task<bool> Approve(string spenderAddress, string amount)
         {
-            var receiptAmountSend = await _contract.GetFunction("approve").SendTransactionAndWaitForReceiptAsync(spenderAddress, zero, zero, null, spenderAddress, amount);
-
+            var receipt = await _contract.GetFunction("approve").SendTransactionAndWaitForReceiptAsync(spenderAddress, zero, zero, null, spenderAddress, amount);
+            Debug.Log("[Sequence] receipt form function TransferFrom: " + receipt);
             return true;
 
         }
 
-        public async Task<string> TransferFrom(string senderAddress, string recipientAddress, string amount)
+        public async Task<bool> TransferFrom(string senderAddress, string recipientAddress, string amount)
         {            
-            var receiptAmountSend = await _contract.GetFunction("transferFrom").SendTransactionAndWaitForReceiptAsync(senderAddress, zero, zero, null, recipientAddress, amount);
-            return receiptAmountSend.ToString();
+            var receipt = await _contract.GetFunction("transferFrom").SendTransactionAndWaitForReceiptAsync(senderAddress, zero, zero, null, recipientAddress, amount);
+            Debug.Log("[Sequence] receipt form function TransferFrom: " + receipt);
+            return true;
 
         }
 
