@@ -19,16 +19,17 @@ namespace SequenceSharp
         public string hex;
     }
 
-    public class ERC20 : MonoBehaviour
+    public class ERC20
     {
       
       private readonly static string abi = "[ { \"inputs\": [ { \"internalType\": \"string\", \"name\": \"name_\", \"type\": \"string\" }, { \"internalType\": \"string\", \"name\": \"symbol_\", \"type\": \"string\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"constructor\" }, { \"anonymous\": false, \"inputs\": [ { \"indexed\": true, \"internalType\": \"address\", \"name\": \"owner\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"spender\", \"type\": \"address\" }, { \"indexed\": false, \"internalType\": \"uint256\", \"name\": \"value\", \"type\": \"uint256\" } ], \"name\": \"Approval\", \"type\": \"event\" }, { \"anonymous\": false, \"inputs\": [ { \"indexed\": true, \"internalType\": \"address\", \"name\": \"from\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"indexed\": false, \"internalType\": \"uint256\", \"name\": \"value\", \"type\": \"uint256\" } ], \"name\": \"Transfer\", \"type\": \"event\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"owner\", \"type\": \"address\" }, { \"internalType\": \"address\", \"name\": \"spender\", \"type\": \"address\" } ], \"name\": \"allowance\", \"outputs\": [ { \"internalType\": \"uint256\", \"name\": \"\", \"type\": \"uint256\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"spender\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"amount\", \"type\": \"uint256\" } ], \"name\": \"approve\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"account\", \"type\": \"address\" } ], \"name\": \"balanceOf\", \"outputs\": [ { \"internalType\": \"uint256\", \"name\": \"\", \"type\": \"uint256\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [], \"name\": \"decimals\", \"outputs\": [ { \"internalType\": \"uint8\", \"name\": \"\", \"type\": \"uint8\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"spender\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"subtractedValue\", \"type\": \"uint256\" } ], \"name\": \"decreaseAllowance\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"spender\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"addedValue\", \"type\": \"uint256\" } ], \"name\": \"increaseAllowance\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [], \"name\": \"name\", \"outputs\": [ { \"internalType\": \"string\", \"name\": \"\", \"type\": \"string\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [], \"name\": \"symbol\", \"outputs\": [ { \"internalType\": \"string\", \"name\": \"\", \"type\": \"string\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [], \"name\": \"totalSupply\", \"outputs\": [ { \"internalType\": \"uint256\", \"name\": \"\", \"type\": \"uint256\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"recipient\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"amount\", \"type\": \"uint256\" } ], \"name\": \"transfer\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"sender\", \"type\": \"address\" }, { \"internalType\": \"address\", \"name\": \"recipient\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"amount\", \"type\": \"uint256\" } ], \"name\": \"transferFrom\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"function\" } ]";
 
         private static Web3 _web3 = null;
-
-        public static void SetWeb3(Web3 web3)
+        private string _contractAddress = "";
+        public ERC20(Web3 web3, string contractAddress)
         {
             _web3 = web3;
+            _contractAddress = contractAddress;
         }
 
         /// <summary>
@@ -37,11 +38,11 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public static async Task<string> Name(string address)
+        public async Task<string> Name()
         {
             try
             {
-                var contract = _web3.Eth.GetContract(abi, address);
+                var contract = _web3.Eth.GetContract(abi, _contractAddress);
                 var nameFunction = contract.GetFunction("name");
                 var name = await nameFunction.CallAsync<string>();
 
@@ -61,11 +62,11 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public static async Task<string> Symbol(string address)
+        public async Task<string> Symbol()
         {
             try
             {
-                var contract = _web3.Eth.GetContract(abi, address);
+                var contract = _web3.Eth.GetContract(abi, _contractAddress);
                 var symbolFunction = contract.GetFunction("symbol");
                 var symbol = await symbolFunction.CallAsync<string>();
 
@@ -87,11 +88,11 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public static async Task<BigInteger> Decimals(string address)
+        public async Task<BigInteger> Decimals()
         {
             try
             {
-                var contract = _web3.Eth.GetContract(abi, address);
+                var contract = _web3.Eth.GetContract(abi, _contractAddress);
                 var decimalsFunction = contract.GetFunction("decimals");
                 var decimals = await decimalsFunction.CallAsync<BigInteger>();
 
@@ -111,11 +112,11 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public static async Task<BigInteger> TotalSupply(string address)
+        public async Task<BigInteger> TotalSupply()
         {
             try
             {
-                var contract = _web3.Eth.GetContract(abi, address);
+                var contract = _web3.Eth.GetContract(abi, _contractAddress);
                 var totalSupplyFunction = contract.GetFunction("totalSupply");
                 var totalSupply = await totalSupplyFunction.CallAsync<BigInteger>();
 
@@ -137,11 +138,11 @@ namespace SequenceSharp
         /// <param name="chainId"></param>
         /// /// <param name="account">Account address, if not provided, it will be the account address from sequence wallet </param>
         /// <returns></returns>
-        public static async Task<BigInteger> BalanceOf(string address,  string account)
+        public async Task<BigInteger> BalanceOf(string account)
         {
             try
             {               
-                var contract = _web3.Eth.GetContract(abi, address);
+                var contract = _web3.Eth.GetContract(abi, _contractAddress);
                 var balanceOfFunction = contract.GetFunction("balanceOf");
                 var balanceOf = await balanceOfFunction.CallAsync<BigInteger>(account);
 

@@ -410,13 +410,14 @@ public class DemoManager : MonoBehaviour
                         
                         // Try to get token name, but got a "missing revert data in call exception" from ether.js for some contract address.
                         string name = "";
+                        var erc20 = new ERC20(web3, transfer.contractAddress);
                         switch (transfer.contractType)
                         {
                             case ContractType.ERC20:
-                                name = await ERC20.Name(transfer.contractAddress);
+                                name = await erc20.Name();
                                 break;
                             case ContractType.ERC721:
-                                name = await ERC721.Name(transfer.contractAddress);
+                                name = await erc20.Name();
                                 break;
                             default:
                                 break;

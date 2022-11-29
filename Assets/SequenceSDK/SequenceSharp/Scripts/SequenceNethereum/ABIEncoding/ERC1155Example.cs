@@ -25,22 +25,17 @@ namespace SequenceSharp
         {
             
             _wallet = FindObjectOfType<Wallet>();
-
             var web3 = new Web3();
-
-            web3.Client.OverridingRequestInterceptor = new SequenceInterceptor(_wallet, 137);
-
-            //Set web3 interceptor before using it:
-            ERC1155.SetWeb3(web3);
+            web3.Client.OverridingRequestInterceptor = new SequenceInterceptor(_wallet, 137);           
+            var erc1155 = new ERC1155(web3,contractAddress);
 
             Debug.Log("[Sequence] ERC1155 Token Example:");
-            var URI = await ERC1155.URI(tokenIds[0], contractAddress);
+            var URI = await erc1155.URI(tokenIds[0]);
             Debug.Log("URI: " + URI);
-
             accounts[0] = await _wallet.GetAddress();
-            var balanceOf = await ERC1155.BalanceOf(tokenIds[0], contractAddress,  accounts[0]);
+            var balanceOf = await erc1155.BalanceOf(tokenIds[0],  accounts[0]);
             Debug.Log("balanceOf: " + balanceOf);
-            var balanceOfBatch = await ERC1155.BalanceOfBatch(accounts, tokenIds, contractAddress);
+            var balanceOfBatch = await erc1155.BalanceOfBatch(accounts, tokenIds);
             foreach(var balance in balanceOfBatch)
             {
                 Debug.Log("balanceOfBatch: " + balance);

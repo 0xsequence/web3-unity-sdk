@@ -20,28 +20,23 @@ namespace SequenceSharp
         /// </summary>
         public async void ERC20Examples()
         {
-
             _wallet = FindObjectOfType<Wallet>();
-
             var web3 = new Web3();
-
             web3.Client.OverridingRequestInterceptor = new SequenceInterceptor(_wallet, 137);
-
-            //Set web3 interceptor before using it:
-            ERC20.SetWeb3(web3);
+            var erc20 = new ERC20(web3, contractAddress);
 
             Debug.Log("[Sequence] ERC20 Token Example:");
-            var name = await ERC20.Name(contractAddress);
+            var name = await erc20.Name();
             Debug.Log("name: " + name);
-            var symbol = await ERC20.Symbol(contractAddress);
+            var symbol = await erc20.Symbol();
             Debug.Log("symbol: " + symbol);
-            var decimals = await ERC20.Decimals(contractAddress);
+            var decimals = await erc20.Decimals();
             Debug.Log("decimals: " + decimals);
-            var totalSupply = await ERC20.TotalSupply(contractAddress);
+            var totalSupply = await erc20.TotalSupply();
             Debug.Log("totalSupply: " + totalSupply);
 
             accountAddress = await _wallet.GetAddress();
-            var balanceOf = await ERC20.BalanceOf(contractAddress, accountAddress);
+            var balanceOf = await erc20.BalanceOf(accountAddress);
             Debug.Log("balanceOf: " + balanceOf);
         }
 
