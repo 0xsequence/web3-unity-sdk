@@ -1,3 +1,4 @@
+using Nethereum.Web3;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,7 +10,9 @@ namespace SequenceSharp
         //Set in inspector
         public string contractAddress = "";
         public string accountAddress = "";
-        // Start is called before the first frame update
+
+        public Wallet _wallet;
+
 
 
         /// <summary>
@@ -17,6 +20,16 @@ namespace SequenceSharp
         /// </summary>
         public async void ERC20Examples()
         {
+
+            _wallet = FindObjectOfType<Wallet>();
+
+            var web3 = new Web3();
+
+            web3.Client.OverridingRequestInterceptor = new SequenceInterceptor(_wallet, 137);
+
+            //Set web3 interceptor before using it:
+            ERC20.SetWeb3(web3);
+
             Debug.Log("[Sequence] ERC20 Token Example:");
             var name = await ERC20.Name(contractAddress);
             Debug.Log("name: " + name);
@@ -26,6 +39,8 @@ namespace SequenceSharp
             Debug.Log("decimals: " + decimals);
             var totalSupply = await ERC20.TotalSupply(contractAddress);
             Debug.Log("totalSupply: " + totalSupply);
+
+            accountAddress = await _wallet.GetAddress();
             var balanceOf = await ERC20.BalanceOf(contractAddress, accountAddress);
             Debug.Log("balanceOf: " + balanceOf);
         }
