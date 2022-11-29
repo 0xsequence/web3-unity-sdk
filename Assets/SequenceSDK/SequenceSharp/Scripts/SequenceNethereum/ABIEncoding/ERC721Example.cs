@@ -21,28 +21,22 @@ namespace SequenceSharp
         /// </summary>
         public async void ERC721Examples()
         {
-
             _wallet = FindObjectOfType<Wallet>();
-
             var web3 = new Web3();
-
             web3.Client.OverridingRequestInterceptor = new SequenceInterceptor(_wallet, 137);
-
-            ERC721.SetWeb3(web3);
+            var erc721 = new ERC721(web3, contractAddress);
 
             Debug.Log("[Sequence] ERC721 Token Example:");
-            var name = await ERC721.Name(contractAddress);
+            var name = await erc721.Name();
             Debug.Log("name: " + name);
-            var symbol = await ERC721.Symbol(contractAddress );
+            var symbol = await erc721.Symbol( );
             Debug.Log("symbol: " + symbol);
-            var tokenURI = await ERC721.TokenURI(tokenId, contractAddress);
+            var tokenURI = await erc721.TokenURI(tokenId);
             Debug.Log("tokenURI: " + tokenURI);
-
             accountAddress = await _wallet.GetAddress();
-
-            var balanceOf = await ERC721.BalanceOf(contractAddress,  accountAddress);
+            var balanceOf = await erc721.BalanceOf(accountAddress);
             Debug.Log("balanceOf: " + balanceOf);
-            var ownerOf = await ERC721.OwnerOf(tokenId, contractAddress);
+            var ownerOf = await erc721.OwnerOf(tokenId);
             Debug.Log("ownerOf: " + ownerOf);
         }
     }

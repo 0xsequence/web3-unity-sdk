@@ -11,14 +11,16 @@ namespace SequenceSharp
         public string hex;
     }
 
-    public class ERC721 : MonoBehaviour
+    public class ERC721
     {
         private static string abi = "[ { \"inputs\": [ { \"internalType\": \"string\", \"name\": \"name_\", \"type\": \"string\" }, { \"internalType\": \"string\", \"name\": \"symbol_\", \"type\": \"string\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"constructor\" }, { \"anonymous\": false, \"inputs\": [ { \"indexed\": true, \"internalType\": \"address\", \"name\": \"owner\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"approved\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"uint256\", \"name\": \"tokenId\", \"type\": \"uint256\" } ], \"name\": \"Approval\", \"type\": \"event\" }, { \"anonymous\": false, \"inputs\": [ { \"indexed\": true, \"internalType\": \"address\", \"name\": \"owner\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"operator\", \"type\": \"address\" }, { \"indexed\": false, \"internalType\": \"bool\", \"name\": \"approved\", \"type\": \"bool\" } ], \"name\": \"ApprovalForAll\", \"type\": \"event\" }, { \"anonymous\": false, \"inputs\": [ { \"indexed\": true, \"internalType\": \"address\", \"name\": \"from\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"uint256\", \"name\": \"tokenId\", \"type\": \"uint256\" } ], \"name\": \"Transfer\", \"type\": \"event\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"tokenId\", \"type\": \"uint256\" } ], \"name\": \"approve\", \"outputs\": [], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"owner\", \"type\": \"address\" } ], \"name\": \"balanceOf\", \"outputs\": [ { \"internalType\": \"uint256\", \"name\": \"\", \"type\": \"uint256\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"uint256\", \"name\": \"tokenId\", \"type\": \"uint256\" } ], \"name\": \"getApproved\", \"outputs\": [ { \"internalType\": \"address\", \"name\": \"\", \"type\": \"address\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"owner\", \"type\": \"address\" }, { \"internalType\": \"address\", \"name\": \"operator\", \"type\": \"address\" } ], \"name\": \"isApprovedForAll\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [], \"name\": \"name\", \"outputs\": [ { \"internalType\": \"string\", \"name\": \"\", \"type\": \"string\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"uint256\", \"name\": \"tokenId\", \"type\": \"uint256\" } ], \"name\": \"ownerOf\", \"outputs\": [ { \"internalType\": \"address\", \"name\": \"\", \"type\": \"address\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"from\", \"type\": \"address\" }, { \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"tokenId\", \"type\": \"uint256\" } ], \"name\": \"safeTransferFrom\", \"outputs\": [], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"from\", \"type\": \"address\" }, { \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"tokenId\", \"type\": \"uint256\" }, { \"internalType\": \"bytes\", \"name\": \"_data\", \"type\": \"bytes\" } ], \"name\": \"safeTransferFrom\", \"outputs\": [], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"operator\", \"type\": \"address\" }, { \"internalType\": \"bool\", \"name\": \"approved\", \"type\": \"bool\" } ], \"name\": \"setApprovalForAll\", \"outputs\": [], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"bytes4\", \"name\": \"interfaceId\", \"type\": \"bytes4\" } ], \"name\": \"supportsInterface\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [], \"name\": \"symbol\", \"outputs\": [ { \"internalType\": \"string\", \"name\": \"\", \"type\": \"string\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"uint256\", \"name\": \"tokenId\", \"type\": \"uint256\" } ], \"name\": \"tokenURI\", \"outputs\": [ { \"internalType\": \"string\", \"name\": \"\", \"type\": \"string\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"from\", \"type\": \"address\" }, { \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"tokenId\", \"type\": \"uint256\" } ], \"name\": \"transferFrom\", \"outputs\": [], \"stateMutability\": \"nonpayable\", \"type\": \"function\" } ]";
 
         private static Web3 _web3 = null;
-        public static void SetWeb3(Web3 web3)
+        private string _contractAddress = "";
+        public ERC721(Web3 web3, string contractAddress)
         {
             _web3 = web3;
+            _contractAddress = contractAddress;
         }
 
         /// <summary>
@@ -27,11 +29,11 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public static async Task<string> Name(string address)
+        public async Task<string> Name()
         {
             try
             {
-                var contract = _web3.Eth.GetContract(abi, address);
+                var contract = _web3.Eth.GetContract(abi, _contractAddress);
                 var nameFunction = contract.GetFunction("name");
                 var name = await nameFunction.CallAsync<string>();
 
@@ -51,11 +53,11 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public static async Task<string> Symbol(string address)
+        public async Task<string> Symbol()
         {
             try
             {
-                var contract = _web3.Eth.GetContract(abi, address);
+                var contract = _web3.Eth.GetContract(abi, _contractAddress);
                 var symbolFunction = contract.GetFunction("symbol");
                 var symbol = await symbolFunction.CallAsync<string>();
 
@@ -76,11 +78,11 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public static async Task<string> TokenURI(BigInteger tokenId, string address)
+        public async Task<string> TokenURI(BigInteger tokenId)
         {
             try
             {
-                var contract = _web3.Eth.GetContract(abi, address);
+                var contract = _web3.Eth.GetContract(abi, _contractAddress);
                 var tokenURIFunction = contract.GetFunction("tokenURI");
                 var tokenURI = await tokenURIFunction.CallAsync<string>(tokenId);
 
@@ -102,12 +104,12 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public static async Task<BigInteger> BalanceOf( string address, string owner)
+        public async Task<BigInteger> BalanceOf( string owner)
         {
             try
             {
                 
-                var contract = _web3.Eth.GetContract(abi, address);
+                var contract = _web3.Eth.GetContract(abi, _contractAddress);
                 var balanceOfFunction = contract.GetFunction("balanceOf");
                 var balanceOf = await balanceOfFunction.CallAsync<BigInteger>(owner);
 
@@ -128,11 +130,11 @@ namespace SequenceSharp
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public static async Task<string> OwnerOf(BigInteger tokenId, string address)
+        public async Task<string> OwnerOf(BigInteger tokenId)
         {
             try
             {
-                var contract = _web3.Eth.GetContract(abi, address);
+                var contract = _web3.Eth.GetContract(abi, _contractAddress);
                 var ownerOfFunction = contract.GetFunction("ownerOf");
                 var ownerOf = await ownerOfFunction.CallAsync<string>(tokenId);
 
