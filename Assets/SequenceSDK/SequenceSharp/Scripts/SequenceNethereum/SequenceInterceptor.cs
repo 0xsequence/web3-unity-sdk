@@ -148,6 +148,8 @@ namespace SequenceSharp
             else if (request.Method == ApiMethods.eth_chainId.ToString())
             {
                 return chainID;
+            } else if (request.Method == ApiMethods.wallet_switchEthereumChain.ToString()) {
+                this.chainID = BigInteger.Parse((string)request.RawParameters[0]);
             }
             else
             {
