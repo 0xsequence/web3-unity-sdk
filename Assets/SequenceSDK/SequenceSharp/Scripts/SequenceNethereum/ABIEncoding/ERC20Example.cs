@@ -1,3 +1,5 @@
+using NBitcoin;
+using Nethereum.Hex.HexTypes;
 using Nethereum.Web3;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,6 +12,11 @@ namespace SequenceSharp
         //Set in inspector
         public string contractAddress = "";
         public string accountAddress = "";
+        public string ownerAddress = "";
+        public string spenderAddress = "";
+
+        public string recipientAddress = "";
+        public string amount = "";
 
         public Wallet _wallet;
 
@@ -35,11 +42,37 @@ namespace SequenceSharp
             var totalSupply = await erc20.TotalSupply();
             Debug.Log("totalSupply: " + totalSupply);
 
-            accountAddress = await _wallet.GetAddress();
+            //accountAddress = await _wallet.GetAddress();
             var balanceOf = await erc20.BalanceOf(accountAddress);
             Debug.Log("balanceOf: " + balanceOf);
+
+            var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
+
+            var recipientAddress = randomWallet.GetAccount(0).Address;
+            spenderAddress = randomWallet.GetAccount(1).Address;
+
+            var allowance = await erc20.Allowance(ownerAddress, spenderAddress);
+            Debug.Log("allowance: " + allowance);
+
+            var approve = await erc20.Approve(accountAddress, amount);
+            Debug.Log("approve: " + approve);
+
+
+
+/*            var transferFrom = await erc20.TransferFrom(accountAddress, recipientAddress, amount);
+            Debug.Log("transfer:" + transferFrom);*/
+
+
+
+
+
+
+
+
         }
 
-
-    }
+        private static Mnemonic exampleMnemo = new Mnemonic(Wordlist.English, WordCount.Twelve);
+        private static string exampleWords = exampleMnemo.ToString(); // "ripple scissors kick mammal hire column oak again sun offer wealth tomorrow wagon turn fatal"
+        private static string examplePassword = "password";
+    };
 }

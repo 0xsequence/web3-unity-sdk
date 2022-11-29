@@ -148,9 +148,24 @@ namespace SequenceSharp
 
         }
 
-        public static async Task SafeTransferFrom(string from, string to, BigInteger tokenId)
+        public async Task<bool> SafeTransferFrom(string from, string to, BigInteger tokenId, string senderAddress, string receiverAddress)
         {
+            /*try
+            {
+
+                var contract = _web3.Eth.GetContract(abi, _contractAddress);
+                var safeTransferFromFunction = contract.GetFunction("SafeTransferFrom");
+
+                return true;
+
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+                return false;
+            }*/
             throw new NotImplementedException();
+
         }
 
         public static async Task TransferFrom(string from, string to, BigInteger tokenId)
@@ -175,9 +190,6 @@ namespace SequenceSharp
             throw new NotImplementedException();
         }
 
-        public static async Task SafeTransferFrom(string from, string to, BigInteger tokenId, string data)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }

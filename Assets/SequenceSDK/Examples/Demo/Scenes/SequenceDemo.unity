@@ -8402,6 +8402,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   contractAddress: 0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174
   accountAddress: 0x180c750c0301c5e375b3849b38250bb1221c3e21
+  ownerAddress: 0x180c750c0301c5e375b3849b38250bb1221c3e21
+  spenderAddress: 
+  recipientAddress: 
+  amount: 10
   _wallet: {fileID: 0}
 --- !u!4 &1736414587
 Transform:

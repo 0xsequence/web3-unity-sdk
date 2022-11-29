@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using System;
 using UnityEngine;
 using Nethereum.Web3;
-
+using Nethereum.Hex.HexTypes;
 
 namespace SequenceSharp
 {
@@ -250,6 +250,7 @@ namespace SequenceSharp
         private static Web3 _web3 = null;
         private string _contractAddress = "";
         private Nethereum.Contracts.Contract _contract;
+        private HexBigInteger zero = new HexBigInteger(0);
         public ERC20(Web3 web3, string contractAddress)
         {
             _web3 = web3;
@@ -303,34 +304,34 @@ namespace SequenceSharp
         /// <summary>
         /// Transfers some amount of this ERC20 to another address.
         /// </summary>
-        public Task<string> Transfer(string senderAddress, string recipientAddress, string amount)
+        public async Task<string> Transfer(string senderAddress, string recipientAddress, string amount)
         {
-            return _contract.GetFunction("transfer").SendTransactionAsync(senderAddress, recipientAddress, amount);
+            //return _contract.GetFunction("transfer").SendTransactionAsync(senderAddress, recipientAddress, amount);
+            var receiptAmountSend = await _contract.GetFunction("transfer").SendTransactionAndWaitForReceiptAsync(senderAddress, zero, zero, null,  recipientAddress, amount);
+            return receiptAmountSend.ToString();
         }
 
-        public static async Task<BigInteger> Allowance(string owner, string spender)
+        public Task<BigInteger> Allowance(string owner, string spender)
         {
-            throw new NotImplementedException();
+            
+            return _contract.GetFunction("allowance").CallAsync<BigInteger>(owner, spender);
+            
         }
 
-        public static async Task<bool> Approve(string spender, string amount)
+        public async Task<bool> Approve(string spenderAddress, string amount)
         {
-            throw new NotImplementedException();
+            var receiptAmountSend = await _contract.GetFunction("approve").SendTransactionAndWaitForReceiptAsync(spenderAddress, zero, zero, null, spenderAddress, amount);
+
+            return true;
+
         }
 
-        public static async Task<bool> TransferFrom(string sender, string recipient, string amount)
-        {
-            throw new NotImplementedException();
+        public async Task<string> TransferFrom(string senderAddress, string recipientAddress, string amount)
+        {            
+            var receiptAmountSend = await _contract.GetFunction("transferFrom").SendTransactionAndWaitForReceiptAsync(senderAddress, zero, zero, null, recipientAddress, amount);
+            return receiptAmountSend.ToString();
+
         }
 
-        public static async Task<bool> IncreaseAllowance(string spender, BigInteger addedValue)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static async Task<bool> DecreaseAllowance(string spender, BigInteger subtractedValue)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
