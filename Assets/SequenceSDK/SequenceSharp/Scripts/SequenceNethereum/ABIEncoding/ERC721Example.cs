@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Numerics;
 using Nethereum.Web3;
+using NBitcoin;
+using System.Text;
 
 namespace SequenceSharp
 {
@@ -16,6 +18,7 @@ namespace SequenceSharp
 
         public Wallet _wallet;
 
+
         /// <summary>
         /// Call after signing in sequence wallet
         /// </summary>
@@ -26,6 +29,11 @@ namespace SequenceSharp
             var web3 = new Web3();
             web3.Client.OverridingRequestInterceptor = new SequenceInterceptor(_wallet, 137);
             var erc721 = new ERC721(web3, contractAddress);
+
+            //Generate a random address for example testing
+            var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
+            var randomAddress = randomWallet.GetAccount(0).Address;
+
 
             Debug.Log("[Sequence] ERC721 Token Example:");
             var name = await erc721.Name();
@@ -39,6 +47,21 @@ namespace SequenceSharp
             Debug.Log("balanceOf: " + balanceOf);
             var ownerOf = await erc721.OwnerOf(tokenId);
             Debug.Log("ownerOf: " + ownerOf);
+
+            //Tests for transaction functions:
+            await erc721.SafeTransferFrom(accountAddress, randomAddress, tokenId);
+            //await erc721.TransferFrom(accountAddress, randomAddress, tokenId);
+            //await erc721.Approve(randomAddress, tokenId);
+            //var receipt = await erc721.GetApproved(tokenId);
+            //var receipt = await erc721.SetApprovalForAll(accountAddress, true);
+            //var receipt = await erc721.IsApprovedForAll(accountAddress, randomAddress);
+            
+            
+            //Debug.Log("receipt from GetApproved: " + receipt);
         }
+
+        private static Mnemonic exampleMnemo = new Mnemonic(Wordlist.English, WordCount.Twelve);
+        private static string exampleWords = exampleMnemo.ToString(); // "ripple scissors kick mammal hire column oak again sun offer wealth tomorrow wagon turn fatal"
+        private static string examplePassword = "password";
     }
 }

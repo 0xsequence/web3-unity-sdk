@@ -23,21 +23,25 @@ namespace SequenceSharp
         public BigInteger chainID;
         private readonly Wallet _wallet;
 
+        private TransactionReceipt transactionReceipt = new TransactionReceipt();
+
         public SequenceInterceptor(Wallet wallet, BigInteger chainID)
         {
             _wallet = wallet;
             this.chainID = chainID;
         }
 
-        public override async Task<object> InterceptSendRequestAsync<T>(
-            Func<RpcRequest, string, Task<T>> interceptedSendRequestAsync, RpcRequest request,
+
+        public override async Task<object> InterceptSendRequestAsync<TResponse>(
+            Func<RpcRequest, string, Task<TResponse>> interceptedSendRequestAsync, RpcRequest request,
             string route = null)
         {
-
-            Debug.Log("request method: " + request.Method);
+            Debug.Log("intercepted send request async" + interceptedSendRequestAsync.ToString());
+            Debug.Log("method:" + request.Method);
             
             if (request.Method == ApiMethods.eth_sendTransaction.ToString())
             {
+                
                 TransactionInput transactionInput = (TransactionInput)request.RawParameters[0];
 
                 string rpcResponse = await _wallet.ExecuteSequenceJS(@"
@@ -61,11 +65,19 @@ namespace SequenceSharp
                         error: null
                     };
                 ");
-
+                Debug.Log("rpc response:" + rpcResponse);
                 RpcResponseMessage rpcResponseMessage = JsonConvert.DeserializeObject<RpcResponseMessage>(rpcResponse);
-                var response = ConvertResponse<string>(rpcResponseMessage);
+                Debug.Log("response mesage result: " + rpcResponseMessage.Result);
 
-                return response;
+                transactionReceipt = ConvertResponse<TransactionReceipt>(rpcResponseMessage);
+                Debug.Log("blockhash: " + transactionReceipt.BlockHash);
+
+                return transactionReceipt.ToString();
+
+            }
+            else if(request.Method == ApiMethods.eth_getTransactionReceipt.ToString())
+            {
+                return transactionReceipt;
             }
             else if (request.Method == ApiMethods.eth_estimateGas.ToString())
             {
@@ -151,10 +163,8 @@ namespace SequenceSharp
                 this.chainID = BigInteger.Parse((string)request.RawParameters[0]);
                 return null; // should throw 4902 if it's not valid
             }
-            else
-            {
-                return null;
-            }
+            return await base.InterceptSendRequestAsync(interceptedSendRequestAsync, request, route)
+                 .ConfigureAwait(false);
         }
 
         protected void HandleRpcError(RpcResponseMessage response)

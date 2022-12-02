@@ -50,9 +50,6 @@ public class DemoManager : MonoBehaviour
     [SerializeField] private Button metamaskSendTransactionBtn;
     public Metamask metamask;
 
-
-    [Header("Test method")]
-    [SerializeField] private Button testingBtn;
     [Header("History")]
     [SerializeField] private GameObject historyUnitPrefab;
     [SerializeField] private HistoryUI historyUI;
@@ -109,7 +106,6 @@ public class DemoManager : MonoBehaviour
 
         closeWalletBtn.onClick.AddListener(CloseWallet);
 
-        testingBtn.onClick.AddListener(SendTetherUSD);
 
         //Metamask Test
         metamaskConnectBtn.onClick.AddListener(ConnectMetamask);
@@ -782,16 +778,7 @@ And that has made all the difference.
             Debug.Log(e);
         }
     }
-    //-------------------abi encoding tests-------------------
-    public async void ABITest()
-    {
-        //ERC20Example erc20example = FindObjectOfType<ERC20Example>();
-        //erc20example.ERC20Examples();
-        //ERC721Example erc721example = FindObjectOfType<ERC721Example>();
-        //erc721example.ERC721Examples();
-        ERC1155Example erc1155example = FindObjectOfType<ERC1155Example>();
-        erc1155example.ERC1155Examples();
-    }
+
     
     //------------------------------------------------------------------------
     public async void GetSotrageAt()

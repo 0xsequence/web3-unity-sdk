@@ -30,7 +30,11 @@ namespace SequenceSharp
             _wallet = FindObjectOfType<Wallet>();
             var web3 = new Web3();
             web3.Client.OverridingRequestInterceptor = new SequenceInterceptor(_wallet, 137);
-            var erc20 = new ERC20(web3, contractAddress);
+            //Generate a random address for example testing
+            var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
+            var randomAddress = randomWallet.GetAccount(0).Address;
+
+            ERC20 erc20 = new ERC20(web3, contractAddress);
 
             Debug.Log("[Sequence] ERC20 Token Example:");
             var name = await erc20.Name();
@@ -46,16 +50,16 @@ namespace SequenceSharp
             var balanceOf = await erc20.BalanceOf(accountAddress);
             Debug.Log("balanceOf: " + balanceOf);
 
-            var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
+            
 
-            var recipientAddress = randomWallet.GetAccount(0).Address;
+            
             spenderAddress = randomWallet.GetAccount(1).Address;
 
             var allowance = await erc20.Allowance(ownerAddress, spenderAddress);
             Debug.Log("allowance: " + allowance);
 
-            var approve = await erc20.Approve(accountAddress, amount);
-            Debug.Log("approve: " + approve);
+            /*var approve = await erc20.Approve(accountAddress, amount);
+            Debug.Log("approve: " + approve);*/
 
 
 
