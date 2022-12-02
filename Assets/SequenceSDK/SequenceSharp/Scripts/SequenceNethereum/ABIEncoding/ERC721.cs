@@ -92,16 +92,16 @@ namespace SequenceSharp
             
         }
 
-        public async Task SafeTransferFrom(string from, string to, BigInteger tokenId, Byte data)
+        public async Task SafeTransferFrom(string from, string to, BigInteger tokenId)
         {
-            var receipt = await _contract.GetFunction("safeTransferFrom").SendTransactionAndWaitForReceiptAsync(from, zero, zero, null, from,to,tokenId,data);
+            var receipt = await _contract.GetFunction("safeTransferFrom").SendTransactionAndWaitForReceiptAsync(_accountAddress, zero, zero, null, from,to,tokenId);
             Debug.Log("[Sequence] receipt form function SafeTransferFrom: " + receipt);
 
         }
 
         public async Task TransferFrom(string from, string to, BigInteger tokenId)
         {
-            var receipt = await _contract.GetFunction("transferFrom").SendTransactionAndWaitForReceiptAsync(from, zero, zero, null, from, to, tokenId);
+            var receipt = await _contract.GetFunction("transferFrom").SendTransactionAndWaitForReceiptAsync(_accountAddress, zero, zero, null, from, to, tokenId);
             Debug.Log("[Sequence] receipt form function TransferFrom: " + receipt);           
         }
         public async Task Approve(string to, BigInteger tokenId)
@@ -117,15 +117,16 @@ namespace SequenceSharp
             Debug.Log("[Sequence] receipt form function Approve: " + receipt);
             return receipt.ToString();
         }
-        public async Task SetApprovalForAll(string operatorAddress, bool _approved)
+        public async Task<bool> SetApprovalForAll(string operatorAddress, bool _approved)
         {
             var receipt = await _contract.GetFunction("setApprovalForAll").SendTransactionAndWaitForReceiptAsync(_accountAddress, zero, zero, null, operatorAddress,_approved);
             Debug.Log("[Sequence] receipt form function SetApprovalForAll: " + receipt);
+            return true;
         }
 
         public async Task<bool> IsApprovedForAll(string owner, string operatorAddress)
         {
-            var receipt = await _contract.GetFunction("isApprovedForAall").SendTransactionAndWaitForReceiptAsync(_accountAddress, zero, zero, null, owner, operatorAddress);
+            var receipt = await _contract.GetFunction("isApprovedForAll").SendTransactionAndWaitForReceiptAsync(_accountAddress, zero, zero, null, owner, operatorAddress);
             Debug.Log("[Sequence] receipt form function IsApprovedForAll: " + receipt);
             return false;
         }
