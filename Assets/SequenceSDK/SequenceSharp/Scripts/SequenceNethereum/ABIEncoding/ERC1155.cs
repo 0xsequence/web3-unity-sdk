@@ -17,11 +17,9 @@ namespace SequenceSharp
 
     public class ERC1155
     {
-        private static Web3 _web3 = null;
+        private Web3 _web3 = null;
         private string _contractAddress = "";
-        private string _accountAddress = ""; //TODO : Needs account address from the wallet
         private Nethereum.Contracts.Contract _contract;
-        private HexBigInteger zero = new HexBigInteger(0);
 
         private TransactionReceipt receipt;
 
@@ -33,15 +31,15 @@ namespace SequenceSharp
         }
 
         /// <summary>
-        /// Returns the URI for token type _id
+        /// Returns the URI for token type id
         /// </summary>
-        /// <param name="_id"></param>
+        /// <param name="id"></param>
         /// <param name="address">Contract address</param>
         /// <param name="chainId"></param>
         /// <returns></returns>
-        public Task<string> URI(BigInteger _id)
+        public Task<string> URI(BigInteger id)
         {
-            return _contract.GetFunction("uri").CallAsync<string>(_id);
+            return _contract.GetFunction("uri").CallAsync<string>(id);
         }
 
         /// <summary>
@@ -74,27 +72,30 @@ namespace SequenceSharp
 
         public async Task SetApprovalForAll(string operatorAddress, bool approved)
         {
+            var address = await this._web3.GetAddress();
             var receipt = await _contract
                 .GetFunction("setApprovalForAll")
                 .SendTransactionAndWaitForReceiptAsync(
-                    _accountAddress,
-                    zero,
-                    zero,
+                    address,
+                    new HexBigInteger(BigInteger.Zero),
+                    new HexBigInteger(BigInteger.Zero),
                     null,
                     operatorAddress,
                     approved
                 );
             Debug.Log("[Sequence] receipt form function SetApprovalForAll: " + receipt);
+            // TODO output
         }
 
         public async Task<bool> IsApprovedForAll(string account, string operatorAddress)
         {
+            var address = await this._web3.GetAddress();
             var receipt = await _contract
                 .GetFunction("isApprovedForAll")
                 .SendTransactionAndWaitForReceiptAsync(
-                    _accountAddress,
-                    zero,
-                    zero,
+                    address,
+                    new HexBigInteger(BigInteger.Zero),
+                    new HexBigInteger(BigInteger.Zero),
                     null,
                     account,
                     operatorAddress
@@ -102,6 +103,7 @@ namespace SequenceSharp
                 .ConfigureAwait(false);
             Debug.Log("[Sequence] receipt form function IsApprovedForAll: " + receipt.BlockHash);
             return false;
+            // TODO output
         }
 
         public async Task SafeTransferFrom(
@@ -112,12 +114,13 @@ namespace SequenceSharp
             Byte[] data
         )
         {
+            var address = await this._web3.GetAddress();
             var receipt = await _contract
                 .GetFunction("safeTransferFrom")
                 .SendTransactionAndWaitForReceiptAsync(
-                    _accountAddress,
-                    zero,
-                    zero,
+                    address,
+                    new HexBigInteger(BigInteger.Zero),
+                    new HexBigInteger(BigInteger.Zero),
                     null,
                     from,
                     to,
@@ -126,6 +129,7 @@ namespace SequenceSharp
                     data
                 );
             Debug.Log("[Sequence] receipt form function SafeTransferFrom: " + receipt);
+            // TODO output
         }
 
         public async Task SafeBatchTransferFrom(
@@ -136,12 +140,13 @@ namespace SequenceSharp
             Byte[] data
         )
         {
+            var address = await this._web3.GetAddress();
             var receipt = await _contract
                 .GetFunction("safeBatchTransferFrom")
                 .SendTransactionAndWaitForReceiptAsync(
-                    _accountAddress,
-                    zero,
-                    zero,
+                    address,
+                    new HexBigInteger(BigInteger.Zero),
+                    new HexBigInteger(BigInteger.Zero),
                     null,
                     from,
                     to,
@@ -150,6 +155,7 @@ namespace SequenceSharp
                     data
                 );
             Debug.Log("[Sequence] receipt form function SafeBatchTransferFrom: " + receipt);
+            // TODO output
         }
 
         private static readonly string abi =
