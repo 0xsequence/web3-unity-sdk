@@ -8,9 +8,19 @@ using Nethereum.RPC.Eth.DTOs;
 using Newtonsoft.Json;
 using Nethereum.Hex.HexTypes;
 using System.Numerics;
+using Nethereum.Web3;
 
 namespace SequenceSharp
 {
+    public static class Web3Extensions
+    {
+        public static async Task<string> GetAddress(this Web3 web3)
+        {
+            var address = (await web3.Eth.Accounts.SendRequestAsync())[0];
+            return address;
+        }
+    }
+
     public struct EstimatedGas
     {
         public string type;
