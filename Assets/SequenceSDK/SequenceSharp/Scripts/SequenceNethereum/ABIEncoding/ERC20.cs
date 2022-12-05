@@ -302,17 +302,13 @@ namespace SequenceSharp
         /// <summary>
         /// Transfers some amount of this ERC20 to another address.
         /// </summary>
-        public async Task<string> Transfer(
-            string senderAddress,
-            string recipientAddress,
-            string amount
-        )
+        public async Task<string> Transfer(string recipientAddress, string amount)
         {
-            //return _contract.GetFunction("transfer").SendTransactionAsync(senderAddress, recipientAddress, amount);
+            var address = await this._web3.GetAddress();
             var receiptAmountSend = await _contract
                 .GetFunction("transfer")
                 .SendTransactionAndWaitForReceiptAsync(
-                    senderAddress,
+                    address,
                     new HexBigInteger(BigInteger.Zero),
                     new HexBigInteger(BigInteger.Zero),
                     null,
@@ -340,7 +336,7 @@ namespace SequenceSharp
                     amount
                 );
             Debug.Log("[Sequence] receipt form function TransferFrom: " + receipt);
-            return true;
+            return true; // TODO
         }
 
         public async Task<bool> TransferFrom(
@@ -349,18 +345,20 @@ namespace SequenceSharp
             string amount
         )
         {
+            var address = await this._web3.GetAddress();
             var receipt = await _contract
                 .GetFunction("transferFrom")
                 .SendTransactionAndWaitForReceiptAsync(
-                    senderAddress,
+                    address,
                     new HexBigInteger(BigInteger.Zero),
                     new HexBigInteger(BigInteger.Zero),
                     null,
+                    senderAddress,
                     recipientAddress,
                     amount
                 );
             Debug.Log("[Sequence] receipt form function TransferFrom: " + receipt);
-            return true;
+            return true; // TODO
         }
     }
 }

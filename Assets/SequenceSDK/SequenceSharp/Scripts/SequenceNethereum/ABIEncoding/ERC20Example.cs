@@ -20,8 +20,6 @@ namespace SequenceSharp
 
         public Wallet _wallet;
 
-
-
         /// <summary>
         /// Call after signing in sequence wallet
         /// </summary>
@@ -50,9 +48,6 @@ namespace SequenceSharp
             var balanceOf = await erc20.BalanceOf(accountAddress);
             Debug.Log("balanceOf: " + balanceOf);
 
-            
-
-            
             spenderAddress = randomWallet.GetAccount(1).Address;
 
             var allowance = await erc20.Allowance(ownerAddress, spenderAddress);
@@ -63,16 +58,8 @@ namespace SequenceSharp
 
 
 
-/*            var transferFrom = await erc20.TransferFrom(accountAddress, recipientAddress, amount);
-            Debug.Log("transfer:" + transferFrom);*/
-            
-
-
-
-
-
-
-
+            /*            var transferFrom = await erc20.TransferFrom(accountAddress, recipientAddress, amount);
+                        Debug.Log("transfer:" + transferFrom);*/
         }
 
         private static Mnemonic exampleMnemo = new Mnemonic(Wordlist.English, WordCount.Twelve);
