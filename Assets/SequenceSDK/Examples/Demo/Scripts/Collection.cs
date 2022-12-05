@@ -148,6 +148,10 @@ public class Collection : MonoBehaviour
             {
                 // ok!
             }
+            BigInteger? tokenID =
+                (tokenMetadata != null && tokenMetadata.tokenId != null)
+                    ? BigInteger.Parse(tokenMetadata.tokenId)
+                    : null;
             newCategory.Init(
                 tokenMetadata != null
                     ? ($"{tokenMetadata.name} ({contractInfo.name})")
@@ -155,7 +159,7 @@ public class Collection : MonoBehaviour
                 logoTex,
                 type,
                 contractAddress,
-                tokenMetadata.tokenId != null ? BigInteger.Parse(tokenMetadata.tokenId) : null
+                tokenID
             );
         }
         yield return null;
