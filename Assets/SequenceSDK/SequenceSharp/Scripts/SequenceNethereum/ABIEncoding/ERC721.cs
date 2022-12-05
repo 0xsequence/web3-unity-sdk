@@ -2,6 +2,7 @@ using System.Numerics;
 using System.Threading.Tasks;
 using UnityEngine;
 using Nethereum.Web3;
+using Nethereum.Hex.HexTypes;
 
 namespace SequenceSharp
 {
@@ -13,12 +14,8 @@ namespace SequenceSharp
 
     public class ERC721
     {
-        private static string abi =
-            "[ { \"inputs\": [ { \"internalType\": \"string\", \"name\": \"name_\", \"type\": \"string\" }, { \"internalType\": \"string\", \"name\": \"symbol_\", \"type\": \"string\" } ], \"stateMutability\": \"nonpayable\", \"type\": \"constructor\" }, { \"anonymous\": false, \"inputs\": [ { \"indexed\": true, \"internalType\": \"address\", \"name\": \"owner\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"approved\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"uint256\", \"name\": \"tokenId\", \"type\": \"uint256\" } ], \"name\": \"Approval\", \"type\": \"event\" }, { \"anonymous\": false, \"inputs\": [ { \"indexed\": true, \"internalType\": \"address\", \"name\": \"owner\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"operator\", \"type\": \"address\" }, { \"indexed\": false, \"internalType\": \"bool\", \"name\": \"approved\", \"type\": \"bool\" } ], \"name\": \"ApprovalForAll\", \"type\": \"event\" }, { \"anonymous\": false, \"inputs\": [ { \"indexed\": true, \"internalType\": \"address\", \"name\": \"from\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"indexed\": true, \"internalType\": \"uint256\", \"name\": \"tokenId\", \"type\": \"uint256\" } ], \"name\": \"Transfer\", \"type\": \"event\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"tokenId\", \"type\": \"uint256\" } ], \"name\": \"approve\", \"outputs\": [], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"owner\", \"type\": \"address\" } ], \"name\": \"balanceOf\", \"outputs\": [ { \"internalType\": \"uint256\", \"name\": \"\", \"type\": \"uint256\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"uint256\", \"name\": \"tokenId\", \"type\": \"uint256\" } ], \"name\": \"getApproved\", \"outputs\": [ { \"internalType\": \"address\", \"name\": \"\", \"type\": \"address\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"owner\", \"type\": \"address\" }, { \"internalType\": \"address\", \"name\": \"operator\", \"type\": \"address\" } ], \"name\": \"isApprovedForAll\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [], \"name\": \"name\", \"outputs\": [ { \"internalType\": \"string\", \"name\": \"\", \"type\": \"string\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"uint256\", \"name\": \"tokenId\", \"type\": \"uint256\" } ], \"name\": \"ownerOf\", \"outputs\": [ { \"internalType\": \"address\", \"name\": \"\", \"type\": \"address\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"from\", \"type\": \"address\" }, { \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"tokenId\", \"type\": \"uint256\" } ], \"name\": \"safeTransferFrom\", \"outputs\": [], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"from\", \"type\": \"address\" }, { \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"tokenId\", \"type\": \"uint256\" }, { \"internalType\": \"bytes\", \"name\": \"_data\", \"type\": \"bytes\" } ], \"name\": \"safeTransferFrom\", \"outputs\": [], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"operator\", \"type\": \"address\" }, { \"internalType\": \"bool\", \"name\": \"approved\", \"type\": \"bool\" } ], \"name\": \"setApprovalForAll\", \"outputs\": [], \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"bytes4\", \"name\": \"interfaceId\", \"type\": \"bytes4\" } ], \"name\": \"supportsInterface\", \"outputs\": [ { \"internalType\": \"bool\", \"name\": \"\", \"type\": \"bool\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [], \"name\": \"symbol\", \"outputs\": [ { \"internalType\": \"string\", \"name\": \"\", \"type\": \"string\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"uint256\", \"name\": \"tokenId\", \"type\": \"uint256\" } ], \"name\": \"tokenURI\", \"outputs\": [ { \"internalType\": \"string\", \"name\": \"\", \"type\": \"string\" } ], \"stateMutability\": \"view\", \"type\": \"function\" }, { \"inputs\": [ { \"internalType\": \"address\", \"name\": \"from\", \"type\": \"address\" }, { \"internalType\": \"address\", \"name\": \"to\", \"type\": \"address\" }, { \"internalType\": \"uint256\", \"name\": \"tokenId\", \"type\": \"uint256\" } ], \"name\": \"transferFrom\", \"outputs\": [], \"stateMutability\": \"nonpayable\", \"type\": \"function\" } ]";
-
-        private static Web3 _web3 = null;
+        private Web3 _web3 = null;
         private string _contractAddress = "";
-        private string _accountAddress = ""; //TODO : Needs account address from the wallet
         private Nethereum.Contracts.Contract _contract;
 
         public ERC721(Web3 web3, string contractAddress)
@@ -88,90 +85,267 @@ namespace SequenceSharp
 
         public async Task SafeTransferFrom(string from, string to, BigInteger tokenId)
         {
+            var address = await this._web3.GetAddress();
             var receipt = await _contract
                 .GetFunction("safeTransferFrom")
                 .SendTransactionAndWaitForReceiptAsync(
-                    _accountAddress,
-                    zero,
-                    zero,
+                    address,
+                    new HexBigInteger(BigInteger.Zero),
+                    new HexBigInteger(BigInteger.Zero),
                     null,
                     from,
                     to,
                     tokenId
                 );
             Debug.Log("[Sequence] receipt form function SafeTransferFrom: " + receipt);
+            // TODO output type
         }
 
         public async Task TransferFrom(string from, string to, BigInteger tokenId)
         {
+            var address = await this._web3.GetAddress();
             var receipt = await _contract
                 .GetFunction("transferFrom")
                 .SendTransactionAndWaitForReceiptAsync(
-                    _accountAddress,
-                    zero,
-                    zero,
+                    address,
+                    new HexBigInteger(BigInteger.Zero),
+                    new HexBigInteger(BigInteger.Zero),
                     null,
                     from,
                     to,
                     tokenId
                 );
             Debug.Log("[Sequence] receipt form function TransferFrom: " + receipt);
+            // TODO output type
         }
 
         public async Task Approve(string to, BigInteger tokenId)
         {
+            var address = await this._web3.GetAddress();
             var receipt = await _contract
                 .GetFunction("approve")
                 .SendTransactionAndWaitForReceiptAsync(
-                    _accountAddress,
-                    zero,
-                    zero,
+                    address,
+                    new HexBigInteger(BigInteger.Zero),
+                    new HexBigInteger(BigInteger.Zero),
                     null,
                     to,
                     tokenId
                 );
             Debug.Log("[Sequence] receipt form function TransferFrom: " + receipt);
+            // TODO output type
         }
 
         public async Task<string> GetApproved(BigInteger tokenId)
         {
+            var address = await this._web3.GetAddress();
             var receipt = await _contract
                 .GetFunction("getApproved")
-                .SendTransactionAndWaitForReceiptAsync(_accountAddress, zero, zero, null, tokenId);
+                .SendTransactionAndWaitForReceiptAsync(
+                    address,
+                    new HexBigInteger(BigInteger.Zero),
+                    new HexBigInteger(BigInteger.Zero),
+                    null,
+                    tokenId
+                );
             Debug.Log("[Sequence] receipt form function Approve: " + receipt);
-            return receipt.ToString();
+            return receipt.ToString(); // TODO output type
         }
 
         public async Task<bool> SetApprovalForAll(string operatorAddress, bool _approved)
         {
+            var address = await this._web3.GetAddress();
             var receipt = await _contract
                 .GetFunction("setApprovalForAll")
                 .SendTransactionAndWaitForReceiptAsync(
-                    _accountAddress,
-                    zero,
-                    zero,
+                    address,
+                    new HexBigInteger(BigInteger.Zero),
+                    new HexBigInteger(BigInteger.Zero),
                     null,
                     operatorAddress,
                     _approved
                 );
             Debug.Log("[Sequence] receipt form function SetApprovalForAll: " + receipt);
-            return true;
+            return true; // TODO output type
         }
 
         public async Task<bool> IsApprovedForAll(string owner, string operatorAddress)
         {
+            var address = await this._web3.GetAddress();
             var receipt = await _contract
                 .GetFunction("isApprovedForAll")
                 .SendTransactionAndWaitForReceiptAsync(
-                    _accountAddress,
-                    zero,
-                    zero,
+                    address,
+                    new HexBigInteger(BigInteger.Zero),
+                    new HexBigInteger(BigInteger.Zero),
                     null,
                     owner,
                     operatorAddress
                 );
             Debug.Log("[Sequence] receipt form function IsApprovedForAll: " + receipt);
-            return false;
+            return false; // TODO output type
         }
+
+        private static readonly string abi =
+            @"
+            [
+                {
+                    ""anonymous"": false,
+                    ""inputs"": [{""indexed"": true, ""internalType"": ""address"", ""name"": ""owner"", ""type"": ""address""}, {
+                    ""indexed"": true,
+                    ""internalType"": ""address"",
+                    ""name"": ""approved"",
+                    ""type"": ""address""
+                    }, {""indexed"": true, ""internalType"": ""uint256"", ""name"": ""tokenId"", ""type"": ""uint256""}],
+                    ""name"": ""Approval"",
+                    ""type"": ""event""
+                },
+                {
+                    ""anonymous"": false,
+                    ""inputs"": [{""indexed"": true, ""internalType"": ""address"", ""name"": ""owner"", ""type"": ""address""}, {
+                    ""indexed"": true,
+                    ""internalType"": ""address"",
+                    ""name"": ""operator"",
+                    ""type"": ""address""
+                    }, {""indexed"": false, ""internalType"": ""bool"", ""name"": ""approved"", ""type"": ""bool""}],
+                    ""name"": ""ApprovalForAll"",
+                    ""type"": ""event""
+                },
+                {
+                    ""anonymous"": false,
+                    ""inputs"": [{""indexed"": true, ""internalType"": ""address"", ""name"": ""from"", ""type"": ""address""}, {
+                    ""indexed"": true,
+                    ""internalType"": ""address"",
+                    ""name"": ""to"",
+                    ""type"": ""address""
+                    }, {""indexed"": true, ""internalType"": ""uint256"", ""name"": ""tokenId"", ""type"": ""uint256""}],
+                    ""name"": ""Transfer"",
+                    ""type"": ""event""
+                },
+                {
+                    ""inputs"": [{""internalType"": ""address"", ""name"": ""to"", ""type"": ""address""}, {
+                    ""internalType"": ""uint256"",
+                    ""name"": ""tokenId"",
+                    ""type"": ""uint256""
+                    }], ""name"": ""approve"", ""outputs"": [], ""stateMutability"": ""nonpayable"", ""type"": ""function""
+                },
+                {
+                    ""constant"": true,
+                    ""inputs"": [],
+                    ""name"": ""totalSupply"",
+                    ""outputs"": [
+                    {
+                        ""name"": """",
+                        ""type"": ""uint256""
+                    }
+                    ],
+                    ""payable"": false,
+                    ""stateMutability"": ""view"",
+                    ""type"": ""function""
+                },
+                {
+                    ""inputs"": [{""internalType"": ""address"", ""name"": ""owner"", ""type"": ""address""}],
+                    ""name"": ""balanceOf"",
+                    ""outputs"": [{""internalType"": ""uint256"", ""name"": ""balance"", ""type"": ""uint256""}],
+                    ""stateMutability"": ""view"",
+                    ""type"": ""function""
+                },
+                {
+                    ""inputs"": [{""internalType"": ""uint256"", ""name"": ""tokenId"", ""type"": ""uint256""}],
+                    ""name"": ""getApproved"",
+                    ""outputs"": [{""internalType"": ""address"", ""name"": ""operator"", ""type"": ""address""}],
+                    ""stateMutability"": ""view"",
+                    ""type"": ""function""
+                },
+                {
+                    ""inputs"": [{""internalType"": ""address"", ""name"": ""owner"", ""type"": ""address""}, {
+                    ""internalType"": ""address"",
+                    ""name"": ""operator"",
+                    ""type"": ""address""
+                    }],
+                    ""name"": ""isApprovedForAll"",
+                    ""outputs"": [{""internalType"": ""bool"", ""name"": """", ""type"": ""bool""}],
+                    ""stateMutability"": ""view"",
+                    ""type"": ""function""
+                },
+                {
+                    ""inputs"": [],
+                    ""name"": ""name"",
+                    ""outputs"": [{""internalType"": ""string"", ""name"": """", ""type"": ""string""}],
+                    ""stateMutability"": ""view"",
+                    ""type"": ""function""
+                },
+                {
+                    ""inputs"": [{""internalType"": ""uint256"", ""name"": ""tokenId"", ""type"": ""uint256""}],
+                    ""name"": ""ownerOf"",
+                    ""outputs"": [{""internalType"": ""address"", ""name"": ""owner"", ""type"": ""address""}],
+                    ""stateMutability"": ""view"",
+                    ""type"": ""function""
+                },
+                {
+                    ""inputs"": [{""internalType"": ""address"", ""name"": ""from"", ""type"": ""address""}, {
+                    ""internalType"": ""address"",
+                    ""name"": ""to"",
+                    ""type"": ""address""
+                    },
+                    {""internalType"": ""uint256"", ""name"": ""tokenId"", ""type"": ""uint256""}],
+                    ""name"": ""safeTransferFrom"",
+                    ""outputs"": [],
+                    ""stateMutability"": ""nonpayable"",
+                    ""type"": ""function""
+                },
+                {
+                    ""inputs"": [{""internalType"": ""address"", ""name"": ""from"", ""type"": ""address""}, {
+                    ""internalType"": ""address"",
+                    ""name"": ""to"",
+                    ""type"": ""address""
+                    },
+                    {""internalType"": ""uint256"", ""name"": ""tokenId"", ""type"": ""uint256""}, {
+                        ""internalType"": ""bytes"",
+                        ""name"": ""data"",
+                        ""type"": ""bytes""
+                    }], ""name"": ""safeTransferFrom"", ""outputs"": [], ""stateMutability"": ""nonpayable"", ""type"": ""function""
+                },
+                {
+                    ""inputs"": [{""internalType"": ""address"", ""name"": ""operator"", ""type"": ""address""}, {
+                    ""internalType"": ""bool"",
+                    ""name"": ""_approved"",
+                    ""type"": ""bool""
+                    }], ""name"": ""setApprovalForAll"", ""outputs"": [], ""stateMutability"": ""nonpayable"", ""type"": ""function""
+                },
+                {
+                    ""inputs"": [{""internalType"": ""bytes4"", ""name"": ""interfaceId"", ""type"": ""bytes4""}],
+                    ""name"": ""supportsInterface"",
+                    ""outputs"": [{""internalType"": ""bool"", ""name"": """", ""type"": ""bool""}],
+                    ""stateMutability"": ""view"",
+                    ""type"": ""function""
+                },
+                {
+                    ""inputs"": [],
+                    ""name"": ""symbol"",
+                    ""outputs"": [{""internalType"": ""string"", ""name"": """", ""type"": ""string""}],
+                    ""stateMutability"": ""view"",
+                    ""type"": ""function""
+                },
+                {
+                    ""inputs"": [{""internalType"": ""uint256"", ""name"": ""tokenId"", ""type"": ""uint256""}],
+                    ""name"": ""tokenURI"",
+                    ""outputs"": [{""internalType"": ""string"", ""name"": """", ""type"": ""string""}],
+                    ""stateMutability"": ""view"",
+                    ""type"": ""function""
+                },
+                {
+                    ""inputs"": [{""internalType"": ""address"", ""name"": ""from"", ""type"": ""address""}, {
+                    ""internalType"": ""address"",
+                    ""name"": ""to"",
+                    ""type"": ""address""
+                    }, {""internalType"": ""uint256"", ""name"": ""tokenId"", ""type"": ""uint256""}],
+                    ""name"": ""transferFrom"",
+                    ""outputs"": [],
+                    ""stateMutability"": ""nonpayable"",
+                    ""type"": ""function""
+                }
+            ]
+        ";
     }
 }
