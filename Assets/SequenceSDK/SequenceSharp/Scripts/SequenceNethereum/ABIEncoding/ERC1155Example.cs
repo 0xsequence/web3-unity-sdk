@@ -63,7 +63,7 @@ namespace SequenceSharp
 
             //Tests for transaction functions:
             //await erc1155.SetApprovalForAll(accounts[0], true);
-            //erc1155.IsApprovedForAll(accounts[0], randomAddress);
+            //await erc1155.IsApprovedForAll(accounts[0], randomAddress);
             //await erc1155.SafeTransferFrom(accounts[0], randomAddress, tokenIds[0], 1, Encoding.ASCII.GetBytes(data));
             await erc1155.SafeBatchTransferFrom(accounts[0], randomAddress, tokenIds, amounts, Encoding.ASCII.GetBytes(data));
 

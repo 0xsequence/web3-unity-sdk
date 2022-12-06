@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using SequenceSharp;
 using BigInteger = System.Numerics.BigInteger;
+using System.Text;
 
 /*
 
@@ -98,8 +99,9 @@ public class Category : MonoBehaviour
                 address,
                 DemoManager.exampleToAccount,
                 _tokenID,
-                BigInteger.One
-            );
+                BigInteger.One,
+                Encoding.ASCII.GetBytes("")
+            ) ;
         }
         else
         {
