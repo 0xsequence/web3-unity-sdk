@@ -1,11 +1,13 @@
+using System.Numerics;
+
 namespace SequenceSharp
 {
     [System.Serializable]
     public class TokenSupply
     {
-        public string tokenID;
+        public BigInteger tokenID;
         public string supply;
-        public int chainId;
+        public BigInteger chainId;
         public ContractInfo contractInfo;
         public TokenMetadata tokenMetadata;
     }

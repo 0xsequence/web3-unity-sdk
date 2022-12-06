@@ -1,9 +1,11 @@
+using System.Numerics;
+
 namespace SequenceSharp
 {
     [System.Serializable]
     public class IndexState
     {
-        public string chainId;
+        public BigInteger chainId;
         public int lastBlockNum;
     }
 }

@@ -1,10 +1,12 @@
+using System.Numerics;
+
 namespace SequenceSharp
 {
     [System.Serializable]
     public class TokenHistory
     {
         public int id;
-        public int blockNumber;
+        public BigInteger blockNumber;
         public string blockHash;
         public string contractAddress;
         public ContractType contractType;

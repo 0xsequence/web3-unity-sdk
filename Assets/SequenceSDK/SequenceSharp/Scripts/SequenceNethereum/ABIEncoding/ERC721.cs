@@ -1,16 +1,11 @@
 using System.Numerics;
 using System.Threading.Tasks;
-using UnityEngine;
 using Nethereum.Web3;
 using Nethereum.Hex.HexTypes;
+using Nethereum.RPC.Eth.DTOs;
 
 namespace SequenceSharp
 {
-    public struct ERC721Balance
-    {
-        public string type;
-        public string hex;
-    }
 
     public class ERC721
     {
@@ -83,10 +78,10 @@ namespace SequenceSharp
             return _contract.GetFunction("ownerOf").CallAsync<string>(tokenId);
         }
 
-        public async Task SafeTransferFrom(string from, string to, BigInteger tokenId)
+        public async Task<TransactionReceipt> SafeTransferFrom(string from, string to, BigInteger tokenId)
         {
             var address = await this._web3.GetAddress();
-            var receipt = await _contract
+            return await _contract
                 .GetFunction("safeTransferFrom")
                 .SendTransactionAndWaitForReceiptAsync(
                     address,
@@ -97,14 +92,12 @@ namespace SequenceSharp
                     to,
                     tokenId
                 );
-            Debug.Log("[Sequence] receipt form function SafeTransferFrom: " + receipt);
-            // TODO output type
         }
 
-        public async Task TransferFrom(string from, string to, BigInteger tokenId)
+        public async Task<TransactionReceipt> TransferFrom(string from, string to, BigInteger tokenId)
         {
             var address = await this._web3.GetAddress();
-            var receipt = await _contract
+            return await _contract
                 .GetFunction("transferFrom")
                 .SendTransactionAndWaitForReceiptAsync(
                     address,
@@ -115,14 +108,12 @@ namespace SequenceSharp
                     to,
                     tokenId
                 );
-            Debug.Log("[Sequence] receipt form function TransferFrom: " + receipt);
-            // TODO output type
         }
 
-        public async Task Approve(string to, BigInteger tokenId)
+        public async Task<TransactionReceipt> Approve(string to, BigInteger tokenId)
         {
             var address = await this._web3.GetAddress();
-            var receipt = await _contract
+            return await _contract
                 .GetFunction("approve")
                 .SendTransactionAndWaitForReceiptAsync(
                     address,
@@ -132,30 +123,21 @@ namespace SequenceSharp
                     to,
                     tokenId
                 );
-            Debug.Log("[Sequence] receipt form function TransferFrom: " + receipt);
-            // TODO output type
         }
 
-        public async Task<string> GetApproved(BigInteger tokenId)
+        public Task<string> GetApproved(BigInteger tokenId)
         {
-            var address = await this._web3.GetAddress();
-            var receipt = await _contract
-                .GetFunction("getApproved")
-                .SendTransactionAndWaitForReceiptAsync(
-                    address,
-                    new HexBigInteger(BigInteger.Zero),
-                    new HexBigInteger(BigInteger.Zero),
-                    null,
-                    tokenId
-                );
-            Debug.Log("[Sequence] receipt form function Approve: " + receipt);
-            return receipt.ToString(); // TODO output type
+            return _contract
+                 .GetFunction("getApproved")
+                 .CallAsync<string>(
+                     tokenId
+                 );
         }
 
-        public async Task<bool> SetApprovalForAll(string operatorAddress, bool _approved)
+        public async Task<TransactionReceipt> SetApprovalForAll(string operatorAddress, bool approved)
         {
             var address = await this._web3.GetAddress();
-            var receipt = await _contract
+            return await _contract
                 .GetFunction("setApprovalForAll")
                 .SendTransactionAndWaitForReceiptAsync(
                     address,
@@ -163,27 +145,18 @@ namespace SequenceSharp
                     new HexBigInteger(BigInteger.Zero),
                     null,
                     operatorAddress,
-                    _approved
+                    approved
                 );
-            Debug.Log("[Sequence] receipt form function SetApprovalForAll: " + receipt);
-            return true; // TODO output type
         }
 
-        public async Task<bool> IsApprovedForAll(string owner, string operatorAddress)
+        public Task<bool> IsApprovedForAll(string owner, string operatorAddress)
         {
-            var address = await this._web3.GetAddress();
-            var receipt = await _contract
+            return _contract
                 .GetFunction("isApprovedForAll")
-                .SendTransactionAndWaitForReceiptAsync(
-                    address,
-                    new HexBigInteger(BigInteger.Zero),
-                    new HexBigInteger(BigInteger.Zero),
-                    null,
+                .CallAsync<bool>(
                     owner,
                     operatorAddress
                 );
-            Debug.Log("[Sequence] receipt form function IsApprovedForAll: " + receipt);
-            return false; // TODO output type
         }
 
         private static readonly string abi =

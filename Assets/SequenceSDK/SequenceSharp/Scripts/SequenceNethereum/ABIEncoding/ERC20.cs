@@ -1,23 +1,11 @@
 using System.Numerics;
 using System.Threading.Tasks;
-using UnityEngine;
 using Nethereum.Web3;
 using Nethereum.Hex.HexTypes;
+using Nethereum.RPC.Eth.DTOs;
 
 namespace SequenceSharp
 {
-    public struct ERC20Supply
-    {
-        public string type;
-        public string hex;
-    }
-
-    public struct ERC20Balance
-    {
-        public string type;
-        public string hex;
-    }
-
     public class ERC20
     {
         private Web3 _web3 = null;
@@ -76,10 +64,10 @@ namespace SequenceSharp
         /// <summary>
         /// Transfers some amount of this ERC20 to another address.
         /// </summary>
-        public async Task<string> Transfer(string recipientAddress, BigInteger amount)
+        public async Task<TransactionReceipt> Transfer(string recipientAddress, BigInteger amount)
         {
             var address = await this._web3.GetAddress();
-            var receiptAmountSend = await _contract
+            return await _contract
                 .GetFunction("transfer")
                 .SendTransactionAndWaitForReceiptAsync(
                     address,
@@ -87,9 +75,8 @@ namespace SequenceSharp
                     new HexBigInteger(BigInteger.Zero),
                     null,
                     recipientAddress,
-                    amount.ToString()
-                ) ;
-            return ""; //TODO
+                    amount
+                );
         }
 
         public Task<BigInteger> Allowance(string owner, string spender)
@@ -97,42 +84,39 @@ namespace SequenceSharp
             return _contract.GetFunction("allowance").CallAsync<BigInteger>(owner, spender);
         }
 
-        public async Task<bool> Approve(string spenderAddress, string amount)
+        public async Task<TransactionReceipt> Approve(string spenderAddress, string amount)
         {
-            var receipt = await _contract
-                .GetFunction("approve")
-                .SendTransactionAndWaitForReceiptAsync(
-                    spenderAddress,
-                    new HexBigInteger(BigInteger.Zero),
-                    new HexBigInteger(BigInteger.Zero),
-                    null,
-                    spenderAddress,
-                    amount
-                );
-            Debug.Log("[Sequence] receipt form function TransferFrom: " + receipt);
-            return true; // TODO
+            var address = await this._web3.GetAddress();
+            return await _contract
+            .GetFunction("approve")
+            .SendTransactionAndWaitForReceiptAsync(
+                address,
+                new HexBigInteger(BigInteger.Zero),
+                new HexBigInteger(BigInteger.Zero),
+                null,
+                spenderAddress,
+                amount
+            );
         }
 
-        public async Task<bool> TransferFrom(
+        public async Task<TransactionReceipt> TransferFrom(
             string senderAddress,
             string recipientAddress,
             string amount
         )
         {
             var address = await this._web3.GetAddress();
-            var receipt = await _contract
-                .GetFunction("transferFrom")
-                .SendTransactionAndWaitForReceiptAsync(
-                    address,
-                    new HexBigInteger(BigInteger.Zero),
-                    new HexBigInteger(BigInteger.Zero),
-                    null,
-                    senderAddress,
-                    recipientAddress,
-                    amount
-                );
-            Debug.Log("[Sequence] receipt form function TransferFrom: " + receipt);
-            return true; // TODO
+            return await _contract
+               .GetFunction("transferFrom")
+               .SendTransactionAndWaitForReceiptAsync(
+                   address,
+                   new HexBigInteger(BigInteger.Zero),
+                   new HexBigInteger(BigInteger.Zero),
+                   null,
+                   senderAddress,
+                   recipientAddress,
+                   amount
+               );
         }
 
         private static readonly string abi =

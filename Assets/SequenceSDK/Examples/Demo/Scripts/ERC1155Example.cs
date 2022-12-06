@@ -8,7 +8,7 @@ using System.Text;
 
 namespace SequenceSharp
 {
-   
+
 
     [System.Serializable]
     public class ERC1155Example : MonoBehaviour
@@ -16,26 +16,23 @@ namespace SequenceSharp
         //Set in inspector
 
         public string contractAddress = "";
-        
+
         public List<BigInteger> tokenIds = new List<BigInteger>(3);
         public List<string> accounts = new List<string>();
         public List<BigInteger> amounts = new List<BigInteger>(3);
         public string data = "";
         public Wallet _wallet;
-        
-
-
 
         /// <summary>
         /// Call after signing in sequence wallet
         /// </summary>
         public async void ERC1155Examples()
         {
-            
+
             _wallet = FindObjectOfType<Wallet>();
             var web3 = new Web3();
-            web3.Client.OverridingRequestInterceptor = new SequenceInterceptor(_wallet, 137);           
-            var erc1155 = new ERC1155(web3,contractAddress);
+            web3.Client.OverridingRequestInterceptor = new SequenceInterceptor(_wallet, 137);
+            var erc1155 = new ERC1155(web3, contractAddress);
 
             //Generate a random address for example testing
             var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
@@ -53,10 +50,10 @@ namespace SequenceSharp
             var URI = await erc1155.URI(tokenIds[0]);
             Debug.Log("URI: " + URI);
             accounts[0] = await _wallet.GetAddress();
-            var balanceOf = await erc1155.BalanceOf(tokenIds[0],  accounts[0]);
+            var balanceOf = await erc1155.BalanceOf(tokenIds[0], accounts[0]);
             Debug.Log("balanceOf: " + balanceOf);
             var balanceOfBatch = await erc1155.BalanceOfBatch(accounts, tokenIds);
-            foreach(var balance in balanceOfBatch)
+            foreach (var balance in balanceOfBatch)
             {
                 Debug.Log("balanceOfBatch: " + balance);
             }
