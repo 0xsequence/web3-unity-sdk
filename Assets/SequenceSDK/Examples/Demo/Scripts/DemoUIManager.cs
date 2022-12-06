@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 
 enum ScreenRatio
 {
@@ -14,15 +15,18 @@ enum ScreenRatio
     One_Two
 }
 public class DemoUIManager : MonoBehaviour
-{
-
-    
+{   
     public new Camera camera;
 
     //Welcome Panel
     [Header("Welcome Panel")]
     public GridLayoutGroup welcomePanelLayout;
+    public DemoLayout abiExamplePanelLayout;
+    private List<Button> welcomeButtons;
+    private List<Button> abiExampleButtons;
+    private Image welcomeBackgroundImage;
     public TMP_Dropdown networkDropdown;
+
 
     //Collection Scroll
     [Header("Collection")]
@@ -31,12 +35,6 @@ public class DemoUIManager : MonoBehaviour
     public RectTransform collectionScrollRect;
     public GridLayoutGroup collectionCatLayout;
     public GridLayoutGroup collectionScrollLayout;
-
-    //Button styles
-    [Header("Buttons")]
-    public GameObject welcomeButtonsParent;
-    private List<Button> welcomeButtons;
-    private Image welcomeBackgroundImage;
 
     //Sprites
     [Header("Sprites")]
@@ -48,6 +46,7 @@ public class DemoUIManager : MonoBehaviour
     public Color buttonBackgroundColor;
     public Color buttonHighlightColor;
     public Color buttonTextColor;
+    public Color outlineColor; //Todo: make it gradient
 
     private ScreenRatio screenRatio= ScreenRatio.Default;
     private void Start()
@@ -55,16 +54,15 @@ public class DemoUIManager : MonoBehaviour
         screenRatio = GetScreenRatio();
         GetAllElements();
         SetStyle();
-
     }
 
 
     private void GetAllElements()
     {
         //welcome panel        
-        welcomeButtons = new List<Button>(welcomeButtonsParent.GetComponentsInChildren<Button>());
-        welcomeBackgroundImage = welcomeButtonsParent.GetComponent<Image>();
-
+        welcomeButtons = new List<Button>(welcomePanelLayout.GetComponentsInChildren<Button>());
+        welcomeBackgroundImage = welcomePanelLayout.GetComponent<Image>();
+        abiExampleButtons = new List<Button>(abiExamplePanelLayout.GetComponentsInChildren<Button>());
         //Address
 
         //Collections
@@ -78,6 +76,7 @@ public class DemoUIManager : MonoBehaviour
     {
         //welcome panel
         welcomeButtons.Clear();
+        abiExampleButtons.Clear();
         //Address
 
         //Collections
@@ -95,18 +94,23 @@ public class DemoUIManager : MonoBehaviour
         {
             case ScreenRatio.Two_One:
                 SetWelcomePanelStyle(3, new Vector2(200, 50), new Vector2(20, 25), 14, 4f);
+                SetABIExampleButtonStyle(10,6f);
                 break;
             case ScreenRatio.OneHalf_One:
                 SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f);
+                SetABIExampleButtonStyle(10, 6f);
                 break;
             case ScreenRatio.One_One:
                 SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f);
+                SetABIExampleButtonStyle(10,6f);
                 break;
             case ScreenRatio.One_OneHalf:
                 SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f);
+                SetABIExampleButtonStyle(25,4f);
                 break;
             case ScreenRatio.One_Two:
                 SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f);
+                SetABIExampleButtonStyle(25,4f);
                 break;
         }
         //Welcome Panel
@@ -139,11 +143,28 @@ public class DemoUIManager : MonoBehaviour
             btnImage.sprite = buttonSprite;
             btnImage.color = buttonBackgroundColor;
             btnImage.pixelsPerUnitMultiplier = roundCorner;
-            var txt = button.gameObject.GetComponentInChildren<TMP_Text>();
-            txt.color = buttonTextColor;
-            txt.fontSize = fontSize;
+            var txts = button.gameObject.GetComponentsInChildren<TMP_Text>();
+            foreach (var txt in txts)
+            {
+                txt.color = buttonTextColor;
+                txt.fontSize = fontSize;
+            }
+            //outlines
+            EventTrigger eventTrigger = button.gameObject.AddComponent<EventTrigger>();
+            EventTrigger.Entry hoverEntry = new EventTrigger.Entry();
+
+            hoverEntry.eventID = EventTriggerType.PointerEnter;
+            hoverEntry.callback.AddListener((data) => { AddOutLine(button); });
+            eventTrigger.triggers.Add(hoverEntry);
+
+            EventTrigger.Entry exitEntry = new EventTrigger.Entry();
+            exitEntry.eventID = EventTriggerType.PointerExit;
+            exitEntry.callback.AddListener((data) => { ClearOutline(button); });
+            eventTrigger.triggers.Add(exitEntry);
+
         }
-        //Chain Selector
+
+        //Chain Selector Dropdown
         var parentWidth = welcomePanelLayout.GetComponent<RectTransform>().rect.width;
         networkDropdown.GetComponent<RectTransform>().sizeDelta = new Vector2(parentWidth / 3f, buttonSize.y/2f);
         
@@ -154,10 +175,44 @@ public class DemoUIManager : MonoBehaviour
         networkDropdown.itemText.fontSize = fontSize;
         networkDropdown.itemText.color = buttonTextColor;
         Toggle networkToggle = networkDropdown.template.GetComponentInChildren<Toggle>();
+        networkToggle.GetComponentInChildren<TMP_Text>().fontSize = fontSize;
+        networkToggle.GetComponentInChildren<TMP_Text>().color = buttonTextColor;
         ColorBlock toggleCB = networkToggle.colors;
         toggleCB.normalColor= buttonBackgroundColor;
         toggleCB.selectedColor= buttonHighlightColor;
         networkToggle.colors = toggleCB;
+
+    }
+
+    public void AddOutLine(Button button)
+    {
+        var outline = button.gameObject.GetComponent<Outline>();
+        if (!outline)
+        {
+            outline = button.gameObject.AddComponent<Outline>();
+        }
+        outline.enabled = true;
+        outline.effectColor = outlineColor;
+    }
+
+    public void ClearOutline(Button button)
+    {
+        var outline = button.gameObject.GetComponent<Outline>();
+        outline.enabled = false;
+    }
+
+    private void SetABIExampleButtonStyle(int fontSize, float roundCorner)
+    {
+        //ABI Examples
+        foreach (var button in abiExampleButtons)
+        {
+            var btnImage = button.gameObject.GetComponent<Image>();
+            btnImage.sprite = buttonSprite;
+            btnImage.color = buttonBackgroundColor;
+            btnImage.pixelsPerUnitMultiplier = roundCorner;
+            var txt = button.gameObject.GetComponentInChildren<TMP_Text>();
+            txt.fontSize = fontSize;
+        }
     }
 
     private ScreenRatio GetScreenRatio()
