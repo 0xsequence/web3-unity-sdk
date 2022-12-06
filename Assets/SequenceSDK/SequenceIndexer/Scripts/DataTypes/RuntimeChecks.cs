@@ -1,3 +1,5 @@
+using System.Numerics;
+
 namespace SequenceSharp
 {
     [System.Serializable]
@@ -5,6 +7,6 @@ namespace SequenceSharp
     {
         public bool running;
         public string syncMode;
-        public int lastBlockNum;
+        public BigInteger lastBlockNum;
     }
 }

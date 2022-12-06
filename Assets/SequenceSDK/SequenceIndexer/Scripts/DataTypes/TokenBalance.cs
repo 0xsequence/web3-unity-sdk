@@ -9,13 +9,12 @@ namespace SequenceSharp
         public string contractAddress;
         public ContractType contractType;
         public string accountAddress;
-        public string tokenID;
-        public string balance;
+        public BigInteger tokenID;
+        public BigInteger balance;
         public string blockHash;
-        public int blockNumber;
-        // public int updateId;
+        public BigInteger blockNumber;
         public BigInteger updateID;
-        public int chainId;
+        public BigInteger chainId;
         public ContractInfo contractInfo;
         public TokenMetadata tokenMetadata;
     }

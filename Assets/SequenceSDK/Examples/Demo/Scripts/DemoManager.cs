@@ -67,24 +67,6 @@ public class DemoManager : MonoBehaviour
     [SerializeField]
     private Button closeWalletBtn;
 
-    [Header("Metamask Test")]
-    [SerializeField]
-    private GameObject metamaskPanel;
-
-    [SerializeField]
-    private Button metamaskConnectBtn;
-
-    [SerializeField]
-    private Button metamaskSignMessageBtn;
-
-    [SerializeField]
-    private Button metamaskSendTransactionBtn;
-    public Metamask metamask;
-
-    [Header("Test method")]
-    [SerializeField]
-    private Button testingBtn;
-
     [Header("History")]
     [SerializeField]
     private GameObject historyUnitPrefab;
@@ -149,12 +131,6 @@ public class DemoManager : MonoBehaviour
         disconnectBtn.onClick.AddListener(Disconnect);
 
         closeWalletBtn.onClick.AddListener(CloseWallet);
-
-        //Metamask Test
-        metamaskConnectBtn.onClick.AddListener(ConnectMetamask);
-        metamaskSignMessageBtn.onClick.AddListener(MetamaskSignMessage);
-        metamaskSendTransactionBtn.onClick.AddListener(MetamaskSendTransaction);
-        metamask.MetamaskConnectedEvent.AddListener(DisplayMetamaskPanel);
     }
 
     /// <summary>
@@ -165,14 +141,9 @@ public class DemoManager : MonoBehaviour
         bool isConnected = await wallet.IsConnected();
         m_connected = isConnected;
 
-        bool metamaskInitialized = metamask.IsMetamaskInitialised();
         if (isConnected)
         {
             DisplayWelcomePanel();
-        }
-        else if (metamaskInitialized)
-        {
-            DisplayMetamaskPanel();
         }
         else
         {
@@ -383,111 +354,99 @@ public class DemoManager : MonoBehaviour
 
     public async void ViewCollection()
     {
-        try
+        string accountAddress = await wallet.GetAddress();
+        var tokenBalances = await Indexer.FetchMultiplePages(
+            async (pageNumber) =>
+            {
+                GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(
+                    accountAddress,
+                    true,
+                    new Page { page = pageNumber }
+                );
+                var balances = await Indexer.GetTokenBalances(Chain.Polygon, tokenBalancesArgs);
+
+                return (balances.page, balances.balances);
+            },
+            9999
+        );
+        List<TokenBalance> tokenBalanceList = new List<TokenBalance>();
+        foreach (var tokenBalance in tokenBalances)
         {
-            string accountAddress = await wallet.GetAddress();
-            var tokenBalances = await Indexer.FetchMultiplePages(
+            var tokenBalanceWithContract = await Indexer.FetchMultiplePages(
                 async (pageNumber) =>
                 {
                     GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(
                         accountAddress,
+                        tokenBalance.contractAddress,
                         true,
                         new Page { page = pageNumber }
                     );
-                    var balances = await Indexer.GetTokenBalances(Chain.Polygon, tokenBalancesArgs);
+                    var balances = await Indexer.GetTokenBalances(
+                        Chain.Polygon,
+                        tokenBalancesArgs
+                    );
 
                     return (balances.page, balances.balances);
                 },
                 9999
             );
-            List<TokenBalance> tokenBalanceList = new List<TokenBalance>();
-            foreach (var tokenBalance in tokenBalances)
-            {
-                var tokenBalanceWithContract = await Indexer.FetchMultiplePages(
-                    async (pageNumber) =>
-                    {
-                        GetTokenBalancesArgs tokenBalancesArgs = new GetTokenBalancesArgs(
-                            accountAddress,
-                            tokenBalance.contractAddress,
-                            true,
-                            new Page { page = pageNumber }
-                        );
-                        var balances = await Indexer.GetTokenBalances(
-                            Chain.Polygon,
-                            tokenBalancesArgs
-                        );
+            tokenBalanceList.AddRange(tokenBalanceWithContract);
+        }
+        DisplayCollectionPanel(tokenBalanceList.ToArray());
 
-                        return (balances.page, balances.balances);
-                    },
-                    9999
-                );
-                tokenBalanceList.AddRange(tokenBalanceWithContract);
-            }
-            DisplayCollectionPanel(tokenBalanceList.ToArray());
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e);
-        }
     }
 
     public async void ViewHistory()
     {
         DisplayHistoryPanel();
         historyUI.ClearHistories();
-        try
-        {
-            string accountAddress = "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9"; // await wallet.GetAddress(); //to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
-            var transactions = await Indexer.FetchMultiplePages(
-                async (pageNumber) =>
+        string accountAddress = await wallet.GetAddress(); //to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
+        var transactions = await Indexer.FetchMultiplePages(
+            async (pageNumber) =>
+            {
+                var args = new GetTransactionHistoryArgs(
+                    new TransactionHistoryFilter { accountAddress = accountAddress },
+                    new Page { page = pageNumber }
+                );
+                var history = await Indexer.GetTransactionHistory(Chain.Polygon, args);
+
+                foreach (var transaction in history.transactions)
                 {
-                    var args = new GetTransactionHistoryArgs(
-                        new TransactionHistoryFilter { accountAddress = accountAddress },
-                        new Page { page = pageNumber }
-                    );
-                    var history = await Indexer.GetTransactionHistory(Chain.Polygon, args);
-
-                    foreach (var transaction in history.transactions)
+                    foreach (var transfer in transaction.transfers)
                     {
-                        foreach (var transfer in transaction.transfers)
+                        // Try to get token name, but got a "missing revert data in call exception" from ether.js for some contract address.
+                        string name = "";
+                        switch (transfer.contractType)
                         {
-                            // Try to get token name, but got a "missing revert data in call exception" from ether.js for some contract address.
-                            string name = "";
-                            var erc20 = new ERC20(web3, transfer.contractAddress);
-                            switch (transfer.contractType)
-                            {
-                                case ContractType.ERC20:
-                                    name = await erc20.Name();
-                                    break;
-                                case ContractType.ERC721:
-                                    name = await erc20.Name();
-                                    break;
-                                default:
-                                    break;
-                            }
-
-                            GameObject unitGO = Instantiate(historyUnitPrefab);
-                            unitGO.transform.SetParent(historyScroll);
-                            unitGO.transform.localScale = new UnityEngine.Vector3(1f, 1f, 1f);
-                            HistoryUnit historyUnit = unitGO.GetComponent<HistoryUnit>();
-                            historyUnit.SetUnit(
-                                transaction.timestamp,
-                                name,
-                                transfer.tokenIds.Length.ToString()
-                            );
-                            historyUI.AddToHistoryList(historyUnit);
-                            /*foreach(var tokenId in transfer.tokenIds)
-                            {
-                                Debug.Log("tokenId: "+ tokenId);
-                            }*/
+                            case ContractType.ERC20:
+                                name = await new ERC20(web3, transfer.contractAddress).Name();
+                                break;
+                            case ContractType.ERC721:
+                                name = await new ERC721(web3, transfer.contractAddress).Name();
+                                break;
+                            case ContractType.ERC1155:
+                                name = await new ERC1155(web3, transfer.contractAddress).URI(transfer.tokenIds[0]);
+                                break;
+                            default:
+                                break;
                         }
+
+                        GameObject unitGO = Instantiate(historyUnitPrefab);
+                        unitGO.transform.SetParent(historyScroll);
+                        unitGO.transform.localScale = new UnityEngine.Vector3(1f, 1f, 1f);
+                        HistoryUnit historyUnit = unitGO.GetComponent<HistoryUnit>();
+                        historyUnit.SetUnit(
+                            transaction.timestamp,
+                            name,
+                            transfer.tokenIds.Length.ToString()
+                        );
+                        historyUI.AddToHistoryList(historyUnit);
                     }
-                    return (history.page, history.transactions);
-                },
-                9999
-            );
-        }
-        catch { }
+                }
+                return (history.page, history.transactions);
+            },
+            9999
+        );
     }
 
     public async void SignMessage()
@@ -936,69 +895,6 @@ And that has made all the difference.
         {
             Debug.Log(e);
         }
-    }
-
-    //========================Metamask===========================
-
-
-    //UI
-    private void DisplayMetamaskPanel()
-    {
-        HideConnectPanel();
-        metamaskPanel.SetActive(true);
-        // web3.Client.OverridingRequestInterceptor = new MetamaskInterceptor(metamask);
-    }
-
-    private void ConnectMetamask()
-    {
-        StartCoroutine(metamask.MetamaskConnect());
-        bool metamaskInitialized = metamask.IsMetamaskInitialised();
-        if (metamaskInitialized)
-        {
-            DisplayMetamaskPanel();
-        }
-    }
-
-    private void MetamaskSignMessage()
-    {
-        var message =
-            @"1915 Robert Frost
-The Road Not Taken
-
-Two roads diverged in a yellow wood,
-And sorry I could not travel both
-And be one traveler, long I stood
-And looked down one as far as I could
-To where it bent in the undergrowth
-
-Then took the other, as just as fair,
-And having perhaps the better claim,
-Because it was grassy and wanted wear
-Though as for that the passing there
-Had worn them really about the same,
-
-And both that morning equally lay
-In leaves no step had trodden black.
-Oh, I kept the first for another day!
-Yet knowing how way leads on to way,
-I doubted if I should ever come back.
-
-I shall be telling this with a sigh
-Somewhere ages and ages hence:
-Two roads diverged in a wood, and
-I took the one less traveled by,
-And that has made all the difference.
-
-\u2601 \u2600 \u2602";
-        metamask.SignMessageRequest(message);
-    }
-
-    public void MetamaskSendTransaction()
-    {
-        var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
-        //Random To Account
-        var toAddress = randomWallet.GetAccount(0).Address;
-        metamask.TransferRequest(toAddress, "0.000000000000000001");
     }
 
     public static Mnemonic exampleMnemo = new Mnemonic(Wordlist.English, WordCount.Twelve);

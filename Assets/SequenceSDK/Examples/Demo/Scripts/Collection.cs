@@ -149,8 +149,8 @@ public class Collection : MonoBehaviour
                 // ok!
             }
             BigInteger? tokenID =
-                (tokenMetadata != null && tokenMetadata.tokenId != null)
-                    ? BigInteger.Parse(tokenMetadata.tokenId)
+                (tokenMetadata != null)
+                    ? tokenMetadata.tokenId
                     : null;
             newCategory.Init(
                 tokenMetadata != null

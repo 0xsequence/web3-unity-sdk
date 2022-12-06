@@ -1,6 +1,7 @@
 namespace SequenceSharp
 {
     using System.Collections.Generic;
+    using System.Numerics;
 
     [System.Serializable]
     public class TxnTransfer
@@ -10,8 +11,8 @@ namespace SequenceSharp
         public ContractType contractType;
         public string from;
         public string to;
-        public string[] tokenIds;
-        public string[] amounts;
+        public BigInteger[] tokenIds;
+        public BigInteger[] amounts;
         public int logIndex;
         public ContractInfo contractInfo;
         public Dictionary<string, TokenMetadata> tokenMetaData;

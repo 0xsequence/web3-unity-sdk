@@ -1,3 +1,5 @@
+using System.Numerics;
+
 namespace SequenceSharp
 {
     [System.Serializable]
@@ -10,7 +12,7 @@ namespace SequenceSharp
         public string ver;
         public string branch;
         public string commitHash;
-        public int chainID;
+        public BigInteger chainID;
         public RuntimeChecks checks;
     }
 }

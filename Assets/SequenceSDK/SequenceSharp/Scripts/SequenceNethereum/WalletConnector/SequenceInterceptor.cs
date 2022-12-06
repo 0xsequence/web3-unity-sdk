@@ -209,8 +209,7 @@ namespace SequenceSharp
                     interceptedSendRequestAsync,
                     request,
                     route
-                )
-                    .ConfigureAwait(false);
+                );
             }
         }
 

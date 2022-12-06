@@ -101,7 +101,7 @@ public class Category : MonoBehaviour
                 _tokenID,
                 BigInteger.One,
                 Encoding.ASCII.GetBytes("")
-            ) ;
+            );
         }
         else
         {

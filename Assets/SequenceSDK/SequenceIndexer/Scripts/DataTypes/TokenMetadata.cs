@@ -1,11 +1,12 @@
 namespace SequenceSharp
 {
     using System.Collections.Generic;
+    using System.Numerics;
 
     [System.Serializable]
     public class TokenMetadata
     {
-        public string tokenId;
+        public BigInteger tokenId;
         public string contractAddress;
         public string name;
         public string description;

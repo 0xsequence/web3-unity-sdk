@@ -1,7 +1,6 @@
 using System.Numerics;
 using System.Threading.Tasks;
 using System;
-using UnityEngine;
 using System.Collections.Generic;
 using Nethereum.Web3;
 using Nethereum.Hex.HexTypes;
@@ -9,19 +8,11 @@ using Nethereum.RPC.Eth.DTOs;
 
 namespace SequenceSharp
 {
-    public struct ERC1155Balance
-    {
-        public string type;
-        public string hex;
-    }
-
     public class ERC1155
     {
         private Web3 _web3 = null;
         private string _contractAddress = "";
         private Nethereum.Contracts.Contract _contract;
-
-        private TransactionReceipt receipt;
 
         public ERC1155(Web3 web3, string contractAddress)
         {
@@ -31,24 +22,20 @@ namespace SequenceSharp
         }
 
         /// <summary>
-        /// Returns the URI for token type id
+        /// Returns the metadata URI for token `id`
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="address">Contract address</param>
-        /// <param name="chainId"></param>
-        /// <returns></returns>
+        /// <param name="id">The Token ID to fetch the URI for.</param>
+        /// <returns>A URI - can be IPFS, a URL, a raw svg, etc.</returns>
         public Task<string> URI(BigInteger id)
         {
             return _contract.GetFunction("uri").CallAsync<string>(id);
         }
 
         /// <summary>
-        /// Returns the amount of tokens of token type id owned by account
+        /// Returns the amount of tokens of Token type `id` owned by `account`
         /// </summary>
-        /// <param name="account"> cannot be zero address </param>
-        /// <param name="id"></param>
-        /// <param name="address">Contract address</param>
-        /// <param name="chainId"></param>
+        /// <param name="account">The address to query. Cannot be the zero address.</param>
+        /// <param name="id">The Token ID to query.</param>
         /// <returns></returns>
         public Task<BigInteger> BalanceOf(BigInteger id, string account)
         {
@@ -56,13 +43,11 @@ namespace SequenceSharp
         }
 
         /// <summary>
-        /// Batched version of balanceOf, accounts and ids must have same length
+        /// Batched version of BalanceOf. `accounts` and `ids` must have same length.
         /// </summary>
-        /// <param name="accounts"> must have same length as ids</param>
-        /// <param name="ids">must have same length as accounts</param>
-        /// <param name="address">Contract address</param>
-        /// <param name="chainId"></param>
-        /// <returns></returns>
+        /// <param name="accounts">A list of accounts to fetch balances for. Must have same length as ids.</param>
+        /// <param name="ids">A list of IDs to fetch for each given account. Must have same length as accounts</param>
+        /// <returns>A balance for each account.</returns>
         public Task<List<BigInteger>> BalanceOfBatch(List<string> accounts, List<BigInteger> ids)
         {
             return _contract
@@ -70,52 +55,41 @@ namespace SequenceSharp
                 .CallAsync<List<BigInteger>>(accounts, ids);
         }
 
-        public async Task SetApprovalForAll(string operatorAddress, bool approved)
+        public async Task<TransactionReceipt> SetApprovalForAll(string operatorAddress, bool approved)
         {
             var address = await this._web3.GetAddress();
-            var receipt = await _contract
-                .GetFunction("setApprovalForAll")
-                .SendTransactionAndWaitForReceiptAsync(
-                    address,
-                    new HexBigInteger(BigInteger.Zero),
-                    new HexBigInteger(BigInteger.Zero),
-                    null,
-                    operatorAddress,
-                    approved
-                );
-            Debug.Log("[Sequence] receipt form function SetApprovalForAll: " + receipt);
-            // TODO output
+            return await _contract
+                 .GetFunction("setApprovalForAll")
+                 .SendTransactionAndWaitForReceiptAsync(
+                     address,
+                     new HexBigInteger(BigInteger.Zero),
+                     new HexBigInteger(BigInteger.Zero),
+                     null,
+                     operatorAddress,
+                     approved
+                 );
         }
 
-        public async Task<bool> IsApprovedForAll(string account, string operatorAddress)
+        public Task<bool> IsApprovedForAll(string account, string operatorAddress)
         {
-            var address = await this._web3.GetAddress();
-            var receipt = await _contract
+            return _contract
                 .GetFunction("isApprovedForAll")
-                .SendTransactionAndWaitForReceiptAsync(
-                    address,
-                    new HexBigInteger(BigInteger.Zero),
-                    new HexBigInteger(BigInteger.Zero),
-                    null,
+                .CallAsync<bool>(
                     account,
                     operatorAddress
-                )
-                .ConfigureAwait(false);
-            Debug.Log("[Sequence] receipt form function IsApprovedForAll: " + receipt.BlockHash);
-            return false;
-            // TODO output
+                 );
         }
 
-        public async Task SafeTransferFrom(
+        public async Task<TransactionReceipt> SafeTransferFrom(
             string from,
             string to,
             BigInteger id,
             BigInteger amount,
-            Byte[] data
+            Byte[] data = null
         )
         {
             var address = await this._web3.GetAddress();
-            var receipt = await _contract
+            return await _contract
                 .GetFunction("safeTransferFrom")
                 .SendTransactionAndWaitForReceiptAsync(
                     address,
@@ -128,11 +102,9 @@ namespace SequenceSharp
                     amount,
                     data
                 );
-            Debug.Log("[Sequence] receipt form function SafeTransferFrom: " + receipt);
-            // TODO output
         }
 
-        public async Task SafeBatchTransferFrom(
+        public async Task<TransactionReceipt> SafeBatchTransferFrom(
             string from,
             string to,
             List<BigInteger> ids,
@@ -141,7 +113,7 @@ namespace SequenceSharp
         )
         {
             var address = await this._web3.GetAddress();
-            var receipt = await _contract
+            return await _contract
                 .GetFunction("safeBatchTransferFrom")
                 .SendTransactionAndWaitForReceiptAsync(
                     address,
@@ -154,8 +126,6 @@ namespace SequenceSharp
                     amounts,
                     data
                 );
-            Debug.Log("[Sequence] receipt form function SafeBatchTransferFrom: " + receipt);
-            // TODO output
         }
 
         private static readonly string abi =
