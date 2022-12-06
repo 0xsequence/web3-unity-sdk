@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
+using System.Linq;
 
 enum ScreenRatio
 {
@@ -18,6 +19,12 @@ public class DemoUIManager : MonoBehaviour
 {   
     public new Camera camera;
 
+    //Connect Panel
+    [Header("Connect")]
+    public GridLayoutGroup connectPanelLayout;
+    private List<Button> connectButtons;
+
+
     //Welcome Panel
     [Header("Welcome Panel")]
     public GridLayoutGroup welcomePanelLayout;
@@ -26,6 +33,13 @@ public class DemoUIManager : MonoBehaviour
     private List<Button> abiExampleButtons;
     private Image welcomeBackgroundImage;
     public TMP_Dropdown networkDropdown;
+
+    //Address Panel
+    [Header("Address")]
+    public TMP_Text addressText;
+    public Button addressBackButton;
+
+    
 
 
     //Collection Scroll
@@ -47,6 +61,7 @@ public class DemoUIManager : MonoBehaviour
     public Color buttonHighlightColor;
     public Color buttonTextColor;
     public Color outlineColor; //Todo: make it gradient
+    public Color addressTextColor;
 
     private ScreenRatio screenRatio= ScreenRatio.Default;
     private void Start()
@@ -59,6 +74,8 @@ public class DemoUIManager : MonoBehaviour
 
     private void GetAllElements()
     {
+        //Connect
+        connectButtons = new List<Button>(connectPanelLayout.GetComponentsInChildren<Button>());
         //welcome panel        
         welcomeButtons = new List<Button>(welcomePanelLayout.GetComponentsInChildren<Button>());
         welcomeBackgroundImage = welcomePanelLayout.GetComponent<Image>();
@@ -74,6 +91,8 @@ public class DemoUIManager : MonoBehaviour
     }
     private void ClearAllElements()
     {
+        //Connect
+        connectButtons.Clear();
         //welcome panel
         welcomeButtons.Clear();
         abiExampleButtons.Clear();
@@ -93,27 +112,39 @@ public class DemoUIManager : MonoBehaviour
         switch(screenRatio)
         {
             case ScreenRatio.Two_One:
+                SetConnectPanelStyle(35, 4f);
                 SetWelcomePanelStyle(3, new Vector2(200, 50), new Vector2(20, 25), 14, 4f);
                 SetABIExampleButtonStyle(10,6f);
+                SetAddressPanelStyle(35, 6f);
                 break;
             case ScreenRatio.OneHalf_One:
+                SetConnectPanelStyle(35, 4f);
                 SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f);
                 SetABIExampleButtonStyle(10, 6f);
+                SetAddressPanelStyle(35, 6f);
                 break;
             case ScreenRatio.One_One:
+                SetConnectPanelStyle(28, 4f);
                 SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f);
                 SetABIExampleButtonStyle(10,6f);
+                SetAddressPanelStyle(28, 6f);
                 break;
             case ScreenRatio.One_OneHalf:
+                SetConnectPanelStyle(28, 2f);
                 SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f);
                 SetABIExampleButtonStyle(25,4f);
+                SetAddressPanelStyle(28, 6f);
                 break;
             case ScreenRatio.One_Two:
+                SetConnectPanelStyle(28, 2f);
                 SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f);
                 SetABIExampleButtonStyle(25,4f);
+                SetAddressPanelStyle(28, 6f);
                 break;
         }
-        //Welcome Panel
+        //Connect 
+
+        //Welcome Panel (check)
 
         //Address
 
@@ -184,23 +215,37 @@ public class DemoUIManager : MonoBehaviour
 
     }
 
-    public void AddOutLine(Button button)
+    private void SetConnectPanelStyle(int fontSize, float roundCorner)
     {
-        var outline = button.gameObject.GetComponent<Outline>();
-        if (!outline)
+        //Skip Sequence Connect Button
+        foreach(Button button in connectButtons.Skip(1))
         {
-            outline = button.gameObject.AddComponent<Outline>();
+            var btnImage = button.gameObject.GetComponent<Image>();
+            btnImage.sprite = buttonSprite;
+            btnImage.color = buttonBackgroundColor;
+            btnImage.pixelsPerUnitMultiplier = roundCorner;
+            var txts = button.gameObject.GetComponentsInChildren<TMP_Text>();
+            foreach (var txt in txts)
+            {
+                txt.color = buttonTextColor;
+                txt.fontSize = fontSize;
+            }
         }
-        outline.enabled = true;
-        outline.effectColor = outlineColor;
     }
 
-    public void ClearOutline(Button button)
+    private void SetAddressPanelStyle(int fontSize, float roundCorner)
     {
-        var outline = button.gameObject.GetComponent<Outline>();
-        outline.enabled = false;
+        //Text:
+        addressText.color = addressTextColor;
+        //Button:
+        var btnImage = addressBackButton.gameObject.GetComponent<Image>();
+        btnImage.sprite = buttonSprite;
+        btnImage.color = buttonBackgroundColor;
+        btnImage.pixelsPerUnitMultiplier = roundCorner;
+        var txt = addressBackButton.gameObject.GetComponentInChildren<TMP_Text>();
+        txt.fontSize = fontSize;
+        txt.color = buttonTextColor;
     }
-
     private void SetABIExampleButtonStyle(int fontSize, float roundCorner)
     {
         //ABI Examples
@@ -212,8 +257,28 @@ public class DemoUIManager : MonoBehaviour
             btnImage.pixelsPerUnitMultiplier = roundCorner;
             var txt = button.gameObject.GetComponentInChildren<TMP_Text>();
             txt.fontSize = fontSize;
+            txt.color = buttonTextColor;
         }
     }
+
+
+    private void AddOutLine(Button button)
+    {
+        var outline = button.gameObject.GetComponent<Outline>();
+        if (!outline)
+        {
+            outline = button.gameObject.AddComponent<Outline>();
+        }
+        outline.enabled = true;
+        outline.effectColor = outlineColor;
+    }
+
+    private void ClearOutline(Button button)
+    {
+        var outline = button.gameObject.GetComponent<Outline>();
+        outline.enabled = false;
+    }
+
 
     private ScreenRatio GetScreenRatio()
     {
