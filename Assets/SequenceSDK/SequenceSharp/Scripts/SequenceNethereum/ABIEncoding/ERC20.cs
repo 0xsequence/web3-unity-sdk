@@ -76,7 +76,7 @@ namespace SequenceSharp
         /// <summary>
         /// Transfers some amount of this ERC20 to another address.
         /// </summary>
-        public async Task<string> Transfer(string recipientAddress, string amount)
+        public async Task<string> Transfer(string recipientAddress, BigInteger amount)
         {
             var address = await this._web3.GetAddress();
             var receiptAmountSend = await _contract
@@ -87,8 +87,8 @@ namespace SequenceSharp
                     new HexBigInteger(BigInteger.Zero),
                     null,
                     recipientAddress,
-                    amount
-                );
+                    amount.ToString()
+                ) ;
             return ""; //TODO
         }
 
