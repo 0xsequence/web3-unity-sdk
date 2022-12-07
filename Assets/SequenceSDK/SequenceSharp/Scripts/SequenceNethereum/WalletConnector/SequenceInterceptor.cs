@@ -195,7 +195,7 @@ namespace SequenceSharp
             }
             else if (request.Method == ApiMethods.eth_chainId.ToString())
             {
-                return chainID;
+                return new HexBigInteger(chainID);
             }
             else if (request.Method == ApiMethods.wallet_switchEthereumChain.ToString())
             {
@@ -211,6 +211,7 @@ namespace SequenceSharp
             }
             else
             {
+                Debug.Log("Non-intercepted Sequence call..");
                 return await base.InterceptSendRequestAsync(
                     interceptedSendRequestAsync,
                     request,
