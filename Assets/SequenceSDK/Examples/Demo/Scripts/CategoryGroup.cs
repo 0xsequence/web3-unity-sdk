@@ -40,6 +40,8 @@ public class CategoryGroup : MonoBehaviour
 
     }
 
+
+
     public void ShowCategories()
     {
         for (int i = 0; i < _categories.Count; i++)
@@ -87,6 +89,20 @@ public class CategoryGroup : MonoBehaviour
         }
 
         _categories.Clear();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    public Button GetButton()
+    {
+        return btn;
+    }
+
+    public TextMeshProUGUI GetGroupLabel()
+    {
+        return groupLabel;
     }
 
     /// <summary>

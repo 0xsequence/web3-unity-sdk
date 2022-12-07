@@ -21,7 +21,7 @@ public class Category : MonoBehaviour
     private Image iconImg = null;
 
     [SerializeField]
-    private TextMeshProUGUI btnLbl = null;
+    private TextMeshProUGUI buttonLabel = null;
 
     public string _catName { get; private set; }
     public string _contractAddress { get; private set; }
@@ -61,7 +61,7 @@ public class Category : MonoBehaviour
         {
             this._tokenID = (BigInteger)tokenID;
         }
-        btnLbl.text = name;
+        buttonLabel.text = name;
 
         if (icon != null)
         {
@@ -73,6 +73,9 @@ public class Category : MonoBehaviour
             //StretchLabel();
         }
     }
+
+    public Button GetButton() { return catBtn; }
+    public TextMeshProUGUI GetLabel() { return buttonLabel; }
 
     private async void OnButtonClick()
     {

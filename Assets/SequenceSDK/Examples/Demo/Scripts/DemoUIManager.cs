@@ -15,6 +15,7 @@ enum ScreenRatio
     One_OneHalf,
     One_Two
 }
+
 public class DemoUIManager : MonoBehaviour
 {   
     public new Camera camera;
@@ -23,7 +24,6 @@ public class DemoUIManager : MonoBehaviour
     [Header("Connect")]
     public GridLayoutGroup connectPanelLayout;
     private List<Button> connectButtons;
-
 
     //Welcome Panel
     [Header("Welcome Panel")]
@@ -36,19 +36,25 @@ public class DemoUIManager : MonoBehaviour
 
     //Address Panel
     [Header("Address")]
+    public GameObject addressPanel;
     public TMP_Text addressText;
     public Button addressBackButton;
-
-    
 
 
     //Collection Scroll
     [Header("Collection")]
+    public Collection collection;
     public RectTransform collectionRect;
     public RectTransform collectionCatRect;
     public RectTransform collectionScrollRect;
     public GridLayoutGroup collectionCatLayout;
     public GridLayoutGroup collectionScrollLayout;
+
+    private int collectionCategoryGroupFontSize =15;
+    private int collectionCategoryFontSize = 10;
+
+    [Header("loading panel")]
+    public GameObject loadingPanel;
 
     //Sprites
     [Header("Sprites")]
@@ -66,6 +72,7 @@ public class DemoUIManager : MonoBehaviour
     private ScreenRatio screenRatio= ScreenRatio.Default;
     private void Start()
     {
+        collection.fininshedGeneratingEvent.AddListener(HideLoadingPanel);
         screenRatio = GetScreenRatio();
         GetAllElements();
         SetStyle();
@@ -107,39 +114,40 @@ public class DemoUIManager : MonoBehaviour
     /// <summary>
     /// Hardcoded style sheet for demo
     /// </summary>
-    private void SetStyle()
+    public void SetStyle()
     {
+
         switch(screenRatio)
         {
             case ScreenRatio.Two_One:
                 SetConnectPanelStyle(35, 4f);
                 SetWelcomePanelStyle(3, new Vector2(200, 50), new Vector2(20, 25), 14, 4f);
                 SetABIExampleButtonStyle(10,6f);
-                SetAddressPanelStyle(35, 6f);
+                SetAddressPanelStyle(30,20, 6f);
                 break;
             case ScreenRatio.OneHalf_One:
                 SetConnectPanelStyle(35, 4f);
                 SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f);
                 SetABIExampleButtonStyle(10, 6f);
-                SetAddressPanelStyle(35, 6f);
+                SetAddressPanelStyle(30,20, 6f);
                 break;
             case ScreenRatio.One_One:
                 SetConnectPanelStyle(28, 4f);
                 SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f);
                 SetABIExampleButtonStyle(10,6f);
-                SetAddressPanelStyle(28, 6f);
+                SetAddressPanelStyle(28,18, 6f);
                 break;
             case ScreenRatio.One_OneHalf:
                 SetConnectPanelStyle(28, 2f);
                 SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f);
                 SetABIExampleButtonStyle(25,4f);
-                SetAddressPanelStyle(28, 6f);
+                SetAddressPanelStyle(28,18, 6f);
                 break;
             case ScreenRatio.One_Two:
                 SetConnectPanelStyle(28, 2f);
                 SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f);
                 SetABIExampleButtonStyle(25,4f);
-                SetAddressPanelStyle(28, 6f);
+                SetAddressPanelStyle(28,18, 6f);
                 break;
         }
         //Connect 
@@ -153,6 +161,37 @@ public class DemoUIManager : MonoBehaviour
         //History
 
         //Metamask
+    }
+
+    public void ShowLoadingPanel()
+    {
+        loadingPanel.SetActive(true);
+    }
+
+    public void HideLoadingPanel()
+    {
+        loadingPanel.SetActive(false);
+    }
+    public void SetCollectionCategoryStyle(Category cat)
+    {
+        Button btn = cat.GetButton();
+        btn.image.color = buttonBackgroundColor;
+
+        TextMeshProUGUI label = cat.GetLabel();
+        label.color = buttonTextColor;
+        label.fontSize = collectionCategoryFontSize;
+    }
+
+    public void SetCollectionCategoryGroupStyle(CategoryGroup group)
+    {
+        Button btn = group.GetButton();
+        btn.image.sprite = buttonSprite;
+        btn.image.color = buttonBackgroundColor;
+        TextMeshProUGUI groupLabel = group.GetGroupLabel();
+        groupLabel.color = buttonTextColor;
+        groupLabel.fontSize = collectionCategoryGroupFontSize;
+
+        
     }
     /// <summary>
     /// Set Button styles in welcome panel
@@ -181,17 +220,8 @@ public class DemoUIManager : MonoBehaviour
                 txt.fontSize = fontSize;
             }
             //outlines
-            EventTrigger eventTrigger = button.gameObject.AddComponent<EventTrigger>();
-            EventTrigger.Entry hoverEntry = new EventTrigger.Entry();
-
-            hoverEntry.eventID = EventTriggerType.PointerEnter;
-            hoverEntry.callback.AddListener((data) => { AddOutLine(button); });
-            eventTrigger.triggers.Add(hoverEntry);
-
-            EventTrigger.Entry exitEntry = new EventTrigger.Entry();
-            exitEntry.eventID = EventTriggerType.PointerExit;
-            exitEntry.callback.AddListener((data) => { ClearOutline(button); });
-            eventTrigger.triggers.Add(exitEntry);
+            SetOutlineEventForButton(button);
+           
 
         }
 
@@ -214,6 +244,20 @@ public class DemoUIManager : MonoBehaviour
         networkToggle.colors = toggleCB;
 
     }
+    private void SetABIExampleButtonStyle(int fontSize, float roundCorner)
+    {
+        //ABI Examples
+        foreach (var button in abiExampleButtons)
+        {
+            var btnImage = button.gameObject.GetComponent<Image>();
+            btnImage.sprite = buttonSprite;
+            btnImage.color = buttonBackgroundColor;
+            btnImage.pixelsPerUnitMultiplier = roundCorner;
+            var txt = button.gameObject.GetComponentInChildren<TMP_Text>();
+            txt.fontSize = fontSize;
+            txt.color = buttonTextColor;
+        }
+    }
 
     private void SetConnectPanelStyle(int fontSize, float roundCorner)
     {
@@ -233,35 +277,78 @@ public class DemoUIManager : MonoBehaviour
         }
     }
 
-    private void SetAddressPanelStyle(int fontSize, float roundCorner)
+    private void SetAddressPanelStyle(int addressFontSize, int buttonFontSize, float roundCorner)
     {
-        //Text:
+        //Address Text:
         addressText.color = addressTextColor;
-        //Button:
+        addressText.fontSize = addressFontSize;
+        //Back Button:
+        RectTransform buttonRect = addressBackButton.GetComponent<RectTransform>();
+        float parentWidth = addressPanel.GetComponent<RectTransform>().rect.width;
+        float width = parentWidth / 8f;
+        float height = width / 2f;
+        Vector2 offset = new Vector2(width / 5f, height/5f);
+        buttonRect.sizeDelta = new Vector2(width, height);   
+        buttonRect.anchoredPosition = new Vector2(-(width / 2+offset.x), -(height / 2+offset.y));
+        buttonRect.anchorMin = new Vector2(1, 1);
+        buttonRect.anchorMax = new Vector2(1, 1);   
+        buttonRect.pivot = new Vector2(0.5f, 0.5f);
         var btnImage = addressBackButton.gameObject.GetComponent<Image>();
         btnImage.sprite = buttonSprite;
         btnImage.color = buttonBackgroundColor;
         btnImage.pixelsPerUnitMultiplier = roundCorner;
+
+
         var txt = addressBackButton.gameObject.GetComponentInChildren<TMP_Text>();
-        txt.fontSize = fontSize;
+        txt.fontSize = buttonFontSize;
         txt.color = buttonTextColor;
+
+        //outline
+        SetOutlineEventForButton(addressBackButton);
+
     }
-    private void SetABIExampleButtonStyle(int fontSize, float roundCorner)
+
+
+    private void SetCollectionsStyle()
     {
-        //ABI Examples
-        foreach (var button in abiExampleButtons)
+        float height = collectionRect.sizeDelta.y;
+        AdjustCollectionScrollRect(height);
+
+        //Style for Catogories
+        //collectionCatRect.GetComponentsInChildren<>
+        //Style for tokens
+        //Style for scroll bar 
+    }
+
+    private void SetHistoryStyle()
+    {
+
+    }
+
+
+    private void SetOutlineEventForButton(Button button)
+    {
+        EventTrigger eventTrigger = button.gameObject.GetComponent<EventTrigger>();
+
+        if (!eventTrigger)
         {
-            var btnImage = button.gameObject.GetComponent<Image>();
-            btnImage.sprite = buttonSprite;
-            btnImage.color = buttonBackgroundColor;
-            btnImage.pixelsPerUnitMultiplier = roundCorner;
-            var txt = button.gameObject.GetComponentInChildren<TMP_Text>();
-            txt.fontSize = fontSize;
-            txt.color = buttonTextColor;
+            eventTrigger = button.gameObject.AddComponent<EventTrigger>();
+            EventTrigger.Entry hoverEntry = new EventTrigger.Entry();
+            hoverEntry.eventID = EventTriggerType.PointerEnter;
+            hoverEntry.callback.AddListener((data) => { AddOutLine(button); });
+            eventTrigger.triggers.Add(hoverEntry);
+
+            EventTrigger.Entry exitEntry = new EventTrigger.Entry();
+            exitEntry.eventID = EventTriggerType.PointerExit;
+            exitEntry.callback.AddListener((data) => { ClearOutline(button); });
+            eventTrigger.triggers.Add(exitEntry);
+
+            EventTrigger.Entry pointEntry = new EventTrigger.Entry();
+            pointEntry.eventID = EventTriggerType.PointerClick;
+            pointEntry.callback.AddListener((data) => { ClearOutline(button); });
+            eventTrigger.triggers.Add(pointEntry);
         }
     }
-
-
     private void AddOutLine(Button button)
     {
         var outline = button.gameObject.GetComponent<Outline>();
@@ -306,14 +393,6 @@ public class DemoUIManager : MonoBehaviour
     }
 
 
-    //========Todo: Find another script for the following =============
-    public void EnableCollectionPanel()
-    {
-        float height = collectionRect.sizeDelta.y;
-        AdjustCollectionScrollRect(height);
-    }
-
-
     private void AdjustCollectionScrollRect(float height)
     {
         float categoryHeight = height / 5.0f;
@@ -326,4 +405,7 @@ public class DemoUIManager : MonoBehaviour
         collectionCatLayout.cellSize = new Vector2(categoryHeight * 0.8f, categoryHeight * 0.8f);
         //collectionScrollLayout.cellSize = new Vector2(categoryHeight, categoryHeight);
     }
+
+    
+    
 }

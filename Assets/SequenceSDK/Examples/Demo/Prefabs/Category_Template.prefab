@@ -56,7 +56,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   catBtn: {fileID: 7858842055265344267}
   iconImg: {fileID: 7858842056058456279}
-  btnLbl: {fileID: 7858842056589215067}
+  buttonLabel: {fileID: 7858842056589215067}
 --- !u!222 &7858842055265344269
 CanvasRenderer:
   m_ObjectHideFlags: 0
