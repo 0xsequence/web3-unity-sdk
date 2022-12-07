@@ -7,12 +7,15 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using SequenceSharp;
 using System.Numerics;
+using UnityEngine.Events;
 
 /// <summary>
 /// Handle receiving an Account Address and pulling all contract info data to generate Category options for a user to load content from
 /// </summary>
 public class Collection : MonoBehaviour
 {
+    public UnityEvent fininshedGeneratingEvent;
+
     [Header("Categories")]
     [SerializeField]
     private RectTransform tokensRoot = null;
@@ -34,9 +37,13 @@ public class Collection : MonoBehaviour
     private Dictionary<ContractType, CategoryGroup> _categoryGroups =
         new Dictionary<ContractType, CategoryGroup>();
 
+    //UI
+    private DemoUIManager uiManager;
+
     private void OnEnable()
     {
         m_backButton.onClick.AddListener(BackToWelcomePanel);
+        uiManager = DemoManager.Instance.uiManager;
     }
 
     private void OnDisable()
@@ -78,12 +85,17 @@ public class Collection : MonoBehaviour
 
             newCatGo = Instantiate(categoryTemplate, tokensRoot);
             newCategory = newCatGo.GetComponent<Category>();
+
+            uiManager.SetCollectionCategoryStyle(newCategory);
+
             if (_categoryGroups.ContainsKey(tokenBalances[i].contractType) == false)
             {
                 CategoryGroup newCatGroup = Instantiate(categoryGroupTemplate, catogryGroupRoot)
                     .GetComponent<CategoryGroup>();
                 _categoryGroups.Add(tokenBalances[i].contractType, newCatGroup);
                 newCatGroup.InitGroup(tokenBalances[i].contractType, categorySpacing);
+      
+                uiManager.SetCollectionCategoryGroupStyle(newCatGroup);
             }
 
             // Add new Category option to their relevant ContractType Group
@@ -163,6 +175,7 @@ public class Collection : MonoBehaviour
             );
         }
         yield return null;
+        fininshedGeneratingEvent.Invoke();
     }
 
     /// <summary>

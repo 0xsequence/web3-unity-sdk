@@ -15,6 +15,8 @@ public class DemoManager : MonoBehaviour
     [SerializeField]
     private SequenceSharp.Wallet wallet;
 
+    public bool isTestingAddress;
+
     [Header("Canvases")]
     [SerializeField]
     private GameObject connectCanvas;
@@ -31,8 +33,7 @@ public class DemoManager : MonoBehaviour
     [SerializeField]
     private GameObject historyCanvas;
 
-    [SerializeField]
-    private DemoUIManager uiManager;
+    public DemoUIManager uiManager;
 
     [Header("Connection")]
     [SerializeField]
@@ -177,6 +178,7 @@ public class DemoManager : MonoBehaviour
             HideCollectionPanel();
             HideHistoryPanel();
             m_address.DisplayAccountAddress(accountAddress);
+            uiManager.SetStyle();
         });
     }
 
@@ -197,6 +199,7 @@ public class DemoManager : MonoBehaviour
             HideConnectPanel();
             HideCollectionPanel();
             HideAddressPanel();
+            uiManager.SetStyle();
         });
     }
 
@@ -213,7 +216,7 @@ public class DemoManager : MonoBehaviour
         MainThread.wkr.AddJob(() =>
         {
             collectionCanvas.SetActive(true);
-            uiManager.EnableCollectionPanel();
+            //uiManager.EnableCollectionPanel();
 
             HideConnectPanel();
             HideWelcomePanel();
@@ -221,6 +224,8 @@ public class DemoManager : MonoBehaviour
             HideHistoryPanel();
 
             m_collection.RetriveContractInfoData(tokenBalances);
+            
+            uiManager.SetStyle();
         });
     }
 
@@ -243,8 +248,11 @@ public class DemoManager : MonoBehaviour
                 HideAddressPanel();
                 HideCollectionPanel();
                 HideHistoryPanel();
+                uiManager.SetStyle();
             }
             HideCloseWalletButton();
+
+            
         });
     }
 
@@ -266,6 +274,7 @@ public class DemoManager : MonoBehaviour
             HideCollectionPanel();
             HideCloseWalletButton();
             HideHistoryPanel();
+            uiManager.SetStyle();
         });
     }
 
@@ -354,7 +363,13 @@ public class DemoManager : MonoBehaviour
 
     public async void ViewCollection()
     {
-        string accountAddress = await wallet.GetAddress();
+        HideWelcomePanel();
+        uiManager.ShowLoadingPanel();
+        string accountAddress = "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
+        if (!isTestingAddress)
+        {
+            accountAddress = await wallet.GetAddress();
+        }
         var tokenBalances = await Indexer.FetchMultiplePages(
             async (pageNumber) =>
             {
@@ -392,15 +407,25 @@ public class DemoManager : MonoBehaviour
             );
             tokenBalanceList.AddRange(tokenBalanceWithContract);
         }
+        
         DisplayCollectionPanel(tokenBalanceList.ToArray());
 
     }
 
     public async void ViewHistory()
     {
-        DisplayHistoryPanel();
+        HideWelcomePanel();
+        uiManager.ShowLoadingPanel();
+        
         historyUI.ClearHistories();
-        string accountAddress = await wallet.GetAddress(); //to test"0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
+        
+        
+        string accountAddress = "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
+        if (!isTestingAddress)
+        {
+            accountAddress = await wallet.GetAddress();
+        }
+        
         var transactions = await Indexer.FetchMultiplePages(
             async (pageNumber) =>
             {
@@ -447,6 +472,9 @@ public class DemoManager : MonoBehaviour
             },
             9999
         );
+        uiManager.HideLoadingPanel();
+        DisplayHistoryPanel();
+
     }
 
     public async void SignMessage()
