@@ -10,13 +10,13 @@ namespace SequenceSharp
     {
         private Web3 _web3 = null;
         private string _contractAddress = "";
-        private Nethereum.Contracts.Contract _contract;
+        public Nethereum.Contracts.Contract contract { get; }
 
         public ERC20(Web3 web3, string contractAddress)
         {
             _web3 = web3;
             _contractAddress = contractAddress;
-            _contract = _web3.Eth.GetContract(abi, _contractAddress);
+            contract = _web3.Eth.GetContract(abi, _contractAddress);
         }
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace SequenceSharp
         /// </summary>
         public Task<string> Name()
         {
-            return _contract.GetFunction("name").CallAsync<string>();
+            return contract.GetFunction("name").CallAsync<string>();
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace SequenceSharp
         /// </summary>
         public Task<string> Symbol()
         {
-            return _contract.GetFunction("symbol").CallAsync<string>();
+            return contract.GetFunction("symbol").CallAsync<string>();
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace SequenceSharp
         /// </summary>
         public Task<BigInteger> Decimals()
         {
-            return _contract.GetFunction("decimals").CallAsync<BigInteger>();
+            return contract.GetFunction("decimals").CallAsync<BigInteger>();
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace SequenceSharp
         /// </summary>
         public Task<BigInteger> TotalSupply()
         {
-            return _contract.GetFunction("totalSupply").CallAsync<BigInteger>();
+            return contract.GetFunction("totalSupply").CallAsync<BigInteger>();
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace SequenceSharp
         /// <param name="accountAddress"> Account address to read the balance from.</param>
         public Task<BigInteger> BalanceOf(string accountAddress)
         {
-            return _contract.GetFunction("balanceOf").CallAsync<BigInteger>(accountAddress);
+            return contract.GetFunction("balanceOf").CallAsync<BigInteger>(accountAddress);
         }
 
         /// <summary>
@@ -67,7 +67,8 @@ namespace SequenceSharp
         public async Task<TransactionReceipt> Transfer(string recipientAddress, BigInteger amount)
         {
             var address = await this._web3.GetAddress();
-            return await _contract
+            UnityEngine.Debug.Log("Got ERC20 transfer call!");
+            return await contract
                 .GetFunction("transfer")
                 .SendTransactionAndWaitForReceiptAsync(
                     address,
@@ -81,13 +82,13 @@ namespace SequenceSharp
 
         public Task<BigInteger> Allowance(string owner, string spender)
         {
-            return _contract.GetFunction("allowance").CallAsync<BigInteger>(owner, spender);
+            return contract.GetFunction("allowance").CallAsync<BigInteger>(owner, spender);
         }
 
         public async Task<TransactionReceipt> Approve(string spenderAddress, string amount)
         {
             var address = await this._web3.GetAddress();
-            return await _contract
+            return await contract
             .GetFunction("approve")
             .SendTransactionAndWaitForReceiptAsync(
                 address,
@@ -106,7 +107,7 @@ namespace SequenceSharp
         )
         {
             var address = await this._web3.GetAddress();
-            return await _contract
+            return await contract
                .GetFunction("transferFrom")
                .SendTransactionAndWaitForReceiptAsync(
                    address,

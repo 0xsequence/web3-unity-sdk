@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Nethereum.Web3;
 using Nethereum.Hex.HexTypes;
 using Nethereum.RPC.Eth.DTOs;
+using Nethereum.Contracts;
 
 namespace SequenceSharp
 {
@@ -11,13 +12,20 @@ namespace SequenceSharp
     {
         private Web3 _web3 = null;
         private string _contractAddress = "";
-        private Nethereum.Contracts.Contract _contract;
+        public Contract contract { get; }
+
+        public Event ApprovalEvent { get; }
+        public Event ApprovalForAllEvent { get; }
+        public Event TransferEvent { get; }
 
         public ERC721(Web3 web3, string contractAddress)
         {
             _web3 = web3;
             _contractAddress = contractAddress;
-            _contract = _web3.Eth.GetContract(abi, _contractAddress);
+            contract = _web3.Eth.GetContract(abi, _contractAddress);
+            ApprovalEvent = contract.GetEvent("Approval");
+            ApprovalForAllEvent = contract.GetEvent("ApprovalForAll");
+            TransferEvent = contract.GetEvent("Transfer");
         }
 
         /// <summary>
@@ -28,7 +36,7 @@ namespace SequenceSharp
         /// <returns></returns>
         public Task<string> Name()
         {
-            return _contract.GetFunction("name").CallAsync<string>();
+            return contract.GetFunction("name").CallAsync<string>();
         }
 
         /// <summary>
@@ -39,7 +47,7 @@ namespace SequenceSharp
         /// <returns></returns>
         public Task<string> Symbol()
         {
-            return _contract.GetFunction("symbol").CallAsync<string>();
+            return contract.GetFunction("symbol").CallAsync<string>();
         }
 
         /// <summary>
@@ -51,7 +59,7 @@ namespace SequenceSharp
         /// <returns></returns>
         public Task<string> TokenURI(BigInteger tokenId)
         {
-            return _contract.GetFunction("tokenURI").CallAsync<string>(tokenId);
+            return contract.GetFunction("tokenURI").CallAsync<string>(tokenId);
         }
 
         /// <summary>
@@ -63,7 +71,7 @@ namespace SequenceSharp
         /// <returns></returns>
         public Task<BigInteger> BalanceOf(string owner)
         {
-            return _contract.GetFunction("balanceOf").CallAsync<BigInteger>(owner);
+            return contract.GetFunction("balanceOf").CallAsync<BigInteger>(owner);
         }
 
         /// <summary>
@@ -75,13 +83,13 @@ namespace SequenceSharp
         /// <returns></returns>
         public Task<string> OwnerOf(BigInteger tokenId)
         {
-            return _contract.GetFunction("ownerOf").CallAsync<string>(tokenId);
+            return contract.GetFunction("ownerOf").CallAsync<string>(tokenId);
         }
 
         public async Task<TransactionReceipt> SafeTransferFrom(string from, string to, BigInteger tokenId)
         {
             var address = await this._web3.GetAddress();
-            return await _contract
+            return await contract
                 .GetFunction("safeTransferFrom")
                 .SendTransactionAndWaitForReceiptAsync(
                     address,
@@ -97,7 +105,7 @@ namespace SequenceSharp
         public async Task<TransactionReceipt> TransferFrom(string from, string to, BigInteger tokenId)
         {
             var address = await this._web3.GetAddress();
-            return await _contract
+            return await contract
                 .GetFunction("transferFrom")
                 .SendTransactionAndWaitForReceiptAsync(
                     address,
@@ -113,7 +121,7 @@ namespace SequenceSharp
         public async Task<TransactionReceipt> Approve(string to, BigInteger tokenId)
         {
             var address = await this._web3.GetAddress();
-            return await _contract
+            return await contract
                 .GetFunction("approve")
                 .SendTransactionAndWaitForReceiptAsync(
                     address,
@@ -127,7 +135,7 @@ namespace SequenceSharp
 
         public Task<string> GetApproved(BigInteger tokenId)
         {
-            return _contract
+            return contract
                  .GetFunction("getApproved")
                  .CallAsync<string>(
                      tokenId
@@ -137,7 +145,7 @@ namespace SequenceSharp
         public async Task<TransactionReceipt> SetApprovalForAll(string operatorAddress, bool approved)
         {
             var address = await this._web3.GetAddress();
-            return await _contract
+            return await contract
                 .GetFunction("setApprovalForAll")
                 .SendTransactionAndWaitForReceiptAsync(
                     address,
@@ -151,7 +159,7 @@ namespace SequenceSharp
 
         public Task<bool> IsApprovedForAll(string owner, string operatorAddress)
         {
-            return _contract
+            return contract
                 .GetFunction("isApprovedForAll")
                 .CallAsync<bool>(
                     owner,

@@ -18,5 +18,6 @@ namespace SequenceSharp
         public static readonly BigInteger TestnetGoerli = BigInteger.Parse("5");
         public static readonly BigInteger TestnetPolygonMumbai = BigInteger.Parse("80001");
         public static readonly BigInteger TestnetBNBSmartChain = BigInteger.Parse("97");
+        public static readonly BigInteger TestnetAvalancheFuji = BigInteger.Parse("43113");
     }
 }

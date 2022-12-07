@@ -16,7 +16,10 @@ namespace SequenceSharp
     {
         public static async Task<string> GetAddress(this Web3 web3)
         {
-            var address = (await web3.Eth.Accounts.SendRequestAsync())[0];
+            var rpcReq = await web3.Eth.Accounts.SendRequestAsync();
+            Debug.Log("GetAddress: " + rpcReq);
+            var address = (rpcReq)[0];
+            Debug.Log("Address: " + address);
             return address;
         }
     }
@@ -201,7 +204,10 @@ namespace SequenceSharp
             }
             else if (request.Method == ApiMethods.eth_accounts.ToString())
             {
-                return new string[] { await _wallet.GetAddress() };
+                Debug.Log("Getting address!");
+                var addr = await _wallet.GetAddress();
+                Debug.Log("Got address! It's " + addr);
+                return new string[] { addr };
             }
             else
             {

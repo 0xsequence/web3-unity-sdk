@@ -12,13 +12,13 @@ namespace SequenceSharp
     {
         private Web3 _web3 = null;
         private string _contractAddress = "";
-        private Nethereum.Contracts.Contract _contract;
+        public Nethereum.Contracts.Contract contract { get; }
 
         public ERC1155(Web3 web3, string contractAddress)
         {
             _web3 = web3;
             _contractAddress = contractAddress;
-            _contract = _web3.Eth.GetContract(abi, _contractAddress);
+            contract = _web3.Eth.GetContract(abi, _contractAddress);
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace SequenceSharp
         /// <returns>A URI - can be IPFS, a URL, a raw svg, etc.</returns>
         public Task<string> URI(BigInteger id)
         {
-            return _contract.GetFunction("uri").CallAsync<string>(id);
+            return contract.GetFunction("uri").CallAsync<string>(id);
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace SequenceSharp
         /// <returns></returns>
         public Task<BigInteger> BalanceOf(BigInteger id, string account)
         {
-            return _contract.GetFunction("balanceOf").CallAsync<BigInteger>(account, id);
+            return contract.GetFunction("balanceOf").CallAsync<BigInteger>(account, id);
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace SequenceSharp
         /// <returns>A balance for each account.</returns>
         public Task<List<BigInteger>> BalanceOfBatch(List<string> accounts, List<BigInteger> ids)
         {
-            return _contract
+            return contract
                 .GetFunction("balanceOfBatch")
                 .CallAsync<List<BigInteger>>(accounts, ids);
         }
@@ -58,7 +58,7 @@ namespace SequenceSharp
         public async Task<TransactionReceipt> SetApprovalForAll(string operatorAddress, bool approved)
         {
             var address = await this._web3.GetAddress();
-            return await _contract
+            return await contract
                  .GetFunction("setApprovalForAll")
                  .SendTransactionAndWaitForReceiptAsync(
                      address,
@@ -72,7 +72,7 @@ namespace SequenceSharp
 
         public Task<bool> IsApprovedForAll(string account, string operatorAddress)
         {
-            return _contract
+            return contract
                 .GetFunction("isApprovedForAll")
                 .CallAsync<bool>(
                     account,
@@ -89,7 +89,7 @@ namespace SequenceSharp
         )
         {
             var address = await this._web3.GetAddress();
-            return await _contract
+            return await contract
                 .GetFunction("safeTransferFrom")
                 .SendTransactionAndWaitForReceiptAsync(
                     address,
@@ -113,7 +113,7 @@ namespace SequenceSharp
         )
         {
             var address = await this._web3.GetAddress();
-            return await _contract
+            return await contract
                 .GetFunction("safeBatchTransferFrom")
                 .SendTransactionAndWaitForReceiptAsync(
                     address,
