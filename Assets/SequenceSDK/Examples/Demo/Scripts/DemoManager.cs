@@ -1,5 +1,6 @@
 using NBitcoin;
 using Nethereum.Hex.HexTypes;
+using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Web3;
 using Newtonsoft.Json;
 using SequenceSharp;
@@ -224,7 +225,7 @@ public class DemoManager : MonoBehaviour
             HideHistoryPanel();
 
             m_collection.RetriveContractInfoData(tokenBalances);
-            
+
             uiManager.SetStyle();
         });
     }
@@ -252,7 +253,7 @@ public class DemoManager : MonoBehaviour
             }
             HideCloseWalletButton();
 
-            
+
         });
     }
 
@@ -320,6 +321,9 @@ public class DemoManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Only works when using Sequence.
+    /// </summary>
     public async void OpenWallet()
     {
         try
@@ -407,7 +411,7 @@ public class DemoManager : MonoBehaviour
             );
             tokenBalanceList.AddRange(tokenBalanceWithContract);
         }
-        
+
         DisplayCollectionPanel(tokenBalanceList.ToArray());
 
     }
@@ -416,16 +420,16 @@ public class DemoManager : MonoBehaviour
     {
         HideWelcomePanel();
         uiManager.ShowLoadingPanel();
-        
+
         historyUI.ClearHistories();
-        
-        
+
+
         string accountAddress = "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
         if (!isTestingAddress)
         {
-            accountAddress = await wallet.GetAddress();
+            accountAddress = await web3.GetAddress();
         }
-        
+
         var transactions = await Indexer.FetchMultiplePages(
             async (pageNumber) =>
             {
@@ -763,70 +767,6 @@ And that has made all the difference.
         }
     }
 
-    public async void SendTetherUSD()
-    {
-        var abi =
-            @" [
-                {
-                    constant: false,
-                    inputs: [
-                            {
-                                internalType: 'address',
-                                name: 'recipient',
-                                type: 'address'
-                            },
-                            {
-                                internalType: 'uint256',
-                                name: 'amount',
-                                type: 'uint256'
-                            }
-                            ],
-                    name: 'transfer',
-                    outputs: [
-                            {
-                                internalType: 'bool',
-                                name: '',
-                                type: 'bool'
-                            }
-                            ],
-                    payable: false,
-                    stateMutability: 'nonpayable',
-                    type: 'function'
-                }
-                ]";
-        var contractAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
-        var contract = web3.Eth.GetContract(abi, contractAddress);
-        var transferFunction = contract.GetFunction("transfer");
-        var senderAddress = await wallet.GetAddress();
-
-        var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
-        //Random To Account
-        var newAddress = randomWallet.GetAccount(0).Address;
-
-        var amountToSend = 0; //?
-
-        var networkId = await web3.Net.Version.SendRequestAsync();
-        Debug.Log("networkID:" + networkId);
-
-        var gas = await transferFunction.EstimateGasAsync(
-            senderAddress,
-            null,
-            null,
-            newAddress,
-            amountToSend
-        );
-        var value = new HexBigInteger(0);
-        var receiptAmountSend = await transferFunction.SendTransactionAndWaitForReceiptAsync(
-            senderAddress,
-            gas,
-            value,
-            null,
-            newAddress,
-            amountToSend
-        );
-        Debug.Log("[Sequence] ReceiptAmountSend:" + receiptAmountSend);
-    }
-
     public async void Disconnect()
     {
         try
@@ -843,27 +783,49 @@ And that has made all the difference.
         }
     }
 
-    //-------------------abi encoding tests-------------------
-    public void ABITest()
+    public async void ERC20AbiExample()
     {
-        //ERC20Example erc20example = FindObjectOfType<ERC20Example>();
-        //erc20example.ERC20Examples();
-        //ERC721Example erc721example = FindObjectOfType<ERC721Example>();
-        //erc721example.ERC721Examples();
-        ERC1155Example erc1155example = FindObjectOfType<ERC1155Example>();
-        erc1155example.ERC1155Examples();
+        var chainID = await web3.Eth.ChainId.SendRequestAsync();
+        var contractAddress = exampleERC20Address(chainID);
+        var erc20 = new ERC20(web3, contractAddress);
+
+        Debug.Log("[Sequence] ERC20 Token Example:");
+        Debug.Log($"Using ERC20 address ${contractAddress} on chain ${chainID}.");
+        var name = await erc20.Name();
+        Debug.Log("name: " + name);
+        var symbol = await erc20.Symbol();
+        Debug.Log("symbol: " + symbol);
+        var decimals = await erc20.Decimals();
+        Debug.Log("decimals: " + decimals);
+        var totalSupply = await erc20.TotalSupply();
+        Debug.Log("totalSupply: " + totalSupply);
+        // More methods available in the ERC20 ABI :)
     }
 
-    //------------------------------------------------------------------------
-    public async void GetSotrageAt()
+    public async void ERC721AbiExample()
     {
-        HexBigInteger position = null;
-        object id = null;
-        var signature = await web3.Eth.GetStorageAt.SendRequestAsync(
-            await wallet.GetAddress(),
-            position,
-            id
-        );
+        var chainID = await web3.Eth.ChainId.SendRequestAsync();
+        var contractAddress = exampleERC721Address(chainID);
+        var erc721 = new ERC721(web3, contractAddress);
+
+        Debug.Log("[Sequence] ERC721 Token Example:");
+        Debug.Log($"Using ERC721 address ${contractAddress} on chain ${chainID}.");
+        Debug.Log("name: " + await erc721.Name());
+        Debug.Log("symbol: " + await erc721.Symbol());
+        Debug.Log("Token URI of token ID 1: " + await erc721.TokenURI(BigInteger.One));
+        Debug.Log("Owner of token ID 1: " + await erc721.OwnerOf(BigInteger.One));
+        // More methods available in the ERC721 ABI :)
+    }
+    public async void ERC1155AbiExample()
+    {
+        var chainID = await web3.Eth.ChainId.SendRequestAsync();
+        var contractAddress = exampleERC1155Address(chainID);
+        var erc1155 = new ERC1155(web3, contractAddress);
+
+        Debug.Log("[Sequence] ERC1155 Token Example:");
+        Debug.Log($"Using ERC1155 address ${contractAddress} on chain ${chainID}.");
+        Debug.Log("URI of token ID 1: " + await erc1155.URI(BigInteger.One));
+        // More methods available in the ERC1155 ABI :)
     }
 
     public async void GetEstimatedGas()
@@ -933,4 +895,121 @@ And that has made all the difference.
         examplePassword
     );
     public static string exampleToAccount = exampleWallet.GetAccount(0).Address;
+
+    /// <summary>
+    /// Returns the address of USDC on a given chain ID.
+    /// Returns USDC-like tokens on testnets, if there's no official USDC deployment there.
+    /// </summary>
+    public static string exampleERC20Address(BigInteger chainID)
+    {
+        switch (chainID)
+        {
+            // Mainnets
+            case var _ when chainID == Chain.Ethereum:
+                return "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+            case var _ when chainID == Chain.Polygon:
+                return "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
+            case var _ when chainID == Chain.BNBSmartChain:
+                return "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d";
+            case var _ when chainID == Chain.ArbitrumOne:
+                return "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
+            case var _ when chainID == Chain.ArbitrumNova:
+                return "0x750ba8b76187092B0D1E87E28daaf484d1b5273b";
+            case var _ when chainID == Chain.Optimism:
+                return "0x7F5c764cBc14f9669B88837ca1490cCa17c31607";
+            case var _ when chainID == Chain.Avalanche:
+                return "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E";
+            case var _ when chainID == Chain.Gnosis:
+                return "0xddafbb505ad214d7b80b1f830fccc89b60fb7a83";
+
+            // Testnets
+            case var _ when chainID == Chain.TestnetGoerli:
+                return "0x07865c6e87b9f70255377e024ace6630c1eaa37f";
+            case var _ when chainID == Chain.TestnetPolygonMumbai:
+                return "0x0fa8781a83e46826621b3bc094ea2a0212e71b23";
+            case var _ when chainID == Chain.TestnetBNBSmartChain:
+                return "0x64544969ed7EBf5f083679233325356EbE738930";
+            case var _ when chainID == Chain.TestnetAvalancheFuji:
+                return "0xAF82969ECF299c1f1Bb5e1D12dDAcc9027431160";
+            default:
+                throw new ArgumentException("Unsupported chain ID: " + chainID);
+        }
+    }
+
+    /// <summary>
+    /// Returns the address of an arbitrary ERC721 token on a given chain ID.
+    /// </summary>
+    public static string exampleERC721Address(BigInteger chainID)
+    {
+        switch (chainID)
+        {
+            // Mainnets
+            case var _ when chainID == Chain.Ethereum:
+                return "0x7492E30d60D96c58ED0f0DC2FE536098C620C4c0";
+            case var _ when chainID == Chain.Polygon:
+                return "0xC36442b4a4522E871399CD717aBDD847Ab11FE88";
+            case var _ when chainID == Chain.BNBSmartChain:
+                return "0x2B09d47D550061f995A3b5C6F0Fd58005215D7c8";
+            case var _ when chainID == Chain.ArbitrumOne:
+                return "0xfAe39eC09730CA0F14262A636D2d7C5539353752";
+            case var _ when chainID == Chain.ArbitrumNova:
+                return "0x67F39eA8b7a41e4EBd1dF85fc33b413dcbD6D1bB";
+            case var _ when chainID == Chain.Optimism:
+                return "0xC36442b4a4522E871399CD717aBDD847Ab11FE88";
+            case var _ when chainID == Chain.Avalanche:
+                return "0x3025C5c2aA6eb7364555aAC0074292195701bBD6";
+            case var _ when chainID == Chain.Gnosis:
+                return "0x22C1f6050E56d2876009903609a2cC3fEf83B415";
+
+            // Testnets
+            case var _ when chainID == Chain.TestnetGoerli:
+                return "0x084297b12f204adb74c689be08302fa3f12db8a7";
+            case var _ when chainID == Chain.TestnetPolygonMumbai:
+                return "0x757b1BD7C12B81b52650463e7753d7f5D0565C0e";
+            case var _ when chainID == Chain.TestnetBNBSmartChain:
+                return "0x7b56E60eA3d1D8d44d94899c1d491f07Cfa64357";
+            case var _ when chainID == Chain.TestnetAvalancheFuji:
+                return "0xdb0f219C120E1c0C9d4f144Db34Bc5B43B8da1DC";
+            default:
+                throw new ArgumentException("Unsupported chain ID: " + chainID);
+        }
+    }
+    /// <summary>
+    /// Returns the address of an arbitrary ERC1155 token on a given chain ID.
+    /// </summary>
+    public static string exampleERC1155Address(BigInteger chainID)
+    {
+        switch (chainID)
+        {
+            // Mainnets
+            case var _ when chainID == Chain.Ethereum:
+                return "0x495f947276749Ce646f68AC8c248420045cb7b5e";
+            case var _ when chainID == Chain.Polygon:
+                return "0x631998e91476DA5B870D741192fc5Cbc55F5a52E";
+            case var _ when chainID == Chain.BNBSmartChain:
+                return "0x2DFEb752222ccceCB9BC0a934b02C3A86f633900";
+            case var _ when chainID == Chain.ArbitrumOne:
+                return "0xF3d00A2559d84De7aC093443bcaAdA5f4eE4165C";
+            case var _ when chainID == Chain.ArbitrumNova:
+                return "0xdAe44EAb390c3aa63ee5868c4166a09e35515058";
+            case var _ when chainID == Chain.Optimism:
+                return "0xfB1951b7EeF8E7613D3b09424fB4aEf805c16267";
+            case var _ when chainID == Chain.Avalanche:
+                return "0xa695ea0C90D89a1463A53Fa7a02168Bc46FbBF7e";
+            case var _ when chainID == Chain.Gnosis:
+                return "0xbD0AFf2785a5B752B421459aD6eDf13632d509De";
+
+            // Testnets
+            case var _ when chainID == Chain.TestnetGoerli:
+                return "0x45d78213BD303ae89aea98B540065C53D67c88dA";
+            case var _ when chainID == Chain.TestnetPolygonMumbai:
+                return "0x34EdacAfe12D97868B628e600fE38E14C2338D76";
+            case var _ when chainID == Chain.TestnetBNBSmartChain:
+                return "0x838BA6f26A185245392A5EC6F6f12A380e1FE432";
+            case var _ when chainID == Chain.TestnetAvalancheFuji:
+                return "0xfA9214AEe59a6631A400DC039808457524dE70A2";
+            default:
+                throw new ArgumentException("Unsupported chain ID: " + chainID);
+        }
+    }
 }
