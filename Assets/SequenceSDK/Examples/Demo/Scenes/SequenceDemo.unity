@@ -5260,6 +5260,9 @@ MonoBehaviour:
   signMessageBtn: {fileID: 388792469}
   sendUSDCBtn: {fileID: 1239309084}
   sendNFTBtn: {fileID: 684068361}
+  erc20Button: {fileID: 2146670112}
+  erc721Button: {fileID: 1879814004}
+  erc1155Button: {fileID: 1996474271}
   disconnectBtn: {fileID: 422466425}
   closeWalletBtn: {fileID: 1059555299}
   historyUnitPrefab: {fileID: 2618777789848799788, guid: d6b12658590af5a4e969d03a78240e60, type: 3}
@@ -5424,53 +5427,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1022757047}
   m_CullTransparentMesh: 1
---- !u!1 &1025292083
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1025292085}
-  - component: {fileID: 1025292084}
-  m_Layer: 0
-  m_Name: ERC721TokenExample
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1025292084
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1025292083}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 883544819b36d4210b0d958f4f6e9bab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  contractAddress: 
-  accountAddress: 
-  _wallet: {fileID: 0}
---- !u!4 &1025292085
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1025292083}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.49878287, y: 1.3534716, z: 96.62079}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 13
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1050753266
 GameObject:
   m_ObjectHideFlags: 0
@@ -6666,54 +6622,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1261973135}
   m_CullTransparentMesh: 1
---- !u!1 &1291016056
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1291016058}
-  - component: {fileID: 1291016057}
-  m_Layer: 0
-  m_Name: ERC1155TokenExample
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1291016057
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1291016056}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e96caedb29ed4b9097f984dd05064bb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  contractAddress: 
-  accounts: []
-  data: 
-  _wallet: {fileID: 0}
---- !u!4 &1291016058
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1291016056}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.49878287, y: 1.3534716, z: 96.62079}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 15
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1291346054
 GameObject:
   m_ObjectHideFlags: 0
@@ -8821,57 +8729,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1726424009}
   m_CullTransparentMesh: 1
---- !u!1 &1736414585
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1736414587}
-  - component: {fileID: 1736414586}
-  m_Layer: 0
-  m_Name: ERC20TokenExample
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1736414586
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1736414585}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ab8236cb9226470cae14051dfc80f84, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  contractAddress: 
-  accountAddress: 
-  ownerAddress: 
-  spenderAddress: 
-  recipientAddress: 
-  amount: 
-  _wallet: {fileID: 0}
---- !u!4 &1736414587
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1736414585}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.49878287, y: 1.3534716, z: 96.62079}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 12
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1774194605
 GameObject:
   m_ObjectHideFlags: 0
@@ -9066,7 +8923,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 14
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -9292,19 +9149,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1879814005}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1025292084}
-        m_TargetAssemblyTypeName: SequenceSharp.ERC721Example, Assembly-CSharp
-        m_MethodName: ERC721Examples
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1879814005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10026,19 +9871,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1996474272}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1291016057}
-        m_TargetAssemblyTypeName: SequenceSharp.ERC1155Example, Assembly-CSharp
-        m_MethodName: ERC1155Examples
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1996474272
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10620,19 +10453,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2146670113}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1736414586}
-        m_TargetAssemblyTypeName: SequenceSharp.ERC20Example, Assembly-CSharp
-        m_MethodName: ERC20Examples
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &2146670113
 MonoBehaviour:
   m_ObjectHideFlags: 0

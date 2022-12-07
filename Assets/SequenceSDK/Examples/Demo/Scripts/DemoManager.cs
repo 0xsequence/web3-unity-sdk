@@ -63,6 +63,15 @@ public class DemoManager : MonoBehaviour
     private Button sendNFTBtn;
 
     [SerializeField]
+    private Button erc20Button;
+
+    [SerializeField]
+    private Button erc721Button;
+
+    [SerializeField]
+    private Button erc1155Button;
+
+    [SerializeField]
     private Button disconnectBtn;
 
     [Header("Wallet")]
@@ -130,6 +139,9 @@ public class DemoManager : MonoBehaviour
         signMessageBtn.onClick.AddListener(SignMessage);
         sendUSDCBtn.onClick.AddListener(SendUSDC);
         sendNFTBtn.onClick.AddListener(SendNFT);
+        erc20Button.onClick.AddListener(ERC20AbiExample);
+        erc721Button.onClick.AddListener(ERC721AbiExample);
+        erc1155Button.onClick.AddListener(ERC1155AbiExample);
         disconnectBtn.onClick.AddListener(Disconnect);
 
         closeWalletBtn.onClick.AddListener(CloseWallet);
