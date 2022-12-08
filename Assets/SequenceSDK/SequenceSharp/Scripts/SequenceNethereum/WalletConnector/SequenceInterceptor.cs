@@ -17,9 +17,8 @@ namespace SequenceSharp
         public static async Task<string> GetAddress(this Web3 web3)
         {
             var rpcReq = await web3.Eth.Accounts.SendRequestAsync();
-            Debug.Log("GetAddress: " + rpcReq);
+            // One day, we'll need to replace this to use the current account, once Sequence has multi account support.
             var address = (rpcReq)[0];
-            Debug.Log("Address: " + address);
             return address;
         }
     }
@@ -82,18 +81,15 @@ namespace SequenceSharp
                     return {
                         jsonrpc: '2.0',
                         result: txnResponse,
-                        id: 0, //parsedMessage.id,(???)
+                        id: 0, //parsedMessage.id,(???) // TODO?
                         error: null
                     };
                 "
-                );
-                Debug.Log("rpc response:" + rpcResponse);
+                ).ConfigureAwait(false);
                 RpcResponseMessage rpcResponseMessage =
                     JsonConvert.DeserializeObject<RpcResponseMessage>(rpcResponse);
-                Debug.Log("response mesage result: " + rpcResponseMessage.Result);
 
                 transactionReceipt = ConvertResponse<TransactionReceipt>(rpcResponseMessage);
-                Debug.Log("blockhash: " + transactionReceipt.BlockHash);
 
                 return transactionReceipt.ToString();
             }
@@ -123,7 +119,7 @@ namespace SequenceSharp
 
                     return estimate;
 "
-                );
+                ).ConfigureAwait(false);
                 EstimatedGas gas = JsonConvert.DeserializeObject<EstimatedGas>(estimatedGas);
 
                 return new HexBigInteger(gas.hex);
@@ -156,8 +152,7 @@ namespace SequenceSharp
                             error: null
                         };
                     return rpcResponse;
-                "
-                );
+                ").ConfigureAwait(false);
 
                 RpcResponseMessage rpcResponseMessage =
                     JsonConvert.DeserializeObject<RpcResponseMessage>(rpcResponse);
@@ -167,6 +162,7 @@ namespace SequenceSharp
             }
             else if (request.Method == ApiMethods.eth_signTypedData_v4.ToString())
             {
+                // TODO
                 throw new NotImplementedException();
             }
             else if (request.Method == ApiMethods.eth_sign.ToString())
@@ -184,13 +180,12 @@ namespace SequenceSharp
                         + @"`
 
                     return signer.signMessage(message);
-                "
-                );
+                ");
             }
             else if (request.Method == ApiMethods.eth_getBalance.ToString())
             {
-                var accountAddress = await _wallet.GetAddress();
-                var ethBalance = await Indexer.GetEtherBalance(chainID, accountAddress);
+                var accountAddress = await _wallet.GetAddress().ConfigureAwait(false);
+                var ethBalance = await Indexer.GetEtherBalance(chainID, accountAddress).ConfigureAwait(false);
                 return ethBalance;
             }
             else if (request.Method == ApiMethods.eth_chainId.ToString())
@@ -200,23 +195,21 @@ namespace SequenceSharp
             else if (request.Method == ApiMethods.wallet_switchEthereumChain.ToString())
             {
                 this.chainID = BigInteger.Parse((string)request.RawParameters[0]);
-                return null; // should throw 4902 if it's not valid
+                return null; // TODO should throw 4902 if it's not valid
             }
             else if (request.Method == ApiMethods.eth_accounts.ToString())
             {
-                Debug.Log("Getting address!");
-                var addr = await _wallet.GetAddress();
-                Debug.Log("Got address! It's " + addr);
+                var addr = await _wallet.GetAddress().ConfigureAwait(false);
                 return new string[] { addr };
             }
             else
             {
-                Debug.Log("Non-intercepted Sequence call..");
+                Debug.Log("Non-intercepted Sequence call: " + request.Method);
                 return await base.InterceptSendRequestAsync(
                     interceptedSendRequestAsync,
                     request,
                     route
-                );
+                ).ConfigureAwait(false);
             }
         }
 
