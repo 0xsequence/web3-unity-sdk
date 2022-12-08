@@ -57,7 +57,7 @@ public class DemoUIManager : MonoBehaviour
 
     private int collectionCategoryGroupFontSize = 15;
     private int collectionCategoryFontSize = 10;
-
+    private CollectionLayout collectionLayout;
 
     [Header("loading panel")]
     public GameObject loadingPanel;
@@ -186,10 +186,32 @@ public class DemoUIManager : MonoBehaviour
     {
         Button btn = cat.GetButton();
         btn.image.color = buttonBackgroundColor;
+        SetOutlineEventForButton(btn);
 
         TextMeshProUGUI label = cat.GetLabel();
         label.color = buttonTextColor;
         label.fontSize = collectionCategoryFontSize;
+
+        Vector2 parentSize = collectionScrollRect.sizeDelta;
+        //TODO: Calculate widht or height base on collection style
+        if(collectionLayout ==CollectionLayout.Horizontal)
+        {
+            //portrait mode
+            var side = parentSize.x / 4f;
+            collectionScrollLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            collectionScrollLayout.constraintCount = 3;
+            collectionScrollLayout.cellSize = new Vector2(side, side);
+        }
+        else
+        {
+            //landscape mode
+            var side = parentSize.x / 5f;
+            collectionScrollLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            collectionScrollLayout.constraintCount = 3;
+            collectionScrollLayout.cellSize =new Vector2(side, side);
+
+        }
+
     }
 
     public void SetCollectionCategoryGroupStyle(CategoryGroup group)
@@ -197,9 +219,29 @@ public class DemoUIManager : MonoBehaviour
         Button btn = group.GetButton();
         btn.image.sprite = buttonSprite;
         btn.image.color = buttonBackgroundColor;
+        SetOutlineEventForButton(btn);
         TextMeshProUGUI groupLabel = group.GetGroupLabel();
         groupLabel.color = buttonTextColor;
         groupLabel.fontSize = collectionCategoryGroupFontSize;
+
+        Vector2 parentSize = collectionCatRect.sizeDelta;
+        if (collectionLayout == CollectionLayout.Horizontal)
+        {
+            //portrait mode
+            var side = parentSize.x / 5f;
+            collectionCatLayout.constraint = GridLayoutGroup.Constraint.FixedRowCount;
+            collectionCatLayout.constraintCount = 1;
+            collectionCatLayout.cellSize = new Vector2(side, side);
+        }
+        else
+        {
+            //landscape mode
+            var side = parentSize.y / 5f;
+            collectionCatLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            collectionCatLayout.constraintCount = 1;
+            collectionCatLayout.cellSize = new Vector2(side, side);
+
+        }
 
 
     }
@@ -321,57 +363,61 @@ public class DemoUIManager : MonoBehaviour
     private void SetCollectionsStyle(CollectionLayout layout)
     {
 
-
+        collectionLayout = layout; //For button styles 
+        Vector2 collectionPanelSize = collectionRect.sizeDelta;
         if (layout == CollectionLayout.Horizontal)
         {
             //Horizontal Layout
-            HorizontalCollection();
-            float height = collectionRect.sizeDelta.y;
-            AdjustCollectionScrollRect(height);
+            HorizontalCollection(collectionPanelSize);
+            float height = collectionPanelSize.y;
+            //AdjustCollectionScrollRect(height);
+
         }
         else
         {
             //Vertical Layout
             float width = collectionRect.sizeDelta.x;
-            VerticalCollection();
+            VerticalCollection(collectionPanelSize);
         }
 
 
-        //Style for scroll bar 
+        //Style for scroll bar
+        
     }
 
-    private void HorizontalCollection()
+    private void HorizontalCollection(Vector2 parentSize)
     {
+        var width = parentSize.x;
+        var height = parentSize.y / 8f;
         //suitable for portrait layout
         //Group Layout
-        collectionCatRect.localPosition = new Vector3(0, 0, 0);
-        collectionCatRect.sizeDelta = new Vector2(0, 200);
-        collectionCatRect.anchorMax = new Vector2(1, 1);
-        collectionCatRect.anchorMin = new Vector2(0, 1);
-        collectionCatRect.pivot = new Vector2(0.5f, 1);
-
+        
+        collectionCatRect.sizeDelta = new Vector2(width, height);
+        collectionCatRect.pivot = new Vector2(0.5f, 0.5f);
+        collectionCatRect.localPosition = new Vector2(0, -height/2f + parentSize.y/2f);
         //Token Layout
-        collectionScrollRect.localPosition = new Vector3(0, -200, 0);
-        collectionScrollRect.sizeDelta = new Vector2(0, 1400);
-        collectionScrollRect.anchorMax = new Vector2(1, 1);
-        collectionScrollRect.anchorMin = new Vector2(0, 1);
-        collectionScrollRect.pivot = new Vector2(0.5f, 1);
+
+        collectionScrollRect.sizeDelta = new Vector2(width, parentSize.y-height);
+        collectionScrollRect.pivot = new Vector2(0.5f, 0.5f);
+        collectionScrollRect.localPosition = new Vector2(0, -height/2f);
+
     }
-    private void VerticalCollection()
+    private void VerticalCollection(Vector2 parentSize)
     {
+        var width = parentSize.x / 5f;
+        var height = parentSize.y;
         //suitable for landscape layout
-        collectionCatRect.localPosition = new Vector3(0, 0, 0);
-        collectionCatRect.sizeDelta = new Vector2(200, 0);
-        collectionCatRect.anchorMax = new Vector2(0, 1);
-        collectionCatRect.anchorMin = new Vector2(0, 0);
-        collectionCatRect.pivot = new Vector2(0, 0.5f);
 
+        collectionCatRect.sizeDelta = new Vector2(width, height);
+        collectionCatRect.pivot = new Vector2(0.5f, 0.5f);
+        collectionCatRect.localPosition = new Vector2(width/2f-parentSize.x/2f, 0);
+        
         //Token Layout
-        collectionScrollRect.localPosition = new Vector3(100, 0, 0);
-        collectionScrollRect.sizeDelta = new Vector2(-200, 1400);
-        collectionScrollRect.anchorMax = new Vector2(1, 1);
-        collectionScrollRect.anchorMin = new Vector2(0, 1);
-        collectionScrollRect.pivot = new Vector2(0.5f, 1);
+        
+        collectionScrollRect.sizeDelta = new Vector2(parentSize.x-width, height);
+        collectionScrollRect.pivot = new Vector2(0.5f, 0.5f);
+        collectionScrollRect.localPosition = new Vector2(width/2, 0);
+        
     }
 
     private void SetHistoryStyle()
