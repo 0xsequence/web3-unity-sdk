@@ -6,18 +6,23 @@ using TMPro;
 using UnityEngine.EventSystems;
 using System.Linq;
 
-enum ScreenRatio
-{
-    Default,
-    Two_One,
-    OneHalf_One,
-    One_One,
-    One_OneHalf,
-    One_Two
-}
-
 public class DemoUIManager : MonoBehaviour
-{   
+{
+    enum ScreenRatio
+    {
+        Default,
+        Two_One,
+        OneHalf_One,
+        One_One,
+        One_OneHalf,
+        One_Two
+    }
+
+    enum CollectionLayout
+    {
+        Vertical,
+        Horizontal
+    }
     public new Camera camera;
 
     //Connect Panel
@@ -52,6 +57,7 @@ public class DemoUIManager : MonoBehaviour
 
     private int collectionCategoryGroupFontSize =15;
     private int collectionCategoryFontSize = 10;
+
 
     [Header("loading panel")]
     public GameObject loadingPanel;
@@ -222,7 +228,6 @@ public class DemoUIManager : MonoBehaviour
             //outlines
             SetOutlineEventForButton(button);
            
-
         }
 
         //Chain Selector Dropdown
@@ -309,14 +314,19 @@ public class DemoUIManager : MonoBehaviour
     }
 
 
-    private void SetCollectionsStyle()
+    private void SetCollectionsStyle(CollectionLayout layout)
     {
-        float height = collectionRect.sizeDelta.y;
-        AdjustCollectionScrollRect(height);
+        if (layout == CollectionLayout.Horizontal)
+        {
+            //Horizontal Layout
+            float height = collectionRect.sizeDelta.y;
+            AdjustCollectionScrollRect(height);
+        }else
+        {
+            //Vertical Layout
+        }
 
-        //Style for Catogories
-        //collectionCatRect.GetComponentsInChildren<>
-        //Style for tokens
+        
         //Style for scroll bar 
     }
 

@@ -191,6 +191,7 @@ public class DemoManager : MonoBehaviour
             HideCollectionPanel();
             HideHistoryPanel();
             m_address.DisplayAccountAddress(accountAddress);
+            uiManager.HideLoadingPanel();
             uiManager.SetStyle();
         });
     }
@@ -212,6 +213,7 @@ public class DemoManager : MonoBehaviour
             HideConnectPanel();
             HideCollectionPanel();
             HideAddressPanel();
+            uiManager.HideLoadingPanel();
             uiManager.SetStyle();
         });
     }
@@ -237,7 +239,7 @@ public class DemoManager : MonoBehaviour
             HideHistoryPanel();
 
             m_collection.RetriveContractInfoData(tokenBalances);
-
+            //Loading Panel will be hidden after all tokens are retrieved
             uiManager.SetStyle();
         });
     }
@@ -261,6 +263,7 @@ public class DemoManager : MonoBehaviour
                 HideAddressPanel();
                 HideCollectionPanel();
                 HideHistoryPanel();
+                uiManager.HideLoadingPanel();
                 uiManager.SetStyle();
             }
             HideCloseWalletButton();
@@ -287,6 +290,7 @@ public class DemoManager : MonoBehaviour
             HideCollectionPanel();
             HideCloseWalletButton();
             HideHistoryPanel();
+            uiManager.HideLoadingPanel();
             uiManager.SetStyle();
         });
     }
@@ -308,6 +312,7 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
+            
             var connectDetails = await wallet.Connect(
                 new ConnectOptions { app = "Demo Unity Dapp" }
             );
@@ -333,9 +338,6 @@ public class DemoManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Only works when using Sequence.
-    /// </summary>
     public async void OpenWallet()
     {
         try
