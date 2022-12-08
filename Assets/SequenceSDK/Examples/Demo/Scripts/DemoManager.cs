@@ -372,7 +372,7 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
-            string accountAddress = await wallet.GetAddress();
+            string accountAddress = await web3.GetAddress();
             Debug.Log("[DemoDapp] accountAddress " + accountAddress);
             DisplayAddressPanel(accountAddress);
         }
@@ -389,7 +389,7 @@ public class DemoManager : MonoBehaviour
         string accountAddress = "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
         if (!isTestingAddress)
         {
-            accountAddress = await wallet.GetAddress();
+            accountAddress = await web3.GetAddress();
         }
         var tokenBalances = await Indexer.FetchMultiplePages(
             async (pageNumber) =>
@@ -520,58 +520,20 @@ And that has made all the difference.
 
 \u2601 \u2600 \u2602";
 
-        var signature = await web3.Eth.Sign.SendRequestAsync(await wallet.GetAddress(), message);
+        var signature = await web3.Eth.Sign.SendRequestAsync(await web3.GetAddress(), message);
         Debug.Log(signature);
     }
 
     public async void SendUSDC()
     {
-        var abi =
-            @" [
-                {
-                    constant: false,
-                    inputs: [
-                            {
-                                internalType: 'address',
-                                name: 'recipient',
-                                type: 'address'
-                            },
-                            {
-                                internalType: 'uint256',
-                                name: 'amount',
-                                type: 'uint256'
-                            }
-                            ],
-                    name: 'transfer',
-                    outputs: [
-                            {
-                                internalType: 'bool',
-                                name: '',
-                                type: 'bool'
-                            }
-                            ],
-                    payable: false,
-                    stateMutability: 'nonpayable',
-                    type: 'function'
-                }
-                ]";
 
         var contractAddress = "0xfCFdE38A1EeaE0ee7e130BbF66e94844Bc5D5B6B";
-        var contract = web3.Eth.GetContract(abi, contractAddress);
-        var transferFunction = contract.GetFunction("transfer");
-        var senderAddress = await wallet.GetAddress();
-
-        var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
-        //Random To Account
-        var newAddress = randomWallet.GetAccount(0).Address;
+        var contract = new ERC20(web3, contractAddress);
+        var senderAddress = await web3.GetAddress();
 
         var zero = new HexBigInteger(0);
-        var receiptAmountSend = await transferFunction.SendTransactionAndWaitForReceiptAsync(
-            senderAddress,
-            zero,
-            zero,
-            null,
-            newAddress,
+        var receiptAmountSend = await contract.Transfer(
+            exampleToAccount,
             0
         );
         Debug.Log("[Sequence] sent:" + receiptAmountSend);
@@ -582,191 +544,22 @@ And that has made all the difference.
         try
         {
             //Contract Address
-            var contractAddress = "";
             BigInteger[] tokenIds = new BigInteger[1];
 
-            switch ((int)_sequenceInterceptor.chainID)
-            {
-                case 1:
-                    contractAddress = "0x697ed880c89C55a004003318690981d708E0d9ed";
-                    tokenIds[0] = 4605;
-                    break;
-                case 137:
-                    contractAddress = "0x631998e91476DA5B870D741192fc5Cbc55F5a52E";
-                    tokenIds[0] = 16646145;
-                    break;
-                case 56:
-                    contractAddress = "0xa23b58EA2eE75A30075B3D071444Da35d4947Cc9";
-                    tokenIds[0] = 81690;
-                    break;
-                case 42161:
-                    contractAddress = "0x925f6348cFD83D3cc0e77830F7A176A33b550111";
-                    tokenIds[0] = 66277;
-                    break;
-                case 42170:
-                    contractAddress = "0x1B3e11E78D082eF0acA690d0B918aEbb216E20E5";
-                    tokenIds[0] = 999;
-                    break;
-                case 10:
-                    contractAddress = "0xfA14e1157F35E1dAD95dC3F822A9d18c40e360E2";
-                    tokenIds[0] = 619046;
-                    break;
-                case 43114:
-                    contractAddress = "";
-                    tokenIds[0] = 0;
-                    break;
-                case 100:
-                    contractAddress = "0xf0A93Ad0184cF1e5f29d7b5579358C99b9010F17";
-                    tokenIds[0] = 7957;
-                    break;
-                //Testnet:
-                case 5:
-                    contractAddress = "0xff02b7d59975E76F67B63b20b813a9Ec0f6AbD60";
-                    tokenIds[0] = 0;
-                    break;
-                case 80001:
-                    contractAddress = "0xF399feCf01C3b8f115807c2f4E8117c57a570f36";
-                    tokenIds[0] = 16695550197660;
-                    break;
-                case 97:
-                    contractAddress = "0x7246611e05A926D0214d70fD5207f988fECaAa68";
-                    tokenIds[0] = 1;
-                    break;
-                default:
-                    Debug.Log("[Sequence] Incorrect Chain Id");
-                    break;
-            }
+            var contractAddr = exampleERC1155Address(await web3.Eth.ChainId.SendRequestAsync());
 
-            var abi =
-                @"[
-            {
-                inputs: [
-                {
-                    internalType: 'address',
-                    name: '_from',
-                    type: 'address'
-                },
-                {
-                    internalType: 'address',
-                    name: '_to',
-                    type: 'address'
-                },
-                {
-                    internalType: 'uint256[]',
-                    name: '_ids',
-                    type: 'uint256[]'
-                },
-                {
-                    internalType: 'uint256[]',
-                    name: '_amounts',
-                    type: 'uint256[]'
-                },
-                {
-                    internalType: 'bytes',
-                    name: '_data',
-                    type: 'bytes'
-                }
-                ],
-            name: 'safeBatchTransferFrom',
-            outputs: [],
-            stateMutability: 'nonpayable',
-            type: 'function'
-            }
-        ]";
-
-            var contract = web3.Eth.GetContract(abi, contractAddress);
-            var safeBatchTransferFunction = contract.GetFunction("safeBatchTransferFrom");
-            var senderAddress = await wallet.GetAddress();
-
-            var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
-            //Random To Account
-            var newAddress = randomWallet.GetAccount(0).Address;
-            var zero = new HexBigInteger(0);
-            BigInteger[] amounts = { 1 };
-            Byte[] bytes = { };
-            BigInteger value = new HexBigInteger(1);
+            var contract = new ERC1155(web3, contractAddr);
+            var senderAddress = await web3.GetAddress();
 
             var transactionResp =
-                await safeBatchTransferFunction.SendTransactionAndWaitForReceiptAsync(
+                await contract.SafeTransferFrom(
                     senderAddress,
-                    zero,
-                    zero,
-                    null,
-                    senderAddress,
-                    newAddress,
-                    tokenIds,
-                    amounts,
-                    bytes
+                    exampleToAccount,
+                    BigInteger.One,
+                    BigInteger.One
                 );
 
             Debug.Log("[Sequence] ReceiptAmountSend:" + transactionResp);
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e);
-        }
-    }
-
-    public async void SendNFT(string contractAddress)
-    {
-        try
-        {
-            var abi =
-                @"[
-            {
-                inputs: [
-                {
-                    internalType: 'address',
-                    name: '_from',
-                    type: 'address'
-                },
-                {
-                    internalType: 'address',
-                    name: '_to',
-                    type: 'address'
-                },
-                {
-                    internalType: 'uint256[]',
-                    name: '_ids',
-                    type: 'uint256[]'
-                },
-                {
-                    internalType: 'uint256[]',
-                    name: '_amounts',
-                    type: 'uint256[]'
-                },
-                {
-                    internalType: 'bytes',
-                    name: '_data',
-                    type: 'bytes'
-                }
-                ],
-            name: 'safeBatchTransferFrom',
-            outputs: [],
-            stateMutability: 'nonpayable',
-            type: 'function'
-            }
-        ]";
-
-            var contract = web3.Eth.GetContract(abi, contractAddress);
-            var safeBatchTransferFunction = contract.GetFunction("safeBatchTransferFrom");
-            var senderAddress = await wallet.GetAddress();
-
-            var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
-            //Random To Account
-            var newAddress = randomWallet.GetAccount(0).Address;
-
-            var zero = new HexBigInteger(0);
-            var receiptAmountSend =
-                await safeBatchTransferFunction.SendTransactionAndWaitForReceiptAsync(
-                    senderAddress,
-                    zero,
-                    zero,
-                    null,
-                    newAddress,
-                    0
-                );
-            Debug.Log("[Sequence] ReceiptAmountSend:" + receiptAmountSend);
         }
         catch (Exception e)
         {
@@ -833,65 +626,6 @@ And that has made all the difference.
         Debug.Log($"Using ERC1155 address ${contractAddress} on chain ${chainID}.");
         Debug.Log("URI of token ID 1: " + await erc1155.URI(BigInteger.One));
         // More methods available in the ERC1155 ABI :)
-    }
-
-    public async void GetEstimatedGas()
-    {
-        try
-        {
-            var abi =
-                @" [
-                {
-                    constant: false,
-                    inputs: [
-                            {
-                                internalType: 'address',
-                                name: 'recipient',
-                                type: 'address'
-                            },
-                            {
-                                internalType: 'uint256',
-                                name: 'amount',
-                                type: 'uint256'
-                            }
-                            ],
-                    name: 'transfer',
-                    outputs: [
-                            {
-                                internalType: 'bool',
-                                name: '',
-                                type: 'bool'
-                            }
-                            ],
-                    payable: false,
-                    stateMutability: 'nonpayable',
-                    type: 'function'
-                }
-                ]";
-            var contractAddress = "0xfCFdE38A1EeaE0ee7e130BbF66e94844Bc5D5B6B";
-            var contract = web3.Eth.GetContract(abi, contractAddress);
-            var transferFunction = contract.GetFunction("transfer");
-            var senderAddress = await wallet.GetAddress();
-
-            var randomWallet = new Nethereum.HdWallet.Wallet(exampleWords, examplePassword);
-            //Random To Account
-            var newAddress = randomWallet.GetAccount(0).Address;
-
-            var amountToSend = 0;
-            var value = new HexBigInteger(0);
-            var gas = await transferFunction.EstimateGasAsync(
-                senderAddress,
-                null,
-                value,
-                newAddress,
-                amountToSend
-            );
-            Debug.Log("[Sequence Estimated Gas: ]" + gas.ToString());
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e);
-        }
     }
 
     public static Mnemonic exampleMnemo = new Mnemonic(Wordlist.English, WordCount.Twelve);
