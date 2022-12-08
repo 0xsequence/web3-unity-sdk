@@ -6,7 +6,9 @@ using Newtonsoft.Json;
 using SequenceSharp;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -312,7 +314,7 @@ public class DemoManager : MonoBehaviour
     {
         try
         {
-            
+
             var connectDetails = await wallet.Connect(
                 new ConnectOptions { app = "Demo Unity Dapp" }
             );
@@ -443,6 +445,7 @@ public class DemoManager : MonoBehaviour
         {
             accountAddress = await web3.GetAddress();
         }
+        var chainID = await web3.Eth.ChainId.SendRequestAsync();
 
         var transactions = await Indexer.FetchMultiplePages(
             async (pageNumber) =>
@@ -451,45 +454,34 @@ public class DemoManager : MonoBehaviour
                     new TransactionHistoryFilter { accountAddress = accountAddress },
                     new Page { page = pageNumber }
                 );
-                var history = await Indexer.GetTransactionHistory(Chain.Polygon, args);
+                var history = await Indexer.GetTransactionHistory(chainID, args);
 
-                foreach (var transaction in history.transactions)
-                {
-                    foreach (var transfer in transaction.transfers)
-                    {
-                        // Try to get token name, but got a "missing revert data in call exception" from ether.js for some contract address.
-                        string name = "";
-                        switch (transfer.contractType)
-                        {
-                            case ContractType.ERC20:
-                                name = await new ERC20(web3, transfer.contractAddress).Name();
-                                break;
-                            case ContractType.ERC721:
-                                name = await new ERC721(web3, transfer.contractAddress).Name();
-                                break;
-                            case ContractType.ERC1155:
-                                name = await new ERC1155(web3, transfer.contractAddress).URI(transfer.tokenIds[0]);
-                                break;
-                            default:
-                                break;
-                        }
+                var txsWithNames = history.transactions.SelectMany(tx =>
+                    tx.transfers.Select(t => (
+                        name: getTokenName(web3, t.contractType, t.contractAddress, t.tokenIds != null ? t.tokenIds[0] : null),
+                        t, tx.timestamp
+                    ))
+                ).ToArray();
 
-                        GameObject unitGO = Instantiate(historyUnitPrefab);
-                        unitGO.transform.SetParent(historyScroll);
-                        unitGO.transform.localScale = new UnityEngine.Vector3(1f, 1f, 1f);
-                        HistoryUnit historyUnit = unitGO.GetComponent<HistoryUnit>();
-                        historyUnit.SetUnit(
-                            transaction.timestamp,
-                            name,
-                            transfer.tokenIds.Length.ToString()
-                        );
-                        historyUI.AddToHistoryList(historyUnit);
-                    }
-                }
-                return (history.page, history.transactions);
+                return (history.page, txsWithNames);
             },
-            9999
+            10
         );
+        var txNames = await Task.WhenAll(transactions.Select(t => t.name).ToArray());
+        var txsWithNames = txNames.Zip(transactions.Select(t => (t.t, t.timestamp)), (name, t) => (name, t.t, t.timestamp));
+        foreach (var (name, t, timestamp) in txsWithNames)
+        {
+            GameObject unitGO = Instantiate(historyUnitPrefab);
+            unitGO.transform.SetParent(historyScroll);
+            unitGO.transform.localScale = new UnityEngine.Vector3(1f, 1f, 1f);
+            HistoryUnit historyUnit = unitGO.GetComponent<HistoryUnit>();
+            historyUnit.SetUnit(
+                timestamp,
+                name,
+                t.tokenIds.Length.ToString()
+            );
+            historyUI.AddToHistoryList(historyUnit);
+        }
         uiManager.HideLoadingPanel();
         DisplayHistoryPanel();
 
@@ -1025,5 +1017,32 @@ And that has made all the difference.
             default:
                 throw new ArgumentException("Unsupported chain ID: " + chainID);
         }
+    }
+    private async Task<string> getTokenName(Web3 web3, ContractType contractType, string address, BigInteger? tokenID)
+    {
+        var n = "Unknown Token";
+        try
+        {
+            // Try to get token name, but got a "missing revert data in call exception" from ether.js for some contract address.
+            switch (contractType)
+            {
+                case ContractType.ERC20:
+                    n = await new ERC20(web3, address).Name();
+                    break;
+                case ContractType.ERC721:
+                    n = await new ERC721(web3, address).Name();
+                    break;
+                case ContractType.ERC1155:
+                    n = await new ERC1155(web3, address).URI((BigInteger)tokenID);
+                    break;
+                default:
+                    break;
+            }
+        }
+        catch
+        {
+            Debug.LogWarning("Failed to get token name for contract address: " + address);
+        }
+        return n;
     }
 }
