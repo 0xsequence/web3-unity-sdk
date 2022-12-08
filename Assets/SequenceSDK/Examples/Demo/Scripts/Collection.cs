@@ -68,8 +68,6 @@ public class Collection : MonoBehaviour
 
     private async Task GenerateCategories(TokenBalance[] tokenBalances)
     {
-        GameObject newCatGo;
-        Category newCategory;
 
         await Task.WhenAll(tokenBalances.Select(async (tb) =>
         {
@@ -79,8 +77,43 @@ public class Collection : MonoBehaviour
             var contractAddress = tb.contractAddress;
             Texture2D logoTex = null;
 
-            newCatGo = Instantiate(categoryTemplate, tokensRoot);
-            newCategory = newCatGo.GetComponent<Category>();
+            var metaURL = tokenMetadata != null && tokenMetadata.image != null
+                    && tokenMetadata.image.Length > 0
+                    && !tokenMetadata.image.EndsWith("gif") ? tokenMetadata.image : (contractInfo.logoURI != null && contractInfo.logoURI.Length > 0) ? contractInfo.logoURI : null;
+            if (metaURL != null)
+            {
+                using (var imgRequest = UnityWebRequestTexture.GetTexture(metaURL))
+                {
+                    await imgRequest.SendWebRequest();
+
+                    if (imgRequest.result != UnityWebRequest.Result.Success)
+                    {
+                        Debug.Log(imgRequest.error);
+                    }
+                    else
+                    {
+                        // Create new card and initiate it
+                        logoTex = ((DownloadHandlerTexture)imgRequest.downloadHandler).texture;
+                    }
+                }
+            }
+
+            var type = ContractType.UNKNOWN;
+            try
+            {
+                type = Enum.Parse<ContractType>(contractInfo.type);
+            }
+            catch
+            {
+                // ok!
+            }
+
+            BigInteger? tokenID =
+                (tokenMetadata != null)
+                    ? tokenMetadata.tokenId
+                    : null;
+            var newCatGo = Instantiate(categoryTemplate, tokensRoot);
+            var newCategory = newCatGo.GetComponent<Category>();
 
             uiManager.SetCollectionCategoryStyle(newCategory);
 
@@ -96,64 +129,6 @@ public class Collection : MonoBehaviour
 
             // Add new Category option to their relevant ContractType Group
             _categoryGroups[tb.contractType].AddToCategories(newCategory);
-            if (tokenMetadata != null)
-            {
-                if (
-                    tokenMetadata.image != null
-                    && tokenMetadata.image.Length > 0
-                    && !tokenMetadata.image.EndsWith("gif")
-                )
-                {
-                    var imgRequest = UnityWebRequestTexture.GetTexture(tokenMetadata.image);
-
-                    await imgRequest.SendWebRequest();
-
-                    if (imgRequest.result != UnityWebRequest.Result.Success)
-                    {
-                        Debug.Log(imgRequest.error);
-                    }
-                    else
-                    {
-                        // Create new card and initiate it
-                        logoTex = ((DownloadHandlerTexture)imgRequest.downloadHandler).texture;
-                    }
-                    imgRequest.Dispose();
-                }
-            }
-            else
-            {
-                if (contractInfo.logoURI != null && contractInfo.logoURI.Length > 0)
-                {
-                    var imgRequest = UnityWebRequestTexture.GetTexture(contractInfo.logoURI);
-
-                    await imgRequest.SendWebRequest();
-
-                    if (imgRequest.result != UnityWebRequest.Result.Success)
-                    {
-                        Debug.Log(imgRequest.error);
-                    }
-                    else
-                    {
-                        // Create new card and initiate it
-                        logoTex = ((DownloadHandlerTexture)imgRequest.downloadHandler).texture;
-                    }
-                    imgRequest.Dispose();
-                }
-            }
-
-            var type = ContractType.UNKNOWN;
-            try
-            {
-                type = Enum.Parse<ContractType>(contractInfo.type);
-            }
-            catch
-            {
-                // ok!
-            }
-            BigInteger? tokenID =
-                (tokenMetadata != null)
-                    ? tokenMetadata.tokenId
-                    : null;
             newCategory.Init(
                 tokenMetadata != null
                     ? ($"{tokenMetadata.name} ({contractInfo.name})")
