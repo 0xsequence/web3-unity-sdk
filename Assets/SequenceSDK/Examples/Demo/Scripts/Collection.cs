@@ -8,14 +8,14 @@ using UnityEngine.Networking;
 using SequenceSharp;
 using System.Numerics;
 using UnityEngine.Events;
+using System.Threading.Tasks;
+using System.Linq;
 
 /// <summary>
 /// Handle receiving an Account Address and pulling all contract info data to generate Category options for a user to load content from
 /// </summary>
 public class Collection : MonoBehaviour
 {
-    public UnityEvent fininshedGeneratingEvent;
-
     [Header("Categories")]
     [SerializeField]
     private RectTransform tokensRoot = null;
@@ -37,7 +37,6 @@ public class Collection : MonoBehaviour
     private Dictionary<ContractType, CategoryGroup> _categoryGroups =
         new Dictionary<ContractType, CategoryGroup>();
 
-    //UI
     private DemoUIManager uiManager;
 
     private void OnEnable()
@@ -57,55 +56,46 @@ public class Collection : MonoBehaviour
         DemoManager.Instance.DisplayWelcomePanel();
     }
 
-    public void RetriveContractInfoData(TokenBalance[] tokenBalances)
+    public async Task RetriveContractInfoData(TokenBalance[] tokenBalances)
     {
         ClearCategories();
 
         if (tokenBalances != null && tokenBalances.Length > 0)
         {
-            StartCoroutine(GenerateCategories(tokenBalances));
+            await GenerateCategories(tokenBalances);
         }
     }
 
-    private IEnumerator GenerateCategories(TokenBalance[] tokenBalances)
+    private async Task GenerateCategories(TokenBalance[] tokenBalances)
     {
         GameObject newCatGo;
         Category newCategory;
-        ContractInfo contractInfo = null;
-        Texture logoTex = null;
-        UnityWebRequest imgRequest;
-        TokenMetadata tokenMetadata = null;
-        string contractAddress;
-        for (int i = 0; i < tokenBalances.Length; i++)
+
+        await Task.WhenAll(tokenBalances.Select(async (tb) =>
         {
             //check for metadata
-            tokenMetadata = tokenBalances[i].tokenMetadata;
-            contractInfo = tokenBalances[i].contractInfo;
-            contractAddress = tokenBalances[i].contractAddress;
+            var tokenMetadata = tb.tokenMetadata;
+            var contractInfo = tb.contractInfo;
+            var contractAddress = tb.contractAddress;
+            Texture2D logoTex = null;
 
             newCatGo = Instantiate(categoryTemplate, tokensRoot);
             newCategory = newCatGo.GetComponent<Category>();
 
             uiManager.SetCollectionCategoryStyle(newCategory);
 
-            if (_categoryGroups.ContainsKey(tokenBalances[i].contractType) == false)
+            if (_categoryGroups.ContainsKey(tb.contractType) == false)
             {
                 CategoryGroup newCatGroup = Instantiate(categoryGroupTemplate, catogryGroupRoot)
                     .GetComponent<CategoryGroup>();
-                _categoryGroups.Add(tokenBalances[i].contractType, newCatGroup);
-                newCatGroup.InitGroup(tokenBalances[i].contractType, categorySpacing);
-      
+                _categoryGroups.Add(tb.contractType, newCatGroup);
+                newCatGroup.InitGroup(tb.contractType, categorySpacing);
+
                 uiManager.SetCollectionCategoryGroupStyle(newCatGroup);
             }
 
             // Add new Category option to their relevant ContractType Group
-            _categoryGroups[tokenBalances[i].contractType].AddToCategories(newCategory);
-
-            if (logoTex != null)
-            {
-                Destroy(logoTex);
-                logoTex = null;
-            }
+            _categoryGroups[tb.contractType].AddToCategories(newCategory);
             if (tokenMetadata != null)
             {
                 if (
@@ -114,9 +104,9 @@ public class Collection : MonoBehaviour
                     && !tokenMetadata.image.EndsWith("gif")
                 )
                 {
-                    imgRequest = UnityWebRequestTexture.GetTexture(tokenMetadata.image);
+                    var imgRequest = UnityWebRequestTexture.GetTexture(tokenMetadata.image);
 
-                    yield return imgRequest.SendWebRequest();
+                    await imgRequest.SendWebRequest();
 
                     if (imgRequest.result != UnityWebRequest.Result.Success)
                     {
@@ -134,9 +124,9 @@ public class Collection : MonoBehaviour
             {
                 if (contractInfo.logoURI != null && contractInfo.logoURI.Length > 0)
                 {
-                    imgRequest = UnityWebRequestTexture.GetTexture(contractInfo.logoURI);
+                    var imgRequest = UnityWebRequestTexture.GetTexture(contractInfo.logoURI);
 
-                    yield return imgRequest.SendWebRequest();
+                    await imgRequest.SendWebRequest();
 
                     if (imgRequest.result != UnityWebRequest.Result.Success)
                     {
@@ -173,9 +163,8 @@ public class Collection : MonoBehaviour
                 contractAddress,
                 tokenID
             );
-        }
-        yield return null;
-        fininshedGeneratingEvent.Invoke();
+        }));
+
     }
 
     /// <summary>

@@ -230,7 +230,7 @@ public class DemoManager : MonoBehaviour
 
     private void DisplayCollectionPanel(TokenBalance[] tokenBalances)
     {
-        MainThread.wkr.AddJob(() =>
+        MainThread.wkr.AddJob(async () =>
         {
             collectionCanvas.SetActive(true);
             //uiManager.EnableCollectionPanel();
@@ -240,7 +240,8 @@ public class DemoManager : MonoBehaviour
             HideAddressPanel();
             HideHistoryPanel();
 
-            m_collection.RetriveContractInfoData(tokenBalances);
+            await m_collection.RetriveContractInfoData(tokenBalances);
+            uiManager.HideLoadingPanel();
             //Loading Panel will be hidden after all tokens are retrieved
             uiManager.SetStyle();
         });
