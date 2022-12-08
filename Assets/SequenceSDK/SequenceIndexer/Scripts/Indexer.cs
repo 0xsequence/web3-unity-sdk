@@ -101,7 +101,7 @@ namespace SequenceSharp
             List<T> allItems = new List<T>();
             while (nextPage != -1 && nextPage < maxPages)
             {
-                (var page, var items) = await func(nextPage).ConfigureAwait(false);
+                (var page, var items) = await func(nextPage);
                 allItems.AddRange(items);
 
                 if (page.more && page.page != 0)
@@ -121,7 +121,7 @@ namespace SequenceSharp
         /// <exception cref="HttpRequestException">If the network request fails</exception>
         public static async Task<bool> Ping(BigInteger chainID)
         {
-            string responseBody = await HTTPPost(chainID, "Ping", null).ConfigureAwait(false);
+            string responseBody = await HTTPPost(chainID, "Ping", null);
             return BuildResponse<PingReturn>(responseBody).status;
         }
 
@@ -143,7 +143,7 @@ namespace SequenceSharp
         /// <exception cref="HttpRequestException">If the network request fails</exception>
         public static async Task<RuntimeStatus> RuntimeStatus(BigInteger chainID)
         {
-            var responseBody = await HTTPPost(chainID, "RuntimeStatus", null).ConfigureAwait(false);
+            var responseBody = await HTTPPost(chainID, "RuntimeStatus", null);
             return BuildResponse<RuntimeStatusReturn>(responseBody).status;
         }
 
@@ -154,7 +154,7 @@ namespace SequenceSharp
 
         public static async Task<BigInteger> GetChainID(BigInteger chainID)
         {
-            var responseBody = await HTTPPost(chainID, "GetChainID", null).ConfigureAwait(false);
+            var responseBody = await HTTPPost(chainID, "GetChainID", null);
             return BuildResponse<GetChainIDReturn>(responseBody).chainID;
         }
 
@@ -164,7 +164,7 @@ namespace SequenceSharp
         /// <exception cref="HttpRequestException">If the network request fails</exception>
         public static async Task<EtherBalance> GetEtherBalance(BigInteger chainID, string accountAddress)
         {
-            var responseBody = await HTTPPost(chainID, "GetEtherBalance", new GetEtherBalanceArgs(accountAddress)).ConfigureAwait(false);
+            var responseBody = await HTTPPost(chainID, "GetEtherBalance", new GetEtherBalanceArgs(accountAddress));
             return BuildResponse<GetEtherBalanceReturn>(responseBody).balance;
         }
 
@@ -174,7 +174,7 @@ namespace SequenceSharp
         /// <exception cref="HttpRequestException">If the network request fails</exception>
         public static async Task<GetTokenBalancesReturn> GetTokenBalances(BigInteger chainID, GetTokenBalancesArgs args)
         {
-            var responseBody = await HTTPPost(chainID, "GetTokenBalances", args).ConfigureAwait(false);
+            var responseBody = await HTTPPost(chainID, "GetTokenBalances", args);
             //Debug.Log(responseBody);
             return BuildResponse<GetTokenBalancesReturn>(responseBody);
         }
@@ -185,7 +185,7 @@ namespace SequenceSharp
         /// <exception cref="HttpRequestException">If the network request fails</exception>
         public static async Task<GetTokenSuppliesReturn> GetTokenSupplies(BigInteger chainID, GetTokenSuppliesArgs args)
         {
-            var responseBody = await HTTPPost(chainID, "GetTokenSupplies", args).ConfigureAwait(false);
+            var responseBody = await HTTPPost(chainID, "GetTokenSupplies", args);
             return BuildResponse<GetTokenSuppliesReturn>(responseBody);
         }
 
@@ -195,7 +195,7 @@ namespace SequenceSharp
         /// <exception cref="HttpRequestException">If the network request fails</exception>
         public static async Task<GetTokenSuppliesMapReturn> GetTokenSuppliesMap(BigInteger chainID, GetTokenSuppliesMapArgs args)
         {
-            var responseBody = await HTTPPost(chainID, "GetTokenSuppliesMap", args).ConfigureAwait(false);
+            var responseBody = await HTTPPost(chainID, "GetTokenSuppliesMap", args);
             return BuildResponse<GetTokenSuppliesMapReturn>(responseBody);
 
         }
@@ -206,7 +206,7 @@ namespace SequenceSharp
         /// <exception cref="HttpRequestException">If the network request fails</exception>
         public static async Task<GetBalanceUpdatesReturn> GetBalanceUpdates(BigInteger chainID, GetBalanceUpdatesArgs args)
         {
-            var responseBody = await HTTPPost(chainID, "GetBalanceUpdates", args).ConfigureAwait(false);
+            var responseBody = await HTTPPost(chainID, "GetBalanceUpdates", args);
             return BuildResponse<GetBalanceUpdatesReturn>(responseBody);
         }
 
@@ -217,7 +217,7 @@ namespace SequenceSharp
 
         public static async Task<GetTransactionHistoryReturn> GetTransactionHistory(BigInteger chainID, GetTransactionHistoryArgs args)
         {
-            var responseBody = await HTTPPost(chainID, "GetTransactionHistory", args).ConfigureAwait(false);
+            var responseBody = await HTTPPost(chainID, "GetTransactionHistory", args);
             return BuildResponse<GetTransactionHistoryReturn>(responseBody);
         }
 
