@@ -2036,7 +2036,6 @@ GameObject:
   m_Component:
   - component: {fileID: 378572275}
   - component: {fileID: 378572277}
-  - component: {fileID: 378572276}
   - component: {fileID: 378572278}
   m_Layer: 5
   m_Name: Panel - Collection
@@ -2065,36 +2064,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 250}
   m_SizeDelta: {x: 800, y: 200}
   m_Pivot: {x: 0.5, y: 1}
---- !u!114 &378572276
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 378572274}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!222 &378572277
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3398,9 +3367,9 @@ MonoBehaviour:
   m_Vertical: 1
   m_MovementType: 1
   m_Elasticity: 0.1
-  m_Inertia: 1
+  m_Inertia: 0
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 100
   m_Viewport: {fileID: 818642085}
   m_HorizontalScrollbar: {fileID: 1178565320}
   m_VerticalScrollbar: {fileID: 3783795}
@@ -3424,7 +3393,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.105882354}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5282,9 +5251,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1dcbb1fd0337ab649a5b13712ba917d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fininshedGeneratingEvent:
-    m_PersistentCalls:
-      m_Calls: []
   tokensRoot: {fileID: 195595333}
   catogryGroupRoot: {fileID: 378572275}
   categoryGroupTemplate: {fileID: 1228875727194364184, guid: b5f799e9e0d3c4d4b890b29b7c947e4d, type: 3}
@@ -5343,6 +5309,8 @@ MonoBehaviour:
   collectionScrollRect: {fileID: 611137240}
   collectionCatLayout: {fileID: 378572278}
   collectionScrollLayout: {fileID: 195595335}
+  collectionBackButton: {fileID: 591719829}
+  historyRect: {fileID: 0}
   loadingPanel: {fileID: 151160569}
   buttonSprite: {fileID: 21300000, guid: 7f8261ffcd44b9e4c9e4e6df341cc3d8, type: 3}
   backgroundColor: {r: 0, g: 0, b: 0, a: 1}
