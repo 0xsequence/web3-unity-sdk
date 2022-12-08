@@ -100,7 +100,7 @@ namespace SequenceSharp
                     to,
                     id,
                     amount,
-                    data
+                    data == null ? new Byte[] { } : data
                 );
         }
 
@@ -124,7 +124,7 @@ namespace SequenceSharp
                     to,
                     ids,
                     amounts,
-                    data
+                    data == null ? new Byte[] { } : data
                 );
         }
 
