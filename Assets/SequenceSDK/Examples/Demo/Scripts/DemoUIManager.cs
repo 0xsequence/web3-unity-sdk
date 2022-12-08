@@ -130,30 +130,35 @@ public class DemoUIManager : MonoBehaviour
                 SetWelcomePanelStyle(3, new Vector2(200, 50), new Vector2(20, 25), 14, 4f);
                 SetABIExampleButtonStyle(10,6f);
                 SetAddressPanelStyle(30,20, 6f);
+                SetCollectionsStyle(CollectionLayout.Vertical);
                 break;
             case ScreenRatio.OneHalf_One:
                 SetConnectPanelStyle(35, 4f);
                 SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f);
                 SetABIExampleButtonStyle(10, 6f);
                 SetAddressPanelStyle(30,20, 6f);
+                SetCollectionsStyle(CollectionLayout.Vertical);
                 break;
             case ScreenRatio.One_One:
                 SetConnectPanelStyle(28, 4f);
                 SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f);
                 SetABIExampleButtonStyle(10,6f);
                 SetAddressPanelStyle(28,18, 6f);
+                SetCollectionsStyle(CollectionLayout.Vertical);
                 break;
             case ScreenRatio.One_OneHalf:
                 SetConnectPanelStyle(28, 2f);
                 SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f);
                 SetABIExampleButtonStyle(25,4f);
                 SetAddressPanelStyle(28,18, 6f);
+                SetCollectionsStyle(CollectionLayout.Horizontal);
                 break;
             case ScreenRatio.One_Two:
                 SetConnectPanelStyle(28, 2f);
                 SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f);
                 SetABIExampleButtonStyle(25,4f);
                 SetAddressPanelStyle(28,18, 6f);
+                SetCollectionsStyle(CollectionLayout.Horizontal);
                 break;
         }
         //Connect 
@@ -316,24 +321,65 @@ public class DemoUIManager : MonoBehaviour
 
     private void SetCollectionsStyle(CollectionLayout layout)
     {
+        
+        
         if (layout == CollectionLayout.Horizontal)
         {
             //Horizontal Layout
+            HorizontalCollection();
             float height = collectionRect.sizeDelta.y;
             AdjustCollectionScrollRect(height);
         }else
         {
             //Vertical Layout
+            float width = collectionRect.sizeDelta.x;
+            VerticalCollection();
         }
 
         
         //Style for scroll bar 
     }
 
+    private void HorizontalCollection()
+    {
+        //suitable for portrait layout
+        //Group Layout
+        collectionCatRect.localPosition = new Vector3(0, 0, 0);
+        collectionCatRect.sizeDelta = new Vector2(0, 200);
+        collectionCatRect.anchorMax = new Vector2(1, 1);
+        collectionCatRect.anchorMin = new Vector2(0, 1);
+        collectionCatRect.pivot = new Vector2(0.5f, 1);
+
+        //Token Layout
+        collectionScrollRect.localPosition = new Vector3(0, -200, 0);
+        collectionScrollRect.sizeDelta = new Vector2(0, 1400);
+        collectionScrollRect.anchorMax = new Vector2(1, 1);
+        collectionScrollRect.anchorMin = new Vector2(0, 1);
+        collectionScrollRect.pivot = new Vector2(0.5f, 1);
+    }
+    private void VerticalCollection()
+    {
+        //suitable for landscape layout
+        collectionCatRect.localPosition = new Vector3(0, 0, 0);
+        collectionCatRect.sizeDelta = new Vector2(200, 0);
+        collectionCatRect.anchorMax = new Vector2(0, 1);
+        collectionCatRect.anchorMin = new Vector2(0, 0);
+        collectionCatRect.pivot = new Vector2(0, 0.5f);
+
+        //Token Layout
+        collectionScrollRect.localPosition = new Vector3(100, 0, 0);
+        collectionScrollRect.sizeDelta = new Vector2(-200, 1400);
+        collectionScrollRect.anchorMax = new Vector2(1, 1);
+        collectionScrollRect.anchorMin = new Vector2(0, 1);
+        collectionScrollRect.pivot = new Vector2(0.5f, 1);
+    }
+
     private void SetHistoryStyle()
     {
 
     }
+
+   
 
 
     private void SetOutlineEventForButton(Button button)
