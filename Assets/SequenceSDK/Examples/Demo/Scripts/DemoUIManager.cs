@@ -54,10 +54,15 @@ public class DemoUIManager : MonoBehaviour
     public RectTransform collectionScrollRect;
     public GridLayoutGroup collectionCatLayout;
     public GridLayoutGroup collectionScrollLayout;
+    public Button collectionBackButton;
 
     private int collectionCategoryGroupFontSize = 15;
     private int collectionCategoryFontSize = 10;
     private CollectionLayout collectionLayout;
+
+    //History
+    [Header("History")]
+    public RectTransform historyRect;
 
     [Header("loading panel")]
     public GameObject loadingPanel;
@@ -369,14 +374,12 @@ public class DemoUIManager : MonoBehaviour
         {
             //Horizontal Layout
             HorizontalCollection(collectionPanelSize);
-            float height = collectionPanelSize.y;
-            //AdjustCollectionScrollRect(height);
 
+            
         }
         else
         {
             //Vertical Layout
-            float width = collectionRect.sizeDelta.x;
             VerticalCollection(collectionPanelSize);
         }
 
@@ -401,6 +404,15 @@ public class DemoUIManager : MonoBehaviour
         collectionScrollRect.pivot = new Vector2(0.5f, 0.5f);
         collectionScrollRect.localPosition = new Vector2(0, -height/2f);
 
+        //Back Btn
+        //TODO: Put the button settings into a func
+        RectTransform btnRect = collectionBackButton.GetComponent<RectTransform>();
+        btnRect.sizeDelta = new Vector2(width / 8f, width / 16f);
+        collectionBackButton.image.color = buttonBackgroundColor;
+        var btnText = collectionBackButton.GetComponentInChildren<TextMeshProUGUI>();
+        btnText.fontSize = collectionCategoryGroupFontSize;
+        btnText.color = buttonTextColor;
+
     }
     private void VerticalCollection(Vector2 parentSize)
     {
@@ -417,7 +429,16 @@ public class DemoUIManager : MonoBehaviour
         collectionScrollRect.sizeDelta = new Vector2(parentSize.x-width, height);
         collectionScrollRect.pivot = new Vector2(0.5f, 0.5f);
         collectionScrollRect.localPosition = new Vector2(width/2, 0);
-        
+
+        //Back Btn
+        //Back Btn
+        RectTransform btnRect = collectionBackButton.GetComponent<RectTransform>();
+        btnRect.sizeDelta = new Vector2(width / 2f, width / 4f);
+        collectionBackButton.image.color = buttonBackgroundColor;
+        var btnText = collectionBackButton.GetComponentInChildren<TextMeshProUGUI>();
+        btnText.fontSize = collectionCategoryGroupFontSize;
+        btnText.color = buttonTextColor;
+
     }
 
     private void SetHistoryStyle()
@@ -492,20 +513,6 @@ public class DemoUIManager : MonoBehaviour
         {
             return ScreenRatio.One_Two;
         }
-    }
-
-
-    private void AdjustCollectionScrollRect(float height)
-    {
-        float categoryHeight = height / 5.0f;
-        float scrollHeight = height * 4.0f / 5.0f;
-        collectionCatRect.sizeDelta = new Vector2(collectionCatRect.sizeDelta.x, categoryHeight);
-
-        collectionScrollRect.anchoredPosition = new Vector2(collectionScrollRect.transform.position.x, -categoryHeight);
-        collectionScrollRect.sizeDelta = new Vector2(collectionScrollRect.sizeDelta.x, scrollHeight);
-
-        collectionCatLayout.cellSize = new Vector2(categoryHeight * 0.8f, categoryHeight * 0.8f);
-        //collectionScrollLayout.cellSize = new Vector2(categoryHeight, categoryHeight);
     }
 
 
