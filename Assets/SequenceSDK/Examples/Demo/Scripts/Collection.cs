@@ -122,6 +122,7 @@ public class Collection : MonoBehaviour
             {
                 CategoryGroup newCatGroup = Instantiate(categoryGroupTemplate, catogryGroupRoot)
                     .GetComponent<CategoryGroup>();
+                Debug.Log(newCatGroup);
                 _categoryGroups.Add(tb.contractType, newCatGroup);
                 newCatGroup.InitGroup(tb.contractType, categorySpacing);
 

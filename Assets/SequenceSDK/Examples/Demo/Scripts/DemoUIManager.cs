@@ -71,6 +71,7 @@ public class DemoUIManager : MonoBehaviour
     private int historyTextFontSize = 25;
     private Vector2 historyUnitGridLayoutCellSize = new Vector2(150, 0);
 
+
     [Header("loading panel")]
     public GameObject loadingPanel;
 
@@ -143,6 +144,7 @@ public class DemoUIManager : MonoBehaviour
                 SetAddressPanelStyle(30);
                 SetCollectionsStyle(CollectionLayout.Vertical);
                 SetHistoryStyle(3, 12);
+
                 break;
             case ScreenRatio.OneHalf_One:
                 SetConnectPanelStyle(35, 4f);
@@ -151,6 +153,7 @@ public class DemoUIManager : MonoBehaviour
                 SetAddressPanelStyle(30);
                 SetCollectionsStyle(CollectionLayout.Vertical);
                 SetHistoryStyle(2, 18);
+
                 break;
             case ScreenRatio.One_One:
                 SetConnectPanelStyle(28, 4f);
@@ -317,7 +320,7 @@ public class DemoUIManager : MonoBehaviour
 
         var gridLayout = historyUnit.GetGridLayout();
         gridLayout.cellSize = historyUnitGridLayoutCellSize;
-        
+
     }
 
 
@@ -435,7 +438,6 @@ public class DemoUIManager : MonoBehaviour
             VerticalCollection(collectionPanelSize);
         }
 
-
     }
 
     private void HorizontalCollection(Vector2 parentSize)
@@ -487,17 +489,17 @@ public class DemoUIManager : MonoBehaviour
         historyTextFontSize = fontSize;
         historyLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
         historyLayoutGroup.constraintCount = col;
-
-        if (col == 2)
+        
+        if(col == 2)
         {
             historyLayoutGroup.cellSize = new Vector2(300, 100);
             historyLayoutGroup.spacing = new Vector2(40, 20);
-            historyUnitGridLayoutCellSize = new Vector2(80, 0);
+            historyUnitGridLayoutCellSize = new Vector2(80,0);
 
         }
-        else if (col == 3)
+        else if(col == 3)
         {
-
+            
             historyLayoutGroup.cellSize = new Vector2(200, 100);
             historyLayoutGroup.spacing = new Vector2(20, 20);
             historyUnitGridLayoutCellSize = new Vector2(50, 0);
@@ -508,9 +510,9 @@ public class DemoUIManager : MonoBehaviour
             historyLayoutGroup.spacing = new Vector2(0, 20);
             historyUnitGridLayoutCellSize = new Vector2(150, 0);
         }
-
         SetBackButtonStyle(historyBackButton, historyRect.sizeDelta);
         SetScrollBarStyle(historyVerticalScrollBar,historyRect.sizeDelta);
+
     }
 
 
@@ -558,12 +560,13 @@ public class DemoUIManager : MonoBehaviour
         outline.enabled = false;
     }
 
-    private void SetBackButtonStyle(Button backButton, Vector2 panelSize)
+
+    private void SetBackButtonStyle(Button backButton,Vector2 panelSize)
     {
         RectTransform btnRect = backButton.GetComponent<RectTransform>();
-        btnRect.pivot = new Vector2(0.5f, 0.5f);
         Vector2 btnSize = new Vector2(panelSize.x / 8f, panelSize.x / 16f);
-        btnRect.sizeDelta = btnSize;        
+        btnRect.sizeDelta = btnSize;
+        btnRect.pivot = new Vector2(0.5f, 0.5f);
         btnRect.localPosition = new Vector2(panelSize.x / 2f - btnSize.x / 2f, panelSize.y / 2f - btnSize.y / 2f);
         backButton.image.color = buttonBackgroundColor;
         var btnText = backButton.GetComponentInChildren<TextMeshProUGUI>();
@@ -573,9 +576,9 @@ public class DemoUIManager : MonoBehaviour
 
     private void SetScrollBarStyle(Scrollbar scrollbar, Vector2 parentSize)
     {
+
         scrollbar.image.color = buttonHighlightColor;
         scrollbar.gameObject.GetComponent<Image>().color = buttonBackgroundColor;
-
         scrollbar.gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(parentSize.x / 20, parentSize.y);
     }
 
