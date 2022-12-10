@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class HistoryUnit : MonoBehaviour
 {
@@ -15,4 +16,9 @@ public class HistoryUnit : MonoBehaviour
         tokenNameText.text = tokenName;
         tokenCountText.text = tokenCount;
     }
+
+    public TMP_Text GetTimeStampText() { return timeStampText; }
+    public TMP_Text GetNameText() { return tokenNameText; }
+    public TMP_Text GetTokenCountText() { return tokenCountText; }
+    public GridLayoutGroup GetGridLayout() { return GetComponent<GridLayoutGroup>(); }
 }

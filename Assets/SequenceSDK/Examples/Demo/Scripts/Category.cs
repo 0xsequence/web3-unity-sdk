@@ -76,6 +76,7 @@ public class Category : MonoBehaviour
 
     public Button GetButton() { return catBtn; }
     public TextMeshProUGUI GetLabel() { return buttonLabel; }
+    public Image GetImage() { return iconImg; }
 
     private async void OnButtonClick()
     {
