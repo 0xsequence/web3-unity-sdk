@@ -239,11 +239,11 @@ public class DemoManager : MonoBehaviour
             HideWelcomePanel();
             HideAddressPanel();
             HideHistoryPanel();
-
+            uiManager.SetStyle();
             await m_collection.RetriveContractInfoData(tokenBalances);
             uiManager.HideLoadingPanel();
             //Loading Panel will be hidden after all tokens are retrieved
-            uiManager.SetStyle();
+            
         });
     }
 
@@ -473,7 +473,7 @@ public class DemoManager : MonoBehaviour
         foreach (var (name, t, timestamp) in txsWithNames)
         {
             GameObject unitGO = Instantiate(historyUnitPrefab);
-            unitGO.transform.SetParent(historyScroll);
+            unitGO.transform.SetParent(historyScroll,false);
             unitGO.transform.localScale = new UnityEngine.Vector3(1f, 1f, 1f);
             HistoryUnit historyUnit = unitGO.GetComponent<HistoryUnit>();
             historyUnit.SetUnit(
@@ -482,6 +482,7 @@ public class DemoManager : MonoBehaviour
                 t.tokenIds.Length.ToString()
             );
             historyUI.AddToHistoryList(historyUnit);
+            uiManager.SetHistoryUnitStyle(historyUnit);
         }
         uiManager.HideLoadingPanel();
         DisplayHistoryPanel();

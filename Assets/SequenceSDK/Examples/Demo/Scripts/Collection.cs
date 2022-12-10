@@ -79,7 +79,7 @@ public class Collection : MonoBehaviour
 
             var metaURL = tokenMetadata != null && tokenMetadata.image != null
                     && tokenMetadata.image.Length > 0
-                    && !tokenMetadata.image.EndsWith("gif") ? tokenMetadata.image : (contractInfo.logoURI != null && contractInfo.logoURI.Length > 0) ? contractInfo.logoURI : null;
+                    && !tokenMetadata.image.EndsWith("gif") ? tokenMetadata.image : ((contractInfo.logoURI != null && contractInfo.logoURI.Length > 0) ? contractInfo.logoURI : null);
             if (metaURL != null)
             {
                 using (var imgRequest = UnityWebRequestTexture.GetTexture(metaURL))
@@ -88,7 +88,8 @@ public class Collection : MonoBehaviour
 
                     if (imgRequest.result != UnityWebRequest.Result.Success)
                     {
-                        Debug.Log(imgRequest.error);
+
+                        Debug.Log(metaURL+", "+imgRequest.error);
                     }
                     else
                     {

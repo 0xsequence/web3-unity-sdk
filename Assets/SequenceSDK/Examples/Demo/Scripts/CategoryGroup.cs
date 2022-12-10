@@ -91,19 +91,11 @@ public class CategoryGroup : MonoBehaviour
         _categories.Clear();
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <returns></returns>
-    public Button GetButton()
-    {
-        return btn;
-    }
+    public Button GetButton(){ return btn;}
 
-    public TextMeshProUGUI GetGroupLabel()
-    {
-        return groupLabel;
-    }
+    public RectTransform GetRectTransform() { return GetComponent<RectTransform>(); }
+
+    public TextMeshProUGUI GetGroupLabel(){ return groupLabel; }
 
     /// <summary>
     /// Adds event to the CategoryGroup CollapseableButton onClick

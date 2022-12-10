@@ -52,9 +52,10 @@ public class DemoUIManager : MonoBehaviour
     public RectTransform collectionRect;
     public RectTransform collectionCatRect;
     public RectTransform collectionScrollRect;
-    public GridLayoutGroup collectionCatLayout;
-    public GridLayoutGroup collectionScrollLayout;
+    public GridLayoutGroup collectionCatLayoutGroup;
+    public GridLayoutGroup collectionScrollLayoutGroup;
     public Button collectionBackButton;
+    public Scrollbar collectionVerticalScrollBar;
 
     private int collectionCategoryGroupFontSize = 15;
     private int collectionCategoryFontSize = 10;
@@ -63,6 +64,12 @@ public class DemoUIManager : MonoBehaviour
     //History
     [Header("History")]
     public RectTransform historyRect;
+    public GridLayoutGroup historyLayoutGroup;
+    public Button historyBackButton;
+    public Scrollbar historyVerticalScrollBar;
+
+    private int historyTextFontSize = 25;
+    private Vector2 historyUnitGridLayoutCellSize = new Vector2(150, 0);
 
     [Header("loading panel")]
     public GameObject loadingPanel;
@@ -133,94 +140,125 @@ public class DemoUIManager : MonoBehaviour
                 SetConnectPanelStyle(35, 4f);
                 SetWelcomePanelStyle(3, new Vector2(200, 50), new Vector2(20, 25), 14, 4f);
                 SetABIExampleButtonStyle(10, 6f);
-                SetAddressPanelStyle(30, 20, 6f);
+                SetAddressPanelStyle(30);
                 SetCollectionsStyle(CollectionLayout.Vertical);
+                SetHistoryStyle(3, 12);
                 break;
             case ScreenRatio.OneHalf_One:
                 SetConnectPanelStyle(35, 4f);
                 SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f);
                 SetABIExampleButtonStyle(10, 6f);
-                SetAddressPanelStyle(30, 20, 6f);
+                SetAddressPanelStyle(30);
                 SetCollectionsStyle(CollectionLayout.Vertical);
+                SetHistoryStyle(2, 18);
                 break;
             case ScreenRatio.One_One:
                 SetConnectPanelStyle(28, 4f);
                 SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f);
                 SetABIExampleButtonStyle(10, 6f);
-                SetAddressPanelStyle(28, 18, 6f);
+                SetAddressPanelStyle(28);
                 SetCollectionsStyle(CollectionLayout.Vertical);
+                SetHistoryStyle(2, 15);
                 break;
             case ScreenRatio.One_OneHalf:
                 SetConnectPanelStyle(28, 2f);
                 SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f);
                 SetABIExampleButtonStyle(25, 4f);
-                SetAddressPanelStyle(28, 18, 6f);
+                SetAddressPanelStyle(28);
                 SetCollectionsStyle(CollectionLayout.Horizontal);
+                SetHistoryStyle(1, 18);
                 break;
             case ScreenRatio.One_Two:
                 SetConnectPanelStyle(28, 2f);
                 SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f);
                 SetABIExampleButtonStyle(25, 4f);
-                SetAddressPanelStyle(28, 18, 6f);
+                SetAddressPanelStyle(28);
                 SetCollectionsStyle(CollectionLayout.Horizontal);
+                SetHistoryStyle(1, 18);
                 break;
         }
-        //Connect 
 
-        //Welcome Panel (check)
-
-        //Address
-
-        //Collections
-
-        //History
-
-        //Metamask
     }
 
+    /// <summary>
+    /// Show loading panel Gameobject
+    /// </summary>
     public void ShowLoadingPanel()
     {
         loadingPanel.SetActive(true);
     }
 
+    /// <summary>
+    /// Hide loading panel Gameobject
+    /// </summary>
     public void HideLoadingPanel()
     {
         loadingPanel.SetActive(false);
     }
+
+    /// <summary>
+    /// Set styles for Collection tokens.
+    /// </summary>
+    /// <param name="cat"></param>
     public void SetCollectionCategoryStyle(Category cat)
     {
         Button btn = cat.GetButton();
         btn.image.color = buttonBackgroundColor;
-        SetOutlineEventForButton(btn);
 
         TextMeshProUGUI label = cat.GetLabel();
+        var labelRect = label.GetComponent<RectTransform>();
+        labelRect.pivot = new Vector2(0.5f, 0.5f);
         label.color = buttonTextColor;
         label.fontSize = collectionCategoryFontSize;
 
-        Vector2 parentSize = collectionScrollRect.sizeDelta;
+        //logo
+        Image img = cat.GetImage();
+        img.preserveAspect = true;
+        var imgRect = img.GetComponent<RectTransform>();
+        imgRect.pivot = new Vector2(0.5f, 0.5f);
+
+        Vector2 parentSize = collectionScrollRect.rect.size;
         //TODO: Calculate widht or height base on collection style
-        if(collectionLayout ==CollectionLayout.Horizontal)
+        if (collectionLayout == CollectionLayout.Horizontal)
         {
             //portrait mode
             var side = parentSize.x / 4f;
-            collectionScrollLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            collectionScrollLayout.constraintCount = 3;
-            collectionScrollLayout.cellSize = new Vector2(side, side);
+            collectionScrollLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            collectionScrollLayoutGroup.constraintCount = 3;
+            collectionScrollLayoutGroup.cellSize = new Vector2(side, side);
+
+            labelRect.localPosition = new Vector2(0, -side / 4f);
+            
+            //imgRect.sizeDelta = new Vector2(side / 2f, side / 2f);
+            imgRect.localPosition = new Vector2(0, side/5f);
         }
         else
         {
             //landscape mode
             var side = parentSize.x / 5f;
-            collectionScrollLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            collectionScrollLayout.constraintCount = 3;
-            collectionScrollLayout.cellSize =new Vector2(side, side);
+            collectionScrollLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            collectionScrollLayoutGroup.constraintCount = 3;
+            collectionScrollLayoutGroup.cellSize = new Vector2(side, side);
 
+            labelRect.localPosition = new Vector2(0, -side / 4f);
+
+            imgRect.sizeDelta = new Vector2(side / 2f, side / 2f);
+            imgRect.localPosition = new Vector2(0, side/5f);
         }
+
+        
+        
+
 
     }
 
+    /// <summary>
+    /// Set styles for Collection Group Buttons.
+    /// </summary>
+    /// <param name="group"></param>
     public void SetCollectionCategoryGroupStyle(CategoryGroup group)
     {
+
         Button btn = group.GetButton();
         btn.image.sprite = buttonSprite;
         btn.image.color = buttonBackgroundColor;
@@ -229,27 +267,60 @@ public class DemoUIManager : MonoBehaviour
         groupLabel.color = buttonTextColor;
         groupLabel.fontSize = collectionCategoryGroupFontSize;
 
-        Vector2 parentSize = collectionCatRect.sizeDelta;
+        Vector2 parentSize = collectionCatRect.rect.size;
         if (collectionLayout == CollectionLayout.Horizontal)
         {
             //portrait mode
             var side = parentSize.x / 5f;
-            collectionCatLayout.constraint = GridLayoutGroup.Constraint.FixedRowCount;
-            collectionCatLayout.constraintCount = 1;
-            collectionCatLayout.cellSize = new Vector2(side, side);
+            collectionCatLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedRowCount;
+            collectionCatLayoutGroup.constraintCount = 1;
+            collectionCatLayoutGroup.cellSize = new Vector2(side, side);
         }
         else
         {
             //landscape mode
             var side = parentSize.y / 5f;
-            collectionCatLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            collectionCatLayout.constraintCount = 1;
-            collectionCatLayout.cellSize = new Vector2(side, side);
+            collectionCatLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            collectionCatLayoutGroup.constraintCount = 1;
+            collectionCatLayoutGroup.cellSize = new Vector2(side, side);
 
         }
 
 
     }
+
+    /// <summary>
+    /// Set styles for ViewHistory panel
+    /// </summary>
+    /// <param name="historyUnit"></param>
+    public void SetHistoryUnitStyle(HistoryUnit historyUnit)
+    {
+        
+
+        var img = historyUnit.GetComponent<Image>();
+        img.color = buttonBackgroundColor;
+        img.sprite = buttonSprite;
+        img.type = Image.Type.Sliced;
+        img.pixelsPerUnitMultiplier = 1;
+
+        var nameText = historyUnit.GetNameText();
+        nameText.color = buttonTextColor;
+        nameText.fontSize = historyTextFontSize;
+
+        var timeText = historyUnit.GetTimeStampText();
+        timeText.color = buttonTextColor;
+        timeText.fontSize = historyTextFontSize;
+
+        var countText = historyUnit.GetTokenCountText();
+        countText.color = buttonTextColor;
+        countText.fontSize = historyTextFontSize;
+
+        var gridLayout = historyUnit.GetGridLayout();
+        gridLayout.cellSize = historyUnitGridLayoutCellSize;
+        
+    }
+
+
     /// <summary>
     /// Set Button styles in welcome panel
     /// </summary>
@@ -333,31 +404,14 @@ public class DemoUIManager : MonoBehaviour
         }
     }
 
-    private void SetAddressPanelStyle(int addressFontSize, int buttonFontSize, float roundCorner)
+    private void SetAddressPanelStyle(int addressFontSize)
     {
         //Address Text:
         addressText.color = addressTextColor;
         addressText.fontSize = addressFontSize;
         //Back Button:
-        RectTransform buttonRect = addressBackButton.GetComponent<RectTransform>();
-        float parentWidth = addressPanel.GetComponent<RectTransform>().rect.width;
-        float width = parentWidth / 8f;
-        float height = width / 2f;
-        Vector2 offset = new Vector2(width / 5f, height / 5f);
-        buttonRect.sizeDelta = new Vector2(width, height);
-        buttonRect.anchoredPosition = new Vector2(-(width / 2 + offset.x), -(height / 2 + offset.y));
-        buttonRect.anchorMin = new Vector2(1, 1);
-        buttonRect.anchorMax = new Vector2(1, 1);
-        buttonRect.pivot = new Vector2(0.5f, 0.5f);
-        var btnImage = addressBackButton.gameObject.GetComponent<Image>();
-        btnImage.sprite = buttonSprite;
-        btnImage.color = buttonBackgroundColor;
-        btnImage.pixelsPerUnitMultiplier = roundCorner;
-
-
-        var txt = addressBackButton.gameObject.GetComponentInChildren<TMP_Text>();
-        txt.fontSize = buttonFontSize;
-        txt.color = buttonTextColor;
+        Vector2 parentSize = addressPanel.GetComponent<RectTransform>().rect.size;
+        SetBackButtonStyle(addressBackButton, parentSize);
 
         //outline
         SetOutlineEventForButton(addressBackButton);
@@ -367,15 +421,13 @@ public class DemoUIManager : MonoBehaviour
 
     private void SetCollectionsStyle(CollectionLayout layout)
     {
-
+        
         collectionLayout = layout; //For button styles 
         Vector2 collectionPanelSize = collectionRect.sizeDelta;
         if (layout == CollectionLayout.Horizontal)
         {
             //Horizontal Layout
             HorizontalCollection(collectionPanelSize);
-
-            
         }
         else
         {
@@ -384,8 +436,6 @@ public class DemoUIManager : MonoBehaviour
         }
 
 
-        //Style for scroll bar
-        
     }
 
     private void HorizontalCollection(Vector2 parentSize)
@@ -394,24 +444,19 @@ public class DemoUIManager : MonoBehaviour
         var height = parentSize.y / 8f;
         //suitable for portrait layout
         //Group Layout
-        
+
         collectionCatRect.sizeDelta = new Vector2(width, height);
         collectionCatRect.pivot = new Vector2(0.5f, 0.5f);
-        collectionCatRect.localPosition = new Vector2(0, -height/2f + parentSize.y/2f);
+        collectionCatRect.localPosition = new Vector2(0, -height / 2f + parentSize.y / 2f);
         //Token Layout
 
-        collectionScrollRect.sizeDelta = new Vector2(width, parentSize.y-height);
+        collectionScrollRect.sizeDelta = new Vector2(width, parentSize.y - height);
         collectionScrollRect.pivot = new Vector2(0.5f, 0.5f);
-        collectionScrollRect.localPosition = new Vector2(0, -height/2f);
+        collectionScrollRect.localPosition = new Vector2(0, -height / 2f);
 
         //Back Btn
-        //TODO: Put the button settings into a func
-        RectTransform btnRect = collectionBackButton.GetComponent<RectTransform>();
-        btnRect.sizeDelta = new Vector2(width / 8f, width / 16f);
-        collectionBackButton.image.color = buttonBackgroundColor;
-        var btnText = collectionBackButton.GetComponentInChildren<TextMeshProUGUI>();
-        btnText.fontSize = collectionCategoryGroupFontSize;
-        btnText.color = buttonTextColor;
+        SetBackButtonStyle(collectionBackButton, parentSize);
+        SetScrollBarStyle(collectionVerticalScrollBar,parentSize);
 
     }
     private void VerticalCollection(Vector2 parentSize)
@@ -422,28 +467,50 @@ public class DemoUIManager : MonoBehaviour
 
         collectionCatRect.sizeDelta = new Vector2(width, height);
         collectionCatRect.pivot = new Vector2(0.5f, 0.5f);
-        collectionCatRect.localPosition = new Vector2(width/2f-parentSize.x/2f, 0);
-        
+        collectionCatRect.localPosition = new Vector2(width / 2f - parentSize.x / 2f, 0);
+
         //Token Layout
-        
-        collectionScrollRect.sizeDelta = new Vector2(parentSize.x-width, height);
+
+        collectionScrollRect.sizeDelta = new Vector2(parentSize.x - width, height);
         collectionScrollRect.pivot = new Vector2(0.5f, 0.5f);
-        collectionScrollRect.localPosition = new Vector2(width/2, 0);
+        collectionScrollRect.localPosition = new Vector2(width / 2, 0);
 
         //Back Btn
-        //Back Btn
-        RectTransform btnRect = collectionBackButton.GetComponent<RectTransform>();
-        btnRect.sizeDelta = new Vector2(width / 2f, width / 4f);
-        collectionBackButton.image.color = buttonBackgroundColor;
-        var btnText = collectionBackButton.GetComponentInChildren<TextMeshProUGUI>();
-        btnText.fontSize = collectionCategoryGroupFontSize;
-        btnText.color = buttonTextColor;
+
+        SetBackButtonStyle(collectionBackButton, parentSize);
+        SetScrollBarStyle(collectionVerticalScrollBar, parentSize);
 
     }
 
-    private void SetHistoryStyle()
+    private void SetHistoryStyle(int col, int fontSize)
     {
+        historyTextFontSize = fontSize;
+        historyLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        historyLayoutGroup.constraintCount = col;
 
+        if (col == 2)
+        {
+            historyLayoutGroup.cellSize = new Vector2(300, 100);
+            historyLayoutGroup.spacing = new Vector2(40, 20);
+            historyUnitGridLayoutCellSize = new Vector2(80, 0);
+
+        }
+        else if (col == 3)
+        {
+
+            historyLayoutGroup.cellSize = new Vector2(200, 100);
+            historyLayoutGroup.spacing = new Vector2(20, 20);
+            historyUnitGridLayoutCellSize = new Vector2(50, 0);
+        }
+        else
+        {
+            historyLayoutGroup.cellSize = new Vector2(600, 120);
+            historyLayoutGroup.spacing = new Vector2(0, 20);
+            historyUnitGridLayoutCellSize = new Vector2(150, 0);
+        }
+
+        SetBackButtonStyle(historyBackButton, historyRect.sizeDelta);
+        SetScrollBarStyle(historyVerticalScrollBar,historyRect.sizeDelta);
     }
 
 
@@ -472,6 +539,8 @@ public class DemoUIManager : MonoBehaviour
             eventTrigger.triggers.Add(pointEntry);
         }
     }
+
+
     private void AddOutLine(Button button)
     {
         var outline = button.gameObject.GetComponent<Outline>();
@@ -487,6 +556,27 @@ public class DemoUIManager : MonoBehaviour
     {
         var outline = button.gameObject.GetComponent<Outline>();
         outline.enabled = false;
+    }
+
+    private void SetBackButtonStyle(Button backButton, Vector2 panelSize)
+    {
+        RectTransform btnRect = backButton.GetComponent<RectTransform>();
+        btnRect.pivot = new Vector2(0.5f, 0.5f);
+        Vector2 btnSize = new Vector2(panelSize.x / 8f, panelSize.x / 16f);
+        btnRect.sizeDelta = btnSize;        
+        btnRect.localPosition = new Vector2(panelSize.x / 2f - btnSize.x / 2f, panelSize.y / 2f - btnSize.y / 2f);
+        backButton.image.color = buttonBackgroundColor;
+        var btnText = backButton.GetComponentInChildren<TextMeshProUGUI>();
+        btnText.fontSize = collectionCategoryGroupFontSize;
+        btnText.color = buttonTextColor;
+    }
+
+    private void SetScrollBarStyle(Scrollbar scrollbar, Vector2 parentSize)
+    {
+        scrollbar.image.color = buttonHighlightColor;
+        scrollbar.gameObject.GetComponent<Image>().color = buttonBackgroundColor;
+
+        scrollbar.gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(parentSize.x / 20, parentSize.y);
     }
 
 
