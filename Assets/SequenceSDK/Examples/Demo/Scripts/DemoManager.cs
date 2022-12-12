@@ -1,6 +1,5 @@
 using NBitcoin;
 using Nethereum.Hex.HexTypes;
-using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Web3;
 using Newtonsoft.Json;
 using SequenceSharp;
