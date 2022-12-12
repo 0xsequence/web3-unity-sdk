@@ -38,12 +38,14 @@ public class NetworkDropdown : MonoBehaviour
                 image = network.sprite
             }) ;
             
+            
         }
         _dropdown.onValueChanged.AddListener(delegate { NetworkSelected(_dropdown); });
 
         //initialize to polygon
         _dropdown.SetValueWithoutNotify(1);
         
+
     }
 
     /// <summary>
