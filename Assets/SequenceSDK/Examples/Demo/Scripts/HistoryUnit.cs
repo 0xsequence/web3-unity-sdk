@@ -21,4 +21,5 @@ public class HistoryUnit : MonoBehaviour
     public TMP_Text GetNameText() { return tokenNameText; }
     public TMP_Text GetTokenCountText() { return tokenCountText; }
     public GridLayoutGroup GetGridLayout() { return GetComponent<GridLayoutGroup>(); }
+    public Image GetUnitImage() { return GetComponent<Image>(); }
 }

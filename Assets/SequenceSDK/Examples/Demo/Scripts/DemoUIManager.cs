@@ -37,7 +37,10 @@ public class DemoUIManager : MonoBehaviour
     private List<Button> welcomeButtons;
     private List<Button> abiExampleButtons;
     private Image welcomeBackgroundImage;
+    [Header("NetworkDropdown")]
     public TMP_Dropdown networkDropdown;
+    public RectTransform networkTemplateItemRect;
+
 
     //Address Panel
     [Header("Address")]
@@ -74,6 +77,11 @@ public class DemoUIManager : MonoBehaviour
 
     [Header("loading panel")]
     public GameObject loadingPanel;
+
+    //Console panel
+    [Header("Console panel")]
+    public RectTransform consolePanelRect;
+    public ScrollRect consoleScrollRect;
 
     //Sprites
     [Header("Sprites")]
@@ -139,7 +147,7 @@ public class DemoUIManager : MonoBehaviour
         {
             case ScreenRatio.Two_One:
                 SetConnectPanelStyle(35, 4f);
-                SetWelcomePanelStyle(3, new Vector2(200, 50), new Vector2(20, 25), 14, 4f);
+                SetWelcomePanelStyle(3, new Vector2(200, 50), new Vector2(20, 25), 14, 4f,50);
                 SetABIExampleButtonStyle(10, 6f);
                 SetAddressPanelStyle(30);
                 SetCollectionsStyle(CollectionLayout.Vertical);
@@ -148,7 +156,7 @@ public class DemoUIManager : MonoBehaviour
                 break;
             case ScreenRatio.OneHalf_One:
                 SetConnectPanelStyle(35, 4f);
-                SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f);
+                SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f,50);
                 SetABIExampleButtonStyle(10, 6f);
                 SetAddressPanelStyle(30);
                 SetCollectionsStyle(CollectionLayout.Vertical);
@@ -157,7 +165,7 @@ public class DemoUIManager : MonoBehaviour
                 break;
             case ScreenRatio.One_One:
                 SetConnectPanelStyle(28, 4f);
-                SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f);
+                SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f,50);
                 SetABIExampleButtonStyle(10, 6f);
                 SetAddressPanelStyle(28);
                 SetCollectionsStyle(CollectionLayout.Vertical);
@@ -165,7 +173,7 @@ public class DemoUIManager : MonoBehaviour
                 break;
             case ScreenRatio.One_OneHalf:
                 SetConnectPanelStyle(28, 2f);
-                SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f);
+                SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f,75);
                 SetABIExampleButtonStyle(25, 4f);
                 SetAddressPanelStyle(28);
                 SetCollectionsStyle(CollectionLayout.Horizontal);
@@ -173,7 +181,7 @@ public class DemoUIManager : MonoBehaviour
                 break;
             case ScreenRatio.One_Two:
                 SetConnectPanelStyle(28, 2f);
-                SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f);
+                SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f,75);
                 SetABIExampleButtonStyle(25, 4f);
                 SetAddressPanelStyle(28);
                 SetCollectionsStyle(CollectionLayout.Horizontal);
@@ -300,11 +308,11 @@ public class DemoUIManager : MonoBehaviour
     {
         
 
-        var img = historyUnit.GetComponent<Image>();
+        var img = historyUnit.GetUnitImage();
         img.color = buttonBackgroundColor;
         img.sprite = buttonSprite;
         img.type = Image.Type.Sliced;
-        img.pixelsPerUnitMultiplier = 1;
+        img.pixelsPerUnitMultiplier = 2;
 
         var nameText = historyUnit.GetNameText();
         nameText.color = buttonTextColor;
@@ -329,7 +337,7 @@ public class DemoUIManager : MonoBehaviour
     /// </summary>
     /// <param name="fontSize"></param>
     /// <param name="roundCorner">Unit per pixel in image component </param>
-    private void SetWelcomePanelStyle(int groupConstraint, Vector2 buttonSize, Vector2 buttonSpacing, int fontSize, float roundCorner)
+    private void SetWelcomePanelStyle(int groupConstraint, Vector2 buttonSize, Vector2 buttonSpacing, int fontSize, float roundCorner, float dropdownItemHeight)
     {
         //Panel Layout
         welcomePanelLayout.constraintCount = groupConstraint;
@@ -355,23 +363,9 @@ public class DemoUIManager : MonoBehaviour
 
         }
 
-        //Chain Selector Dropdown
-        var parentWidth = welcomePanelLayout.GetComponent<RectTransform>().rect.width;
-        networkDropdown.GetComponent<RectTransform>().sizeDelta = new Vector2(parentWidth / 3f, buttonSize.y / 2f);
+        SetNetworkDropdownStyle(buttonSize, fontSize, dropdownItemHeight);
 
-        //font and colors
-        networkDropdown.GetComponent<Image>().color = buttonBackgroundColor;
-        networkDropdown.captionText.fontSize = fontSize;
-        networkDropdown.captionText.color = buttonTextColor;
-        networkDropdown.itemText.fontSize = fontSize;
-        networkDropdown.itemText.color = buttonTextColor;
-        Toggle networkToggle = networkDropdown.template.GetComponentInChildren<Toggle>();
-        networkToggle.GetComponentInChildren<TMP_Text>().fontSize = fontSize;
-        networkToggle.GetComponentInChildren<TMP_Text>().color = buttonTextColor;
-        ColorBlock toggleCB = networkToggle.colors;
-        toggleCB.normalColor = buttonBackgroundColor;
-        toggleCB.selectedColor = buttonHighlightColor;
-        networkToggle.colors = toggleCB;
+        
 
     }
     private void SetABIExampleButtonStyle(int fontSize, float roundCorner)
@@ -388,6 +382,45 @@ public class DemoUIManager : MonoBehaviour
             txt.color = buttonTextColor;
         }
     }
+
+    private void SetNetworkDropdownStyle(Vector2 buttonSize, int fontSize, float dropdownItemHeight)
+    {
+        //Chain Selector Dropdown
+        var parentWidth = welcomePanelLayout.GetComponent<RectTransform>().rect.width;
+        networkDropdown.GetComponent<RectTransform>().sizeDelta = new Vector2(parentWidth / 3f, buttonSize.y / 2f);
+
+        //font and colors
+        networkDropdown.GetComponent<Image>().color = buttonBackgroundColor;
+        networkDropdown.template.GetComponent<Image>().color = buttonBackgroundColor;
+
+        networkDropdown.captionText.fontSize = fontSize;
+        networkDropdown.captionText.color = buttonTextColor;
+        networkDropdown.itemText.fontSize = fontSize;
+        networkDropdown.itemText.color = buttonTextColor;
+
+        
+        networkDropdown.itemImage.rectTransform.sizeDelta = new Vector2(buttonSize.y / 2f, buttonSize.y / 2f);
+        var scrollbar = networkDropdown.template.GetComponentInChildren<Scrollbar>();
+        scrollbar.GetComponent<Image>().color = buttonBackgroundColor;
+        scrollbar.handleRect.GetComponent<Image>().color = buttonHighlightColor;
+
+        networkTemplateItemRect.sizeDelta = new Vector2(networkTemplateItemRect.rect.size.x, dropdownItemHeight);
+        
+
+        Toggle networkToggle = networkDropdown.template.GetComponentInChildren<Toggle>();
+        networkToggle.GetComponentInChildren<TMP_Text>().fontSize = fontSize;
+        networkToggle.GetComponentInChildren<TMP_Text>().color = buttonTextColor;
+        ColorBlock toggleCB = networkToggle.colors;
+        toggleCB.normalColor = buttonBackgroundColor;
+        toggleCB.selectedColor = buttonHighlightColor;
+        networkToggle.colors = toggleCB;
+    }
+
+    private void SetConsolePanelStyle()
+    {
+        
+    }
+
 
     private void SetConnectPanelStyle(int fontSize, float roundCorner)
     {
@@ -500,7 +533,7 @@ public class DemoUIManager : MonoBehaviour
         else if(col == 3)
         {
             
-            historyLayoutGroup.cellSize = new Vector2(200, 100);
+            historyLayoutGroup.cellSize = new Vector2(200, 80);
             historyLayoutGroup.spacing = new Vector2(20, 20);
             historyUnitGridLayoutCellSize = new Vector2(50, 0);
         }
@@ -579,7 +612,7 @@ public class DemoUIManager : MonoBehaviour
 
         scrollbar.image.color = buttonHighlightColor;
         scrollbar.gameObject.GetComponent<Image>().color = buttonBackgroundColor;
-        scrollbar.gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(parentSize.x / 20, parentSize.y);
+        scrollbar.gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(parentSize.x / 40, parentSize.y);
     }
 
 
