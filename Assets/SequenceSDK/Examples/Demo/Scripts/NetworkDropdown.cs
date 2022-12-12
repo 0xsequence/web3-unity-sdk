@@ -5,16 +5,19 @@ using UnityEngine.UI;
 using TMPro;
 using SequenceSharp;
 
-[System.Serializable]
-public class Network
-{
-    public string name;
-    public int chainID;
-}
+
 
 [System.Serializable]
 public class NetworkDropdown : MonoBehaviour
 {
+    [System.Serializable]
+    public class Network
+    {
+        public string name;
+        public int chainID;
+        public Sprite sprite;
+    }
+    
     public TMP_Dropdown _dropdown;
     //Set in Inspector
     [Header("Network")]
@@ -29,7 +32,11 @@ public class NetworkDropdown : MonoBehaviour
 
         foreach(Network network in networks)
         {
-            _dropdown.options.Add(new TMP_Dropdown.OptionData() { text = network.name });
+            _dropdown.options.Add(new TMP_Dropdown.OptionData()
+            {
+                text = network.name,
+                image = network.sprite
+            }) ;
             
         }
         _dropdown.onValueChanged.AddListener(delegate { NetworkSelected(_dropdown); });
