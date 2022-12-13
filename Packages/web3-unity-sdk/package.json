@@ -1,0 +1,17 @@
+{
+  "name": "com.horizon-blockchain-games.web3-unity-sdk",
+  "version": "0.1.0",
+  "displayName": "Web3 Unity SDK",
+  "description": "The Sequence Unity SDK provides full Sequence Wallet & Indexer integration for your Unity Games.",
+  "unity": "2021.3",
+  "documentationUrl": "https://docs.sequence.xyz/unity-sdk",
+  "changelogUrl": "",
+  "licensesUrl": "",
+  "dependencies": {
+    "com.unity.textmeshpro": "3.0.6"
+ },
+  "author": {
+    "name": "Horizon Blockchain Games",
+    "url": "https://horizon.io/"
+  }
+}

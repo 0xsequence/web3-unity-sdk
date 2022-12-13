@@ -1,5 +1,13 @@
 {
   "dependencies": {
+    "com.horizon-blockchain-games.web3-unity-sdk": {
+      "version": "file:web3-unity-sdk",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.textmeshpro": "3.0.6"
+      }
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,
