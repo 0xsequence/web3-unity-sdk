@@ -1,11 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
-using SequenceSharp;
-
-
 
 [System.Serializable]
 public class NetworkDropdown : MonoBehaviour
@@ -17,7 +12,7 @@ public class NetworkDropdown : MonoBehaviour
         public int chainID;
         public Sprite sprite;
     }
-    
+
     public TMP_Dropdown _dropdown;
     //Set in Inspector
     [Header("Network")]
@@ -27,25 +22,20 @@ public class NetworkDropdown : MonoBehaviour
 
     void Awake()
     {
- 
         _dropdown.options.Clear();
 
-        foreach(Network network in networks)
+        foreach (Network network in networks)
         {
             _dropdown.options.Add(new TMP_Dropdown.OptionData()
             {
                 text = network.name,
                 image = network.sprite
-            }) ;
-            
-            
+            });
         }
         _dropdown.onValueChanged.AddListener(delegate { NetworkSelected(_dropdown); });
 
         //initialize to polygon
         _dropdown.SetValueWithoutNotify(1);
-        
-
     }
 
     /// <summary>
@@ -55,11 +45,6 @@ public class NetworkDropdown : MonoBehaviour
     void NetworkSelected(TMP_Dropdown dropdown)
     {
         var chainId = networks[dropdown.value].chainID;
-
         DemoManager.Instance.ChangeNetwork(chainId);
-        
     }
-
-    
-    
 }

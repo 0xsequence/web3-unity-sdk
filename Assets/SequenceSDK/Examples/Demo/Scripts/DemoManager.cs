@@ -1,4 +1,5 @@
 using NBitcoin;
+using Nethereum.ABI.EIP712;
 using Nethereum.Hex.HexTypes;
 using Nethereum.Web3;
 using Newtonsoft.Json;
@@ -114,7 +115,7 @@ public class DemoManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        _sequenceInterceptor = new SequenceInterceptor(wallet, 137);
+        _sequenceInterceptor = new SequenceInterceptor(wallet, Chain.Polygon);
         web3.Client.OverridingRequestInterceptor = _sequenceInterceptor;
     }
 
@@ -242,7 +243,7 @@ public class DemoManager : MonoBehaviour
             await m_collection.RetriveContractInfoData(tokenBalances);
             uiManager.HideLoadingPanel();
             //Loading Panel will be hidden after all tokens are retrieved
-            
+
         });
     }
 
@@ -305,7 +306,7 @@ public class DemoManager : MonoBehaviour
         });
     }
 
-    public void ChangeNetwork(int chainId)
+    public void ChangeNetwork(BigInteger chainId)
     {
         _sequenceInterceptor.chainID = chainId;
     }
@@ -472,7 +473,7 @@ public class DemoManager : MonoBehaviour
         foreach (var (name, t, timestamp) in txsWithNames)
         {
             GameObject unitGO = Instantiate(historyUnitPrefab);
-            unitGO.transform.SetParent(historyScroll,false);
+            unitGO.transform.SetParent(historyScroll, false);
             unitGO.transform.localScale = new UnityEngine.Vector3(1f, 1f, 1f);
             HistoryUnit historyUnit = unitGO.GetComponent<HistoryUnit>();
             historyUnit.SetUnit(
@@ -521,7 +522,26 @@ And that has made all the difference.
 \u2601 \u2600 \u2602";
 
         var signature = await web3.Eth.Sign.SendRequestAsync(await web3.GetAddress(), message);
-        Debug.Log(signature);
+        Debug.Log("Signature: " + signature);
+    }
+
+    public async void SignTypedData()
+    {
+        var ChainId = await web3.Eth.ChainId.SendRequestAsync()
+        var data = new TypedData<Domain>
+        {
+            Domain = new Domain
+            {
+                Name = "Test Name",
+                Version = "1",
+                ChainId = ChainId,
+                VerifyingContract = "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC"
+            },
+            Types = MemberDescriptionFactory.GetTypesMemberDescription(typeof(Domain)),
+            PrimaryType = nameof(Domain),
+        };
+        var signature = await web3.Eth.AccountSigning.SignTypedDataV4.SendRequestAsync(data.ToJson());
+        Debug.Log("Typed Data Signature: " + signature);
     }
 
     public async void SendUSDC()
