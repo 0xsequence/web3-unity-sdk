@@ -139,10 +139,20 @@ namespace SequenceSharp
             await _internalWebView.Init(1, 1);
 
             _internalWebView.SetRenderingEnabled(false);
+#endif
+            var sequenceJSRequest = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "sequence/sequence.js"));
+            await sequenceJSRequest.SendWebRequest();
+            var sequenceJS = sequenceJSRequest.downloadHandler.text;
 
-            _internalWebView.LoadUrl("streaming-assets://sequence/sequence.html");
-            await _internalWebView.WaitForNextPageLoadToFinish();
+            var ethersJSRequest = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "sequence/ethers.js"));
+            await ethersJSRequest.SendWebRequest();
+            var ethersJS = ethersJSRequest.downloadHandler.text;
 
+            _InternalRawExecuteJS(sequenceJS + ";" + ethersJS);
+
+            ethersJSRequest.Dispose();
+            sequenceJSRequest.Dispose();
+#if IS_EDITOR_OR_NOT_WEBGL
             var internalWebViewWithPopups = _internalWebView as IWithPopups;
             if (internalWebViewWithPopups == null)
             {
@@ -197,25 +207,6 @@ namespace SequenceSharp
                 };
                 window.vuplex.addEventListener('message', event => window.ue.sequencewallettransport.onmessagefromwallet(JSON.parse(event.data)));
             ");
-#else
-            // We're in a WebGL build, inject Sequence.js and ethers.js
-/*            var nethereumJSRequest =  UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "sequence/nethereumInstance.js"));
-            await nethereumJSRequest.SendWebRequest();
-            var nethereumJS = nethereumJSRequest.downloadHandler.text;
-            nethereumJSRequest.Dispose();*/
-
-            var sequenceJSRequest = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "sequence/sequence.js"));
-            await sequenceJSRequest.SendWebRequest();
-            var sequenceJS = sequenceJSRequest.downloadHandler.text;
-
-            var ethersJSRequest = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "sequence/ethers.js"));
-            await ethersJSRequest.SendWebRequest();
-            var ethersJS = ethersJSRequest.downloadHandler.text;
-
-            _InternalRawExecuteJS(sequenceJS + ";" + ethersJS);
-
-            ethersJSRequest.Dispose();
-            sequenceJSRequest.Dispose();
 #endif
 
             await ExecuteSequenceJS(@"
