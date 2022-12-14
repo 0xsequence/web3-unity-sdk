@@ -55,6 +55,12 @@ namespace SequenceSharp
                 .CallAsync<List<BigInteger>>(accounts, ids);
         }
 
+        /// <summary>
+        /// Grants or revokes permission to operator to transfer the caller’s tokens, according to `approved`
+        /// </summary>
+        /// <param name="operatorAddress"></param>
+        /// <param name="approved"></param>
+        /// <returns></returns>
         public async Task<TransactionReceipt> SetApprovalForAll(string operatorAddress, bool approved)
         {
             var address = await this._web3.GetAddress();
@@ -70,6 +76,12 @@ namespace SequenceSharp
                  );
         }
 
+        /// <summary>
+        /// Returns true if `operator` is approved to transfer account's tokens.
+        /// </summary>
+        /// <param name="account"></param>
+        /// <param name="operatorAddress"></param>
+        /// <returns></returns>
         public Task<bool> IsApprovedForAll(string account, string operatorAddress)
         {
             return contract
@@ -80,6 +92,15 @@ namespace SequenceSharp
                  );
         }
 
+        /// <summary>
+        /// Transfers `amount` tokens of token type `id` from `from` to `to`.
+        /// </summary>
+        /// <param name="from">must have a balance of tokens of type `id` of at least `amount`</param>
+        /// <param name="to">cannot be the zero address</param>
+        /// <param name="id"></param>
+        /// <param name="amount"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public async Task<TransactionReceipt> SafeTransferFrom(
             string from,
             string to,
@@ -104,6 +125,15 @@ namespace SequenceSharp
                 );
         }
 
+        /// <summary>
+        /// Batched version of safeTransferFrom, `ids` and `amounts` must have the same length.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="ids"></param>
+        /// <param name="amounts"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public async Task<TransactionReceipt> SafeBatchTransferFrom(
             string from,
             string to,

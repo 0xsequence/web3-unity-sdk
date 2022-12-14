@@ -86,6 +86,13 @@ namespace SequenceSharp
             return contract.GetFunction("ownerOf").CallAsync<string>(tokenId);
         }
 
+        /// <summary>
+        /// Safely transfers tokenId token from `from` to `to`.
+        /// </summary>
+        /// <param name="from"> cannot be the zero address</param>
+        /// <param name="to"> cannot be the zero address</param>
+        /// <param name="tokenId">token must exist and be owned by from</param>
+        /// <returns></returns>
         public async Task<TransactionReceipt> SafeTransferFrom(string from, string to, BigInteger tokenId)
         {
             var address = await this._web3.GetAddress();
@@ -102,6 +109,13 @@ namespace SequenceSharp
                 );
         }
 
+        /// <summary>
+        /// Transfers tokenId token from `from` to `to`.
+        /// </summary>
+        /// <param name="from">cannot be the zero address</param>
+        /// <param name="to">cannot be the zero address</param>
+        /// <param name="tokenId">tokenId token must be owned by from</param>
+        /// <returns></returns>
         public async Task<TransactionReceipt> TransferFrom(string from, string to, BigInteger tokenId)
         {
             var address = await this._web3.GetAddress();
@@ -118,6 +132,12 @@ namespace SequenceSharp
                 );
         }
 
+        /// <summary>
+        /// Gives permission to `to` to transfer `tokenId` token to another account. The approval is cleared when the token is transferred.
+        /// </summary>
+        /// <param name="to"></param>
+        /// <param name="tokenId"></param>
+        /// <returns></returns>
         public async Task<TransactionReceipt> Approve(string to, BigInteger tokenId)
         {
             var address = await this._web3.GetAddress();
@@ -133,6 +153,11 @@ namespace SequenceSharp
                 );
         }
 
+        /// <summary>
+        /// Returns the account approved for `tokenId` token.
+        /// </summary>
+        /// <param name="tokenId"></param>
+        /// <returns></returns>
         public Task<string> GetApproved(BigInteger tokenId)
         {
             return contract
@@ -142,6 +167,12 @@ namespace SequenceSharp
                  );
         }
 
+        /// <summary>
+        /// Approve or remove `operator` as an operator for the caller. Operators can call transferFrom or safeTransferFrom for any token owned by the caller.
+        /// </summary>
+        /// <param name="operatorAddress">The operator cannot be the caller</param>
+        /// <param name="approved"></param>
+        /// <returns></returns>
         public async Task<TransactionReceipt> SetApprovalForAll(string operatorAddress, bool approved)
         {
             var address = await this._web3.GetAddress();
@@ -157,6 +188,12 @@ namespace SequenceSharp
                 );
         }
 
+        /// <summary>
+        /// Returns if the operator is allowed to manage all of the assets of owner
+        /// </summary>
+        /// <param name="owner"></param>
+        /// <param name="operatorAddress"></param>
+        /// <returns></returns>
         public Task<bool> IsApprovedForAll(string owner, string operatorAddress)
         {
             return contract

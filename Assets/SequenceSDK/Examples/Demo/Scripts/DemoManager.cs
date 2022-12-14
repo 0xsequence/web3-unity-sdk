@@ -459,7 +459,7 @@ public class DemoManager : MonoBehaviour
 
                 var txsWithNames = history.transactions.SelectMany(tx =>
                     tx.transfers.Select(t => (
-                        name: getTokenName(web3, t.contractType, t.contractAddress, t.tokenIds != null ? t.tokenIds[0] : null),
+                        name: GetTokenName(web3, t.contractType, t.contractAddress, t.tokenIds != null ? t.tokenIds[0] : null),
                         t, tx.timestamp
                     ))
                 ).ToArray();
@@ -527,7 +527,7 @@ And that has made all the difference.
 
     public async void SignTypedData()
     {
-        var ChainId = await web3.Eth.ChainId.SendRequestAsync()
+        var ChainId = await web3.Eth.ChainId.SendRequestAsync();
         var data = new TypedData<Domain>
         {
             Domain = new Domain
@@ -773,7 +773,7 @@ And that has made all the difference.
                 throw new ArgumentException("Unsupported chain ID: " + chainID);
         }
     }
-    private async Task<string> getTokenName(Web3 web3, ContractType contractType, string address, BigInteger? tokenID)
+    private async Task<string> GetTokenName(Web3 web3, ContractType contractType, string address, BigInteger? tokenID)
     {
         var n = "Unknown Token";
         try
