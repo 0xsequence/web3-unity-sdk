@@ -207,16 +207,15 @@ namespace SequenceSharp
             var sequenceJSRequest = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "sequence/sequence.js"));
             await sequenceJSRequest.SendWebRequest();
             var sequenceJS = sequenceJSRequest.downloadHandler.text;
-            sequenceJSRequest.Dispose();
 
             var ethersJSRequest = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "sequence/ethers.js"));
             await ethersJSRequest.SendWebRequest();
             var ethersJS = ethersJSRequest.downloadHandler.text;
-            await ExecuteSequenceJS(sequenceJS + ";" + ethersJS);
-            ethersJSRequest.Dispose();
 
-            
-            
+            _InternalRawExecuteJS(sequenceJS + ";" + ethersJS);
+
+            ethersJSRequest.Dispose();
+            sequenceJSRequest.Dispose();
 #endif
 
             await ExecuteSequenceJS(@"
@@ -364,7 +363,6 @@ namespace SequenceSharp
             })()
             }
         ";
-            _internalWebView.ExecuteJavaScript(jsToRun);
 #else
             var jsToRun = @"{
             const codeToRun = async () => {
@@ -390,9 +388,17 @@ namespace SequenceSharp
             })()
             }
         ";
-            Sequence_ExecuteJSInBrowserContext(jsToRun);
 #endif
+            _InternalRawExecuteJS(jsToRun);
             return jsPromiseResolved.Task;
+        }
+        void _InternalRawExecuteJS(string js)
+        {
+#if IS_EDITOR_OR_NOT_WEBGL
+            _internalWebView.ExecuteJavaScript(js);
+#else
+            Sequence_ExecuteJSInBrowserContext(js);
+#endif
         }
 
 #if !IS_EDITOR_OR_NOT_WEBGL
