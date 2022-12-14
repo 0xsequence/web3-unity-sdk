@@ -132,6 +132,24 @@ namespace SequenceSharp
             await Initialize(providerConfig);
         }
 
+        async Task<string> LoadFileFromStreamingAssets(string filename)
+        {
+            var path = Path.Combine(Application.streamingAssetsPath, filename);
+            if (path.Contains("://"))
+            {
+                var req = UnityWebRequest.Get(path);
+                await req.SendWebRequest();
+                var text =
+                 req.downloadHandler.text;
+                req.Dispose();
+                return text;
+            }
+            else
+            {
+                return await File.ReadAllTextAsync(path);
+            }
+        }
+
         public async Task Initialize(ProviderConfig providerConfig)
         {
             _HideWallet();
@@ -140,18 +158,14 @@ namespace SequenceSharp
 
             _internalWebView.SetRenderingEnabled(false);
 #endif
-            var sequenceJSRequest = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "sequence/sequence.js"));
-            await sequenceJSRequest.SendWebRequest();
-            var sequenceJS = sequenceJSRequest.downloadHandler.text;
+            _internalWebView.LoadUrl("streaming-assets://sequence/sequence.html");
+            await _internalWebView.WaitForNextPageLoadToFinish();
+            var sequenceJS = await LoadFileFromStreamingAssets("sequence/sequence.js");
 
-            var ethersJSRequest = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "sequence/ethers.js"));
-            await ethersJSRequest.SendWebRequest();
-            var ethersJS = ethersJSRequest.downloadHandler.text;
 
+            var ethersJS = await LoadFileFromStreamingAssets("sequence/ethers.js");
             _InternalRawExecuteJS(sequenceJS + ";" + ethersJS);
 
-            ethersJSRequest.Dispose();
-            sequenceJSRequest.Dispose();
 #if IS_EDITOR_OR_NOT_WEBGL
             var internalWebViewWithPopups = _internalWebView as IWithPopups;
             if (internalWebViewWithPopups == null)
@@ -235,11 +249,17 @@ namespace SequenceSharp
             _walletWindow.WebView.LoadHtml("<style>*{background:black;}</style>");
             // Doesn't work in mobile webviews :D
 #if UNITY_STANDALONE || UNITY_EDITOR
-            var credsRequest = UnityWebRequest.Get(Path.Combine(Application.streamingAssetsPath, "sequence/httpBasicAuth.json"));
-            await credsRequest.SendWebRequest();
-#nullable enable
             Dictionary<string, HttpBasicAuthCreds>? creds = null;
-            creds = JsonConvert.DeserializeObject<Dictionary<string, HttpBasicAuthCreds>>(credsRequest.downloadHandler.text);
+            try
+            {
+                var credsText = await LoadFileFromStreamingAssets("sequence/httpBasicAuth.json");
+                creds = JsonConvert.DeserializeObject<Dictionary<string, HttpBasicAuthCreds>>(credsText);
+            }
+            catch
+            {
+                _SequenceDebugLog("No HTTP Basic Auth credentials provided.");
+            }
+#nullable enable
             if (creds != null)
             {
                 _SequenceDebugLog("Loaded HTTP Basic Auth credentials for domains " + string.Join(",", creds.Keys.Select(x => x.ToString())));
@@ -394,7 +414,6 @@ namespace SequenceSharp
 
 #if !IS_EDITOR_OR_NOT_WEBGL
         public void SequenceJSWalletClosed() {
-        Debug.Log("wallet closed");
             _HideWallet();
         }
         public void SequenceJSFunctionReturn(string returnVal)
@@ -601,6 +620,24 @@ namespace SequenceSharp
         {
             var tcs = new TaskCompletionSource<object>();
             asyncOp.completed += obj => { tcs.SetResult(null); };
+            return ((Task)tcs.Task).GetAwaiter();
+        }
+        public static TaskAwaiter GetAwaiter(this UnityWebRequestAsyncOperation webReqOp)
+        {
+            var tcs = new TaskCompletionSource<object>();
+            webReqOp.completed += obj =>
+            {
+                {
+                    if (webReqOp.webRequest.responseCode != 200)
+                    {
+                        tcs.SetException(new FileLoadException(webReqOp.webRequest.error));
+                    }
+                    else
+                    {
+                        tcs.SetResult(null);
+                    }
+                }
+            };
             return ((Task)tcs.Task).GetAwaiter();
         }
     }
