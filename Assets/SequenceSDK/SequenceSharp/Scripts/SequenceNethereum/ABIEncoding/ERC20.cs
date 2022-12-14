@@ -80,11 +80,23 @@ namespace SequenceSharp
                 );
         }
 
+        /// <summary>
+        /// Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through transferFrom. This is zero by default.
+        /// </summary>
+        /// <param name="owner"></param>
+        /// <param name="spender"></param>
+        /// <returns></returns>
         public Task<BigInteger> Allowance(string owner, string spender)
         {
             return contract.GetFunction("allowance").CallAsync<BigInteger>(owner, spender);
         }
 
+        /// <summary>
+        ///  Sets amount as the allowance of `spender` over the caller’s tokens.
+        /// </summary>
+        /// <param name="spenderAddress"></param>
+        /// <param name="amount"></param>
+        /// <returns></returns>
         public async Task<TransactionReceipt> Approve(string spenderAddress, string amount)
         {
             var address = await this._web3.GetAddress();
@@ -100,6 +112,13 @@ namespace SequenceSharp
             );
         }
 
+        /// <summary>
+        /// Moves `amount` tokens from `from` to `to` using the allowance mechanism. amount is then deducted from the caller’s allowance.
+        /// </summary>
+        /// <param name="senderAddress"></param>
+        /// <param name="recipientAddress"></param>
+        /// <param name="amount"></param>
+        /// <returns></returns>
         public async Task<TransactionReceipt> TransferFrom(
             string senderAddress,
             string recipientAddress,
