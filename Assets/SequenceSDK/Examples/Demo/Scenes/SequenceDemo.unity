@@ -5418,6 +5418,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 1676845167}
+  walletBackButton: {fileID: 1059555299}
   connectPanelLayout: {fileID: 1103889448}
   welcomePanelLayout: {fileID: 595083523}
   abiExamplePanelLayout: {fileID: 1535290802}
