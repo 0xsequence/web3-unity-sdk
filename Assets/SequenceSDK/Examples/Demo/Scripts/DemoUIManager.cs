@@ -40,6 +40,7 @@ public class DemoUIManager : MonoBehaviour
     [Header("NetworkDropdown")]
     public TMP_Dropdown networkDropdown;
     public RectTransform networkTemplateItemRect;
+    public RectTransform networkDropdownArrowRect;
 
 
     //Address Panel
@@ -96,7 +97,9 @@ public class DemoUIManager : MonoBehaviour
     public Color outlineColor; //Todo: make it gradient
     public Color addressTextColor;
 
+
     private ScreenRatio screenRatio = ScreenRatio.Default;
+
     private void Start()
     {
         screenRatio = GetScreenRatio();
@@ -147,8 +150,7 @@ public class DemoUIManager : MonoBehaviour
         {
             case ScreenRatio.Two_One:
                 SetConnectPanelStyle(35, 4f);
-                SetWelcomePanelStyle(3, new Vector2(200, 50), new Vector2(20, 25), 14, 4f,45);
-
+                SetWelcomePanelStyle(3, new Vector2(200, 50), new Vector2(20, 25), 12, 4f,40);
                 SetABIExampleButtonStyle(10, 6f);
                 SetAddressPanelStyle(30);
                 SetCollectionsStyle(CollectionLayout.Vertical);
@@ -157,7 +159,7 @@ public class DemoUIManager : MonoBehaviour
                 break;
             case ScreenRatio.OneHalf_One:
                 SetConnectPanelStyle(35, 4f);
-                SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f, 50);
+                SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 12, 4f, 30);
                 SetABIExampleButtonStyle(10, 6f);
                 SetAddressPanelStyle(30);
                 SetCollectionsStyle(CollectionLayout.Vertical);
@@ -387,11 +389,20 @@ public class DemoUIManager : MonoBehaviour
     private void SetNetworkDropdownStyle(Vector2 buttonSize, int fontSize, float dropdownItemHeight)
     {
         //Chain Selector Dropdown
-        var parentWidth = welcomePanelLayout.GetComponent<RectTransform>().rect.width;
-        networkDropdown.GetComponent<RectTransform>().sizeDelta = new Vector2(buttonSize.x, buttonSize.y / 2f);
-        networkTemplateItemRect.anchoredPosition =new Vector2(0.5f, 0.5f);
+        Vector2 parentSize = welcomePanelLayout.GetComponent<RectTransform>().rect.size;
+        var barWidth = buttonSize.x / 2f;
+        var barHeight = buttonSize.y / 2f;
+        var dropdownRect = networkDropdown.GetComponent<RectTransform>();
+        dropdownRect.sizeDelta = new Vector2(barWidth, barHeight);
+        dropdownRect.localPosition = new Vector2(parentSize.x/2f-barWidth/2f, parentSize.y/2f);
 
+
+        networkTemplateItemRect.anchoredPosition =new Vector2(0.5f, 0.5f);
         networkTemplateItemRect.sizeDelta = new Vector2(0, dropdownItemHeight);
+
+        networkDropdownArrowRect.pivot = new Vector2(0.5f, 0.5f);
+        networkDropdownArrowRect.localPosition = new Vector2(barWidth/2-barHeight/2, 0);
+        networkDropdownArrowRect.sizeDelta = new Vector2(barHeight, barHeight);
         //font and colors
         networkDropdown.GetComponent<Image>().color = buttonBackgroundColor;
         networkDropdown.template.GetComponent<Image>().color = buttonBackgroundColor;
@@ -402,10 +413,18 @@ public class DemoUIManager : MonoBehaviour
         networkDropdown.itemText.color = buttonTextColor;
 
 
-        networkDropdown.itemImage.rectTransform.sizeDelta = new Vector2(buttonSize.y / 2f, buttonSize.y / 2f);
+        networkDropdown.itemImage.rectTransform.sizeDelta = new Vector2(barHeight / 2f, barHeight/ 2f);
+        networkDropdown.itemImage.rectTransform.localPosition= new Vector2(barHeight, 0);
+
+        networkDropdown.itemText.rectTransform.sizeDelta = new Vector2(barWidth, barHeight);
+        networkDropdown.itemText.rectTransform.sizeDelta = new Vector2(0,0);
+
         var scrollbar = networkDropdown.template.GetComponentInChildren<Scrollbar>();
         scrollbar.GetComponent<Image>().color = buttonBackgroundColor;
         scrollbar.handleRect.GetComponent<Image>().color = buttonHighlightColor;
+
+        networkTemplateItemRect.sizeDelta = new Vector2(networkTemplateItemRect.rect.size.x, dropdownItemHeight);
+        
 
         Toggle networkToggle = networkDropdown.template.GetComponentInChildren<Toggle>();
         networkToggle.GetComponentInChildren<TMP_Text>().fontSize = fontSize;
@@ -414,11 +433,6 @@ public class DemoUIManager : MonoBehaviour
         toggleCB.normalColor = buttonBackgroundColor;
         toggleCB.selectedColor = buttonHighlightColor;
         networkToggle.colors = toggleCB;
-    }
-
-    private void SetConsolePanelStyle()
-    {
-
     }
 
 
