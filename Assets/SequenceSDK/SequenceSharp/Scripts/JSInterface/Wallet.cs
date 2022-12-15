@@ -249,6 +249,7 @@ namespace SequenceSharp
             _walletWindow.WebView.LoadHtml("<style>*{background:black;}</style>");
             // Doesn't work in mobile webviews :D
 #if UNITY_STANDALONE || UNITY_EDITOR
+#nullable enable
             Dictionary<string, HttpBasicAuthCreds>? creds = null;
             try
             {
@@ -259,7 +260,6 @@ namespace SequenceSharp
             {
                 _SequenceDebugLog("No HTTP Basic Auth credentials provided.");
             }
-#nullable enable
             if (creds != null)
             {
                 _SequenceDebugLog("Loaded HTTP Basic Auth credentials for domains " + string.Join(",", creds.Keys.Select(x => x.ToString())));
