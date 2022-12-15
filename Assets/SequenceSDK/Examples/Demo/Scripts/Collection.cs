@@ -89,7 +89,7 @@ public class Collection : MonoBehaviour
                     if (imgRequest.result != UnityWebRequest.Result.Success)
                     {
 
-                        Debug.Log(metaURL+", "+imgRequest.error);
+                        Debug.Log(metaURL + ", " + imgRequest.error);
                     }
                     else
                     {
@@ -145,7 +145,7 @@ public class Collection : MonoBehaviour
     }
 
     /// <summary>
-    /// Destroys all category gameobjects under <see cref="contentRoot"/>
+    /// Destroys all category gameobjects.
     /// </summary>
     private void ClearCategories()
     {
