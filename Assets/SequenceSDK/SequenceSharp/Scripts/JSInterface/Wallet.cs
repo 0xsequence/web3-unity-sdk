@@ -157,9 +157,9 @@ namespace SequenceSharp
             await _internalWebView.Init(1, 1);
 
             _internalWebView.SetRenderingEnabled(false);
-#endif
             _internalWebView.LoadUrl("streaming-assets://sequence/sequence.html");
             await _internalWebView.WaitForNextPageLoadToFinish();
+#endif
             var sequenceJS = await LoadFileFromStreamingAssets("sequence/sequence.js");
 
 
