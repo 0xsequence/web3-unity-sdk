@@ -147,7 +147,8 @@ public class DemoUIManager : MonoBehaviour
         {
             case ScreenRatio.Two_One:
                 SetConnectPanelStyle(35, 4f);
-                SetWelcomePanelStyle(3, new Vector2(200, 50), new Vector2(20, 25), 14, 4f, 50);
+                SetWelcomePanelStyle(3, new Vector2(200, 50), new Vector2(20, 25), 14, 4f,45);
+
                 SetABIExampleButtonStyle(10, 6f);
                 SetAddressPanelStyle(30);
                 SetCollectionsStyle(CollectionLayout.Vertical);
@@ -387,8 +388,10 @@ public class DemoUIManager : MonoBehaviour
     {
         //Chain Selector Dropdown
         var parentWidth = welcomePanelLayout.GetComponent<RectTransform>().rect.width;
-        networkDropdown.GetComponent<RectTransform>().sizeDelta = new Vector2(parentWidth / 3f, buttonSize.y / 2f);
+        networkDropdown.GetComponent<RectTransform>().sizeDelta = new Vector2(buttonSize.x, buttonSize.y / 2f);
+        networkTemplateItemRect.anchoredPosition =new Vector2(0.5f, 0.5f);
 
+        networkTemplateItemRect.sizeDelta = new Vector2(0, dropdownItemHeight);
         //font and colors
         networkDropdown.GetComponent<Image>().color = buttonBackgroundColor;
         networkDropdown.template.GetComponent<Image>().color = buttonBackgroundColor;
@@ -403,9 +406,6 @@ public class DemoUIManager : MonoBehaviour
         var scrollbar = networkDropdown.template.GetComponentInChildren<Scrollbar>();
         scrollbar.GetComponent<Image>().color = buttonBackgroundColor;
         scrollbar.handleRect.GetComponent<Image>().color = buttonHighlightColor;
-
-        networkTemplateItemRect.sizeDelta = new Vector2(networkTemplateItemRect.rect.size.x, dropdownItemHeight);
-
 
         Toggle networkToggle = networkDropdown.template.GetComponentInChildren<Toggle>();
         networkToggle.GetComponentInChildren<TMP_Text>().fontSize = fontSize;
