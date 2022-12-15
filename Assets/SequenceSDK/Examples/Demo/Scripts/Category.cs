@@ -109,7 +109,7 @@ public class Category : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"Can't send asset for contract type ${_contractType}");
+            Debug.LogWarning($"Can't send asset for contract type {_contractType}");
         }
     }
 
