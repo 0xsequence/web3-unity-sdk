@@ -34,9 +34,11 @@ public class DemoUIManager : MonoBehaviour
     [Header("Welcome Panel")]
     public GridLayoutGroup welcomePanelLayout;
     public DemoLayout abiExamplePanelLayout;
+    public RectTransform logoRect;
     private List<Button> welcomeButtons;
     private List<Button> abiExampleButtons;
     private Image welcomeBackgroundImage;
+
     [Header("NetworkDropdown")]
     public TMP_Dropdown networkDropdown;
     public RectTransform networkTemplateItemRect;
@@ -80,9 +82,11 @@ public class DemoUIManager : MonoBehaviour
     public GameObject loadingPanel;
 
     //Console panel
-    [Header("Console panel")]
-    public RectTransform consolePanelRect;
-    public ScrollRect consoleScrollRect;
+    [Header("Log panel")]
+    public RectTransform logPanelRect;
+    public RectTransform logRect;
+    public ScrollRect logScrollRect;
+    public TMP_Text logText;
 
     //Sprites
     [Header("Sprites")]
@@ -155,7 +159,7 @@ public class DemoUIManager : MonoBehaviour
                 SetAddressPanelStyle(30);
                 SetCollectionsStyle(CollectionLayout.Vertical);
                 SetHistoryStyle(3, 12);
-
+                SetLogPanelStyle(50,16);
                 break;
             case ScreenRatio.OneHalf_One:
                 SetConnectPanelStyle(35, 4f);
@@ -164,15 +168,17 @@ public class DemoUIManager : MonoBehaviour
                 SetAddressPanelStyle(30);
                 SetCollectionsStyle(CollectionLayout.Vertical);
                 SetHistoryStyle(2, 18);
+                SetLogPanelStyle(100,20);
 
                 break;
             case ScreenRatio.One_One:
                 SetConnectPanelStyle(28, 4f);
-                SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f, 50);
+                SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f, 40);
                 SetABIExampleButtonStyle(10, 6f);
                 SetAddressPanelStyle(28);
                 SetCollectionsStyle(CollectionLayout.Vertical);
                 SetHistoryStyle(2, 15);
+                SetLogPanelStyle(100,20);
                 break;
             case ScreenRatio.One_OneHalf:
                 SetConnectPanelStyle(28, 2f);
@@ -181,6 +187,7 @@ public class DemoUIManager : MonoBehaviour
                 SetAddressPanelStyle(28);
                 SetCollectionsStyle(CollectionLayout.Horizontal);
                 SetHistoryStyle(1, 18);
+                SetLogPanelStyle(180,35);
                 break;
             case ScreenRatio.One_Two:
                 SetConnectPanelStyle(28, 2f);
@@ -189,6 +196,7 @@ public class DemoUIManager : MonoBehaviour
                 SetAddressPanelStyle(28);
                 SetCollectionsStyle(CollectionLayout.Horizontal);
                 SetHistoryStyle(1, 18);
+                SetLogPanelStyle(300,50);
                 break;
         }
 
@@ -366,6 +374,8 @@ public class DemoUIManager : MonoBehaviour
 
         }
 
+        logoRect.sizeDelta = new Vector2(buttonSize.x * 0.9f, buttonSize.y);
+
         SetNetworkDropdownStyle(buttonSize, fontSize, dropdownItemHeight);
 
 
@@ -390,7 +400,7 @@ public class DemoUIManager : MonoBehaviour
     {
         //Chain Selector Dropdown
         Vector2 parentSize = welcomePanelLayout.GetComponent<RectTransform>().rect.size;
-        var barWidth = buttonSize.x / 2f;
+        var barWidth = buttonSize.x *2f/ 3f;
         var barHeight = buttonSize.y / 2f;
         var dropdownRect = networkDropdown.GetComponent<RectTransform>();
         dropdownRect.sizeDelta = new Vector2(barWidth, barHeight);
@@ -409,6 +419,10 @@ public class DemoUIManager : MonoBehaviour
 
         networkDropdown.captionText.fontSize = fontSize;
         networkDropdown.captionText.color = buttonTextColor;
+
+        networkDropdown.captionImage.rectTransform.sizeDelta = new Vector2(barHeight / 2f, barHeight / 2f);
+        networkDropdown.captionImage.rectTransform.localPosition = new Vector2(-barWidth/2f + barHeight, 0);
+
         networkDropdown.itemText.fontSize = fontSize;
         networkDropdown.itemText.color = buttonTextColor;
 
@@ -627,6 +641,13 @@ public class DemoUIManager : MonoBehaviour
         scrollbar.image.color = buttonHighlightColor;
         scrollbar.gameObject.GetComponent<Image>().color = buttonBackgroundColor;
         scrollbar.gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(parentSize.x / 40, parentSize.y);
+    }
+
+    private void SetLogPanelStyle(float height, int fontSize)
+    {
+        logRect.sizeDelta = new Vector2(0, height);
+        logRect.localPosition = new Vector2(0, -logPanelRect.rect.height/2f+  height / 2f);
+        logText.fontSize = fontSize;
     }
 
 
