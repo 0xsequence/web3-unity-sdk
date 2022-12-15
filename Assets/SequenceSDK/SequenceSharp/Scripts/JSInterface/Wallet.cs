@@ -567,11 +567,11 @@ namespace SequenceSharp
 #nullable disable
         private void _SequenceDebugLog(string message)
         {
-            Debug.Log("[Sequence] " + message);
+            Debug.Log("<color=#a340f5>[Sequence]</color> " + message);
         }
         private void _SequenceDebugLogError(string message)
         {
-            Debug.LogError("[Sequence] " + message);
+            Debug.LogError("<color=#f54073>[Sequence Error]</color> " + message);
         }
 
         private void _HideWallet()
