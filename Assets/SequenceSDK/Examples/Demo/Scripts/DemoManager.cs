@@ -567,7 +567,7 @@ And that has made all the difference.
         var erc20 = new ERC20(web3, contractAddress);
 
         Debug.Log("[Sequence] ERC20 Token Example:");
-        Debug.Log($"Using ERC20 address ${contractAddress} on chain ${chainID}.");
+        Debug.Log($"Using ERC20 address {contractAddress} on chain {chainID}.");
         var name = await erc20.Name();
         Debug.Log("name: " + name);
         var symbol = await erc20.Symbol();
@@ -586,7 +586,7 @@ And that has made all the difference.
         var erc721 = new ERC721(web3, contractAddress);
 
         Debug.Log("[Sequence] ERC721 Token Example:");
-        Debug.Log($"Using ERC721 address ${contractAddress} on chain ${chainID}.");
+        Debug.Log($"Using ERC721 address {contractAddress} on chain {chainID}.");
         Debug.Log("name: " + await erc721.Name());
         Debug.Log("symbol: " + await erc721.Symbol());
         Debug.Log("Token URI of token ID 1: " + await erc721.TokenURI(BigInteger.One));
@@ -600,7 +600,7 @@ And that has made all the difference.
         var erc1155 = new ERC1155(web3, contractAddress);
 
         Debug.Log("[Sequence] ERC1155 Token Example:");
-        Debug.Log($"Using ERC1155 address ${contractAddress} on chain ${chainID}.");
+        Debug.Log($"Using ERC1155 address {contractAddress} on chain {chainID}.");
         Debug.Log("URI of token ID 1: " + await erc1155.URI(BigInteger.One));
         // More methods available in the ERC1155 ABI :)
     }
