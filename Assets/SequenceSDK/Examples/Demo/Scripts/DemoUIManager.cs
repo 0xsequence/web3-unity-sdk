@@ -25,6 +25,10 @@ public class DemoUIManager : MonoBehaviour
     }
     public new Camera camera;
 
+    //Wallet
+    [Header("Wallet")]
+    public Button walletBackButton;
+
     //Connect Panel
     [Header("Connect")]
     public GridLayoutGroup connectPanelLayout;
@@ -154,6 +158,7 @@ public class DemoUIManager : MonoBehaviour
         switch (screenRatio)
         {
             case ScreenRatio.Two_One:
+                //SetWalletBackButtonStyle(40f);
                 SetConnectPanelStyle(35, 4f);
                 SetWelcomePanelStyle(3, new Vector2(200, 50), new Vector2(20, 25), 12, 4f, 30);
                 SetABIExampleButtonStyle(10, 6f);
@@ -163,6 +168,7 @@ public class DemoUIManager : MonoBehaviour
                 SetLogPanelStyle(50,16);
                 break;
             case ScreenRatio.OneHalf_One:
+                //SetWalletBackButtonStyle(50f);
                 SetConnectPanelStyle(35, 4f);
                 SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 12, 4f, 30);
                 SetABIExampleButtonStyle(10, 6f);
@@ -173,6 +179,7 @@ public class DemoUIManager : MonoBehaviour
 
                 break;
             case ScreenRatio.One_One:
+                //SetWalletBackButtonStyle(60f);
                 SetConnectPanelStyle(28, 4f);
                 SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f, 40);
                 SetABIExampleButtonStyle(10, 6f);
@@ -182,6 +189,7 @@ public class DemoUIManager : MonoBehaviour
                 SetLogPanelStyle(80,20);
                 break;
             case ScreenRatio.One_OneHalf:
+                //SetWalletBackButtonStyle(100f);
                 SetConnectPanelStyle(28, 2f);
                 SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f, 50);
                 SetABIExampleButtonStyle(25, 4f);
@@ -191,6 +199,7 @@ public class DemoUIManager : MonoBehaviour
                 SetLogPanelStyle(120,35);
                 break;
             case ScreenRatio.One_Two:
+                //SetWalletBackButtonStyle(120f);
                 SetConnectPanelStyle(28, 2f);
                 SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f, 50);
                 SetABIExampleButtonStyle(25, 4f);
@@ -341,6 +350,14 @@ public class DemoUIManager : MonoBehaviour
         var gridLayout = historyUnit.GetGridLayout();
         gridLayout.cellSize = historyUnitGridLayoutCellSize;
 
+    }
+
+    private void SetWalletBackButtonStyle(float height)
+    {
+        var btnRect = walletBackButton.GetComponent<RectTransform>();
+        btnRect.sizeDelta = new Vector2(btnRect.rect.width, height);
+        Vector2 parentSize = welcomePanelLayout.GetComponent<RectTransform>().rect.size;
+        btnRect.localPosition = new Vector2(0, parentSize.y/2f);
     }
 
 
