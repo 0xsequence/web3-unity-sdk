@@ -43,6 +43,7 @@ public class DemoUIManager : MonoBehaviour
     public TMP_Dropdown networkDropdown;
     public RectTransform networkTemplateItemRect;
     public RectTransform networkDropdownArrowRect;
+    public ScrollRect templateScroll;
 
 
     //Address Panel
@@ -154,7 +155,7 @@ public class DemoUIManager : MonoBehaviour
         {
             case ScreenRatio.Two_One:
                 SetConnectPanelStyle(35, 4f);
-                SetWelcomePanelStyle(3, new Vector2(200, 50), new Vector2(20, 25), 12, 4f,40);
+                SetWelcomePanelStyle(3, new Vector2(200, 50), new Vector2(20, 25), 12, 4f, 30);
                 SetABIExampleButtonStyle(10, 6f);
                 SetAddressPanelStyle(30);
                 SetCollectionsStyle(CollectionLayout.Vertical);
@@ -168,7 +169,7 @@ public class DemoUIManager : MonoBehaviour
                 SetAddressPanelStyle(30);
                 SetCollectionsStyle(CollectionLayout.Vertical);
                 SetHistoryStyle(2, 18);
-                SetLogPanelStyle(100,20);
+                SetLogPanelStyle(80,20);
 
                 break;
             case ScreenRatio.One_One:
@@ -178,20 +179,20 @@ public class DemoUIManager : MonoBehaviour
                 SetAddressPanelStyle(28);
                 SetCollectionsStyle(CollectionLayout.Vertical);
                 SetHistoryStyle(2, 15);
-                SetLogPanelStyle(100,20);
+                SetLogPanelStyle(80,20);
                 break;
             case ScreenRatio.One_OneHalf:
                 SetConnectPanelStyle(28, 2f);
-                SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f, 75);
+                SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f, 50);
                 SetABIExampleButtonStyle(25, 4f);
                 SetAddressPanelStyle(28);
                 SetCollectionsStyle(CollectionLayout.Horizontal);
                 SetHistoryStyle(1, 18);
-                SetLogPanelStyle(180,35);
+                SetLogPanelStyle(120,35);
                 break;
             case ScreenRatio.One_Two:
                 SetConnectPanelStyle(28, 2f);
-                SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f, 75);
+                SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f, 50);
                 SetABIExampleButtonStyle(25, 4f);
                 SetAddressPanelStyle(28);
                 SetCollectionsStyle(CollectionLayout.Horizontal);
@@ -407,7 +408,9 @@ public class DemoUIManager : MonoBehaviour
         dropdownRect.localPosition = new Vector2(parentSize.x/2f-barWidth/2f, parentSize.y/2f);
 
 
-        networkTemplateItemRect.anchoredPosition =new Vector2(0.5f, 0.5f);
+        
+        //networkTemplateItemRect.anchoredPosition =new Vector2(0.5f, 0.5f);
+        //networkTemplateItemRect.pivot = new Vector2(0.5f, 0.5f);
         networkTemplateItemRect.sizeDelta = new Vector2(0, dropdownItemHeight);
 
         networkDropdownArrowRect.pivot = new Vector2(0.5f, 0.5f);
@@ -428,16 +431,16 @@ public class DemoUIManager : MonoBehaviour
 
 
         networkDropdown.itemImage.rectTransform.sizeDelta = new Vector2(barHeight / 2f, barHeight/ 2f);
-        networkDropdown.itemImage.rectTransform.localPosition= new Vector2(barHeight, 0);
+        networkDropdown.itemImage.rectTransform.localPosition= new Vector2(-barWidth/2f + barHeight, 0);
 
-        networkDropdown.itemText.rectTransform.sizeDelta = new Vector2(barWidth, barHeight);
-        networkDropdown.itemText.rectTransform.sizeDelta = new Vector2(0,0);
+        networkDropdown.itemText.rectTransform.sizeDelta = new Vector2(0, 0);
+        networkDropdown.itemText.rectTransform.localPosition = new Vector2(barHeight*2f,0);
 
         var scrollbar = networkDropdown.template.GetComponentInChildren<Scrollbar>();
         scrollbar.GetComponent<Image>().color = buttonBackgroundColor;
         scrollbar.handleRect.GetComponent<Image>().color = buttonHighlightColor;
 
-        networkTemplateItemRect.sizeDelta = new Vector2(networkTemplateItemRect.rect.size.x, dropdownItemHeight);
+        networkTemplateItemRect.sizeDelta = new Vector2(0, dropdownItemHeight);
         
 
         Toggle networkToggle = networkDropdown.template.GetComponentInChildren<Toggle>();
