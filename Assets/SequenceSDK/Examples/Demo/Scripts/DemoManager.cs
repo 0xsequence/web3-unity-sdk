@@ -313,73 +313,44 @@ public class DemoManager : MonoBehaviour
 
     public async void Connect()
     {
-        try
-        {
+        var connectDetails = await wallet.Connect(
+            new ConnectOptions { app = "Demo Unity Dapp" }
+        );
+        Debug.Log(
+            "[DemoDapp] Connect Details:  "
+                + JsonConvert.SerializeObject(
+                    connectDetails,
+                    Formatting.Indented,
+                    new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }
+                )
+        );
 
-            var connectDetails = await wallet.Connect(
-                new ConnectOptions { app = "Demo Unity Dapp" }
-            );
-            Debug.Log(
-                "[DemoDapp] Connect Details:  "
-                    + JsonConvert.SerializeObject(
-                        connectDetails,
-                        Formatting.Indented,
-                        new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }
-                    )
-            );
-
-            bool isConnected = await wallet.IsConnected();
-            m_connected = isConnected;
-            if (isConnected)
-            {
-                DisplayWelcomePanel();
-            }
-        }
-        catch (Exception e)
+        bool isConnected = await wallet.IsConnected();
+        m_connected = isConnected;
+        if (isConnected)
         {
-            Debug.Log(e);
+            DisplayWelcomePanel();
         }
     }
 
     public async void OpenWallet()
     {
-        try
-        {
-            await wallet.OpenWallet("wallet", null, null);
+        await wallet.OpenWallet("wallet", null, null);
 
-            Debug.Log("[DemoDapp] Wallet Opened with settings.");
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e);
-        }
+        Debug.Log("[DemoDapp] Wallet Opened with settings.");
     }
 
     public async void CloseWallet()
     {
-        try
-        {
-            await wallet.CloseWallet();
-            Debug.Log("[DemoDapp] Wallet Closed!");
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e);
-        }
+        await wallet.CloseWallet();
+        Debug.Log("[DemoDapp] Wallet Closed!");
     }
 
     public async void GetAddress()
     {
-        try
-        {
-            string accountAddress = await web3.GetAddress();
-            Debug.Log("[DemoDapp] accountAddress " + accountAddress);
-            DisplayAddressPanel(accountAddress);
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e);
-        }
+        string accountAddress = await web3.GetAddress();
+        Debug.Log("[DemoDapp] accountAddress " + accountAddress);
+        DisplayAddressPanel(accountAddress);
     }
 
     public async void ViewCollection()
@@ -561,46 +532,32 @@ And that has made all the difference.
 
     public async void SendNFT()
     {
-        try
-        {
-            //Contract Address
-            BigInteger[] tokenIds = new BigInteger[1];
+        //Contract Address
+        BigInteger[] tokenIds = new BigInteger[1];
 
-            var contractAddr = exampleERC1155Address(await web3.Eth.ChainId.SendRequestAsync());
+        var contractAddr = exampleERC1155Address(await web3.Eth.ChainId.SendRequestAsync());
 
-            var contract = new ERC1155(web3, contractAddr);
-            var senderAddress = await web3.GetAddress();
+        var contract = new ERC1155(web3, contractAddr);
+        var senderAddress = await web3.GetAddress();
 
-            var transactionResp =
-                await contract.SafeTransferFrom(
-                    senderAddress,
-                    exampleToAccount,
-                    BigInteger.One,
-                    BigInteger.One
-                );
+        var transactionResp =
+            await contract.SafeTransferFrom(
+                senderAddress,
+                exampleToAccount,
+                BigInteger.One,
+                BigInteger.One
+            );
 
-            Debug.Log("[Sequence] ReceiptAmountSend:" + transactionResp);
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e);
-        }
+        Debug.Log("[Sequence] ReceiptAmountSend:" + transactionResp);
     }
 
     public async void Disconnect()
     {
-        try
-        {
-            await wallet.Disconnect();
-            Debug.Log("[DemoDapp] Disconnected.");
+        await wallet.Disconnect();
+        Debug.Log("[DemoDapp] Disconnected.");
 
-            // Return Back to Connect Panel
-            DisplayConnectPanel();
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e);
-        }
+        // Return Back to Connect Panel
+        DisplayConnectPanel();
     }
 
     public async void ERC20AbiExample()
