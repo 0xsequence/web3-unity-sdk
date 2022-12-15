@@ -12,7 +12,6 @@ public class CategoryGroup : MonoBehaviour
     public Collection collection;
     [SerializeField] private TextMeshProUGUI groupLabel = null;
     [SerializeField] private Button btn = null;
-    [SerializeField] private RectTransform contentRoot = null;
 
 
     private List<Category> _categories = new List<Category>();
@@ -91,11 +90,11 @@ public class CategoryGroup : MonoBehaviour
         _categories.Clear();
     }
 
-    public Button GetButton(){ return btn;}
+    public Button GetButton() { return btn; }
 
     public RectTransform GetRectTransform() { return GetComponent<RectTransform>(); }
 
-    public TextMeshProUGUI GetGroupLabel(){ return groupLabel; }
+    public TextMeshProUGUI GetGroupLabel() { return groupLabel; }
 
     /// <summary>
     /// Adds event to the CategoryGroup CollapseableButton onClick
