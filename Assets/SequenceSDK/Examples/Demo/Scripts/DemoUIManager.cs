@@ -24,6 +24,8 @@ public class DemoUIManager : MonoBehaviour
         Horizontal
     }
     public new Camera camera;
+    public RectTransform canvasRect;
+    private Vector2 parentSize;
 
     //Wallet
     [Header("Wallet")]
@@ -111,6 +113,7 @@ public class DemoUIManager : MonoBehaviour
 
     private void Start()
     {
+        parentSize = canvasRect.rect.size;
         screenRatio = GetScreenRatio();
         GetAllElements();
         SetStyle();
@@ -165,7 +168,7 @@ public class DemoUIManager : MonoBehaviour
                 SetAddressPanelStyle(30);
                 SetCollectionsStyle(CollectionLayout.Vertical);
                 SetHistoryStyle(3, 12);
-                SetLogPanelStyle(50,16);
+                SetLogPanelStyle(0.12f,20);
                 break;
             case ScreenRatio.OneHalf_One:
                 //SetWalletBackButtonStyle(50f);
@@ -175,7 +178,7 @@ public class DemoUIManager : MonoBehaviour
                 SetAddressPanelStyle(30);
                 SetCollectionsStyle(CollectionLayout.Vertical);
                 SetHistoryStyle(2, 18);
-                SetLogPanelStyle(80,20);
+                SetLogPanelStyle(0.1f,20);
 
                 break;
             case ScreenRatio.One_One:
@@ -186,27 +189,27 @@ public class DemoUIManager : MonoBehaviour
                 SetAddressPanelStyle(28);
                 SetCollectionsStyle(CollectionLayout.Vertical);
                 SetHistoryStyle(2, 15);
-                SetLogPanelStyle(80,20);
+                SetLogPanelStyle(0.1f,20);
                 break;
             case ScreenRatio.One_OneHalf:
                 //SetWalletBackButtonStyle(100f);
                 SetConnectPanelStyle(28, 2f);
-                SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f, 50);
+                SetWelcomePanelStyle(1, new Vector2(500, 65), new Vector2(0, 20), 22, 2f, 50);
                 SetABIExampleButtonStyle(25, 4f);
                 SetAddressPanelStyle(28);
                 SetCollectionsStyle(CollectionLayout.Horizontal);
                 SetHistoryStyle(1, 18);
-                SetLogPanelStyle(120,35);
+                SetLogPanelStyle(0.07f,20);
                 break;
             case ScreenRatio.One_Two:
                 //SetWalletBackButtonStyle(120f);
                 SetConnectPanelStyle(28, 2f);
-                SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f, 50);
+                SetWelcomePanelStyle(1, new Vector2(500, 90), new Vector2(0, 30), 28, 2f, 50);
                 SetABIExampleButtonStyle(25, 4f);
                 SetAddressPanelStyle(28);
                 SetCollectionsStyle(CollectionLayout.Horizontal);
                 SetHistoryStyle(1, 18);
-                SetLogPanelStyle(300,50);
+                SetLogPanelStyle(0.07f,20);
                 break;
         }
 
@@ -249,7 +252,6 @@ public class DemoUIManager : MonoBehaviour
         var imgRect = img.GetComponent<RectTransform>();
         imgRect.pivot = new Vector2(0.5f, 0.5f);
 
-        Vector2 parentSize = collectionScrollRect.rect.size;
         //TODO: Calculate widht or height base on collection style
         if (collectionLayout == CollectionLayout.Horizontal)
         {
@@ -299,7 +301,6 @@ public class DemoUIManager : MonoBehaviour
         groupLabel.color = buttonTextColor;
         groupLabel.fontSize = collectionCategoryGroupFontSize;
 
-        Vector2 parentSize = collectionCatRect.rect.size;
         if (collectionLayout == CollectionLayout.Horizontal)
         {
             //portrait mode
@@ -356,7 +357,6 @@ public class DemoUIManager : MonoBehaviour
     {
         var btnRect = walletBackButton.GetComponent<RectTransform>();
         btnRect.sizeDelta = new Vector2(btnRect.rect.width, height);
-        Vector2 parentSize = welcomePanelLayout.GetComponent<RectTransform>().rect.size;
         btnRect.localPosition = new Vector2(0, parentSize.y/2f);
     }
 
@@ -368,6 +368,8 @@ public class DemoUIManager : MonoBehaviour
     /// <param name="roundCorner">Unit per pixel in image component </param>
     private void SetWelcomePanelStyle(int groupConstraint, Vector2 buttonSize, Vector2 buttonSpacing, int fontSize, float roundCorner, float dropdownItemHeight)
     {
+        RectTransform welcomeRect = welcomePanelLayout.GetComponent<RectTransform>();
+        welcomeRect.localPosition = new Vector2(0, -parentSize.y*0.08f);
         //Panel Layout
         welcomePanelLayout.constraintCount = groupConstraint;
         welcomePanelLayout.cellSize = buttonSize;
@@ -417,12 +419,12 @@ public class DemoUIManager : MonoBehaviour
     private void SetNetworkDropdownStyle(Vector2 buttonSize, int fontSize, float dropdownItemHeight)
     {
         //Chain Selector Dropdown
-        Vector2 parentSize = welcomePanelLayout.GetComponent<RectTransform>().rect.size;
         var barWidth = buttonSize.x *2f/ 3f;
         var barHeight = buttonSize.y / 2f;
+
         var dropdownRect = networkDropdown.GetComponent<RectTransform>();
         dropdownRect.sizeDelta = new Vector2(barWidth, barHeight);
-        dropdownRect.localPosition = new Vector2(parentSize.x/2f-barWidth/2f, parentSize.y/2f);
+        dropdownRect.localPosition = new Vector2(parentSize.x/2f-barWidth/2f - barHeight/2f, parentSize.y/2f-barHeight);
 
 
         
@@ -494,7 +496,6 @@ public class DemoUIManager : MonoBehaviour
         addressText.color = addressTextColor;
         addressText.fontSize = addressFontSize;
         //Back Button:
-        Vector2 parentSize = addressPanel.GetComponent<RectTransform>().rect.size;
         SetBackButtonStyle(addressBackButton, parentSize);
 
         //outline
@@ -663,11 +664,15 @@ public class DemoUIManager : MonoBehaviour
         scrollbar.gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(parentSize.x / 40, parentSize.y);
     }
 
-    private void SetLogPanelStyle(float height, int fontSize)
+    private void SetLogPanelStyle(float heightRatio, int fontSize)
     {
+
+        float height = parentSize.y * heightRatio;
+
+
         logRect.sizeDelta = new Vector2(0, height);
         logRect.localPosition = new Vector2(0, -logPanelRect.rect.height/2f+  height / 2f);
-        logText.fontSize = fontSize;
+        logText.fontSize = fontSize*(Screen.height/1000f);
     }
 
 
@@ -682,11 +687,11 @@ public class DemoUIManager : MonoBehaviour
         {
             return ScreenRatio.OneHalf_One;
         }
-        else if (camera.aspect > 0.9)
+        else if (camera.aspect > 0.8)
         {
             return ScreenRatio.One_One;
         }
-        else if (camera.aspect > 0.5)
+        else if (camera.aspect > 0.65)
         {
             return ScreenRatio.One_OneHalf;
         }
