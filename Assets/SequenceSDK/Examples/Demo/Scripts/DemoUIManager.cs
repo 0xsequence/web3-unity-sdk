@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine.EventSystems;
 using System.Linq;
 
+[ExecuteInEditMode]
 public class DemoUIManager : MonoBehaviour
 {
     enum ScreenRatio
