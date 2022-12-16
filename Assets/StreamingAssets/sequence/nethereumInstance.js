@@ -1,1 +1,0 @@
-nethereumUnityInstance = window.unityInstance;
