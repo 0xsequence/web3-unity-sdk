@@ -6,7 +6,7 @@ using TMPro;
 using UnityEngine.EventSystems;
 using System.Linq;
 
-[ExecuteInEditMode]
+
 public class DemoUIManager : MonoBehaviour
 {
     enum ScreenRatio
@@ -427,10 +427,6 @@ public class DemoUIManager : MonoBehaviour
         dropdownRect.sizeDelta = new Vector2(barWidth, barHeight);
         dropdownRect.localPosition = new Vector2(parentSize.x/2f-barWidth/2f - barHeight/2f, parentSize.y/2f-barHeight);
 
-
-        
-        //networkTemplateItemRect.anchoredPosition =new Vector2(0.5f, 0.5f);
-        //networkTemplateItemRect.pivot = new Vector2(0.5f, 0.5f);
         networkTemplateItemRect.sizeDelta = new Vector2(0, dropdownItemHeight);
 
         networkDropdownArrowRect.pivot = new Vector2(0.5f, 0.5f);
@@ -440,21 +436,24 @@ public class DemoUIManager : MonoBehaviour
         networkDropdown.GetComponent<Image>().color = buttonBackgroundColor;
         networkDropdown.template.GetComponent<Image>().color = buttonBackgroundColor;
 
+        //Caption
         networkDropdown.captionText.fontSize = fontSize;
         networkDropdown.captionText.color = buttonTextColor;
 
         networkDropdown.captionImage.rectTransform.sizeDelta = new Vector2(barHeight / 2f, barHeight / 2f);
         networkDropdown.captionImage.rectTransform.localPosition = new Vector2(-barWidth/2f + barHeight, 0);
 
+        //Template Items
+        
+        //logo
+        networkDropdown.itemImage.rectTransform.sizeDelta = new Vector2(barHeight / 2f, barHeight/ 2f);
+        networkDropdown.itemImage.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        networkDropdown.itemImage.rectTransform.localPosition= new Vector2(-barWidth/2f + barHeight, 0);
+        //text
+        networkDropdown.itemText.rectTransform.sizeDelta = new Vector2(barWidth-barHeight,barHeight);
+        networkDropdown.itemText.rectTransform.localPosition = new Vector2(barHeight,0);
         networkDropdown.itemText.fontSize = fontSize;
         networkDropdown.itemText.color = buttonTextColor;
-
-
-        networkDropdown.itemImage.rectTransform.sizeDelta = new Vector2(barHeight / 2f, barHeight/ 2f);
-        networkDropdown.itemImage.rectTransform.localPosition= new Vector2(-barWidth/2f + barHeight, 0);
-
-        networkDropdown.itemText.rectTransform.sizeDelta = new Vector2(0, 0);
-        networkDropdown.itemText.rectTransform.localPosition = new Vector2(barHeight*2f,0);
 
         var scrollbar = networkDropdown.template.GetComponentInChildren<Scrollbar>();
         scrollbar.GetComponent<Image>().color = buttonBackgroundColor;
@@ -462,7 +461,6 @@ public class DemoUIManager : MonoBehaviour
 
         networkTemplateItemRect.sizeDelta = new Vector2(0, dropdownItemHeight);
         
-
         Toggle networkToggle = networkDropdown.template.GetComponentInChildren<Toggle>();
         networkToggle.GetComponentInChildren<TMP_Text>().fontSize = fontSize;
         networkToggle.GetComponentInChildren<TMP_Text>().color = buttonTextColor;
