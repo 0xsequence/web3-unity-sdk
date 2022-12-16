@@ -1342,7 +1342,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281479730
+    rgba: 4294967295
   m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -3590,7 +3590,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &611137241
@@ -4399,7 +4399,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -17, y: 0}
+  m_SizeDelta: {x: 3, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &818642086
 MonoBehaviour:
@@ -5230,7 +5230,6 @@ GameObject:
   - component: {fileID: 1015191638}
   - component: {fileID: 1015191639}
   - component: {fileID: 1015191640}
-  - component: {fileID: 1015191641}
   m_Layer: 0
   m_Name: DemoManager
   m_TagString: Untagged
@@ -5272,7 +5271,7 @@ MonoBehaviour:
   addressCanvas: {fileID: 1774194605}
   collectionCanvas: {fileID: 1341546305}
   historyCanvas: {fileID: 1956244116}
-  uiManager: {fileID: 1015191641}
+  uiManager: {fileID: 1225211869}
   connectBtn: {fileID: 1883966303}
   openWalletBtn: {fileID: 522615134}
   getAddressBtn: {fileID: 893550005}
@@ -5335,56 +5334,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eacfaa3c855703242a076eb0541f53ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1015191641
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1015191635}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4b6b9bfa15814af448ae43948e5df2d9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  camera: {fileID: 1676845167}
-  canvasRect: {fileID: 1225211868}
-  walletBackButton: {fileID: 1059555299}
-  connectPanelLayout: {fileID: 1103889448}
-  welcomePanelLayout: {fileID: 595083523}
-  abiExamplePanelLayout: {fileID: 1535290802}
-  logoRect: {fileID: 1179982389}
-  networkDropdown: {fileID: 2011060868}
-  networkTemplateItemRect: {fileID: 372753002}
-  networkDropdownArrowRect: {fileID: 1316426871}
-  templateScroll: {fileID: 1719379548}
-  addressPanel: {fileID: 543780575}
-  addressText: {fileID: 1498130493}
-  addressBackButton: {fileID: 109749957}
-  collection: {fileID: 1015191638}
-  collectionRect: {fileID: 1341546309}
-  collectionCatRect: {fileID: 378572275}
-  collectionScrollRect: {fileID: 611137240}
-  collectionCatLayoutGroup: {fileID: 378572278}
-  collectionScrollLayoutGroup: {fileID: 195595335}
-  collectionBackButton: {fileID: 591719829}
-  collectionVerticalScrollBar: {fileID: 3783795}
-  historyRect: {fileID: 1956244120}
-  historyLayoutGroup: {fileID: 782018212}
-  historyBackButton: {fileID: 929183442}
-  historyVerticalScrollBar: {fileID: 198325258}
-  loadingPanel: {fileID: 151160569}
-  logPanelRect: {fileID: 333969230}
-  logRect: {fileID: 1434263181}
-  logScrollRect: {fileID: 1434263180}
-  logText: {fileID: 2038086601}
-  buttonSprite: {fileID: 21300000, guid: 7f8261ffcd44b9e4c9e4e6df341cc3d8, type: 3}
-  backgroundColor: {r: 0, g: 0, b: 0, a: 1}
-  buttonBackgroundColor: {r: 0.16037738, g: 0.16037738, b: 0.16037738, a: 1}
-  buttonHighlightColor: {r: 0.2735849, g: 0.2735849, b: 0.2735849, a: 1}
-  buttonTextColor: {r: 1, g: 1, b: 1, a: 1}
-  outlineColor: {r: 0.37342215, g: 0, b: 1, a: 1}
-  addressTextColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1022757047
 GameObject:
   m_ObjectHideFlags: 0
@@ -6264,6 +6213,7 @@ GameObject:
   - component: {fileID: 1225211867}
   - component: {fileID: 1225211866}
   - component: {fileID: 1225211865}
+  - component: {fileID: 1225211869}
   m_Layer: 5
   m_Name: Canvas-(UI Purpose Dont Delete)
   m_TagString: Untagged
@@ -6352,6 +6302,56 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1225211869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1225211864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b6b9bfa15814af448ae43948e5df2d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  camera: {fileID: 1676845167}
+  canvasRect: {fileID: 1225211868}
+  walletBackButton: {fileID: 1059555299}
+  connectPanelLayout: {fileID: 1103889448}
+  welcomePanelLayout: {fileID: 595083523}
+  abiExamplePanelLayout: {fileID: 1535290802}
+  logoRect: {fileID: 1179982389}
+  networkDropdown: {fileID: 2011060868}
+  networkTemplateItemRect: {fileID: 372753002}
+  networkDropdownArrowRect: {fileID: 1316426871}
+  templateScroll: {fileID: 1719379548}
+  addressPanel: {fileID: 543780575}
+  addressText: {fileID: 1498130493}
+  addressBackButton: {fileID: 109749957}
+  collection: {fileID: 1015191638}
+  collectionRect: {fileID: 1341546309}
+  collectionCatRect: {fileID: 378572275}
+  collectionScrollRect: {fileID: 611137240}
+  collectionCatLayoutGroup: {fileID: 378572278}
+  collectionScrollLayoutGroup: {fileID: 195595335}
+  collectionBackButton: {fileID: 591719829}
+  collectionVerticalScrollBar: {fileID: 3783795}
+  historyRect: {fileID: 1956244120}
+  historyLayoutGroup: {fileID: 782018212}
+  historyBackButton: {fileID: 929183442}
+  historyVerticalScrollBar: {fileID: 198325258}
+  loadingPanel: {fileID: 151160569}
+  logPanelRect: {fileID: 333969230}
+  logRect: {fileID: 1434263181}
+  logScrollRect: {fileID: 1434263180}
+  logText: {fileID: 2038086601}
+  buttonSprite: {fileID: 21300000, guid: 7f8261ffcd44b9e4c9e4e6df341cc3d8, type: 3}
+  backgroundColor: {r: 0, g: 0, b: 0, a: 1}
+  buttonBackgroundColor: {r: 0.16037738, g: 0.16037738, b: 0.16037738, a: 1}
+  buttonHighlightColor: {r: 0.2735849, g: 0.2735849, b: 0.2735849, a: 1}
+  buttonTextColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineColor: {r: 0.37342215, g: 0, b: 1, a: 1}
+  addressTextColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1239309082
 GameObject:
   m_ObjectHideFlags: 0

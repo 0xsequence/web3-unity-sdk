@@ -528,9 +528,9 @@ public class DemoUIManager : MonoBehaviour
         //suitable for portrait layout
         //Group Layout
 
-        collectionCatRect.sizeDelta = new Vector2(width, height);
+        collectionCatRect.sizeDelta = new Vector2(width, height-logRect.rect.height);
         collectionCatRect.pivot = new Vector2(0.5f, 0.5f);
-        collectionCatRect.localPosition = new Vector2(0, -height / 2f + parentSize.y / 2f);
+        collectionCatRect.localPosition = new Vector2(0, -height / 2f + parentSize.y / 2f+ logRect.rect.height/2f);
         //Token Layout
 
         collectionScrollRect.sizeDelta = new Vector2(width, parentSize.y - height);
@@ -548,9 +548,9 @@ public class DemoUIManager : MonoBehaviour
         var height = parentSize.y;
         //suitable for landscape layout
 
-        collectionCatRect.sizeDelta = new Vector2(width, height);
+        collectionCatRect.sizeDelta = new Vector2(width, height- logRect.rect.height);
         collectionCatRect.pivot = new Vector2(0.5f, 0.5f);
-        collectionCatRect.localPosition = new Vector2(width / 2f - parentSize.x / 2f, 0);
+        collectionCatRect.localPosition = new Vector2(width / 2f - parentSize.x / 2f, logRect.rect.height/2f);
 
         //Token Layout
 
