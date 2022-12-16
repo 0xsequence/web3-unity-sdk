@@ -456,10 +456,10 @@ public class DemoManager : MonoBehaviour
                     new Page { page = pageNumber }
                 );
                 var history = await Indexer.GetTransactionHistory(chainID, args);
-
+                
                 var txsWithNames = history.transactions.SelectMany(tx =>
                     tx.transfers.Select(t => (
-                        name: GetTokenName(web3, t.contractType, t.contractAddress, t.tokenIds != null ? t.tokenIds[0] : null),
+                        name: GetTokenName(web3, t.contractType, t.contractAddress, t.tokenIds?[0]),
                         t, tx.timestamp
                     ))
                 ).ToArray();
@@ -470,16 +470,17 @@ public class DemoManager : MonoBehaviour
         );
         var txNames = await Task.WhenAll(transactions.Select(t => t.name).ToArray());
         var txsWithNames = txNames.Zip(transactions.Select(t => (t.t, t.timestamp)), (name, t) => (name, t.t, t.timestamp));
-        foreach (var (name, t, timestamp) in txsWithNames)
+        foreach (var txn in txsWithNames)
         {
             GameObject unitGO = Instantiate(historyUnitPrefab);
             unitGO.transform.SetParent(historyScroll, false);
             unitGO.transform.localScale = new UnityEngine.Vector3(1f, 1f, 1f);
             HistoryUnit historyUnit = unitGO.GetComponent<HistoryUnit>();
+            
             historyUnit.SetUnit(
-                timestamp,
-                name,
-                t.tokenIds.Length.ToString()
+                txn.timestamp,
+                txn.name,
+                txn.t.tokenIds.Length.ToString()
             );
             historyUI.AddToHistoryList(historyUnit);
             uiManager.SetHistoryUnitStyle(historyUnit);
@@ -773,7 +774,7 @@ And that has made all the difference.
                 throw new ArgumentException("Unsupported chain ID: " + chainID);
         }
     }
-    private async Task<string> GetTokenName(Web3 web3, ContractType contractType, string address, BigInteger? tokenID)
+    private async Task<string> GetTokenName(Web3 web3, ContractType contractType, string address, BigInteger? tokenID = null)
     {
         var n = "Unknown Token";
         try

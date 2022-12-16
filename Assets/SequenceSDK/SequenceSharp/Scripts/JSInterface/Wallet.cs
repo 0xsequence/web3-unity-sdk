@@ -146,7 +146,9 @@ namespace SequenceSharp
             }
             else
             {
-                return await File.ReadAllTextAsync(path);
+                //return await File.ReadAllTextAsync(path);
+                return File.ReadAllText(path);
+                
             }
         }
 

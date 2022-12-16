@@ -28,7 +28,8 @@ class BuildSequenceHTML
 
         string sequenceHTMLTemplate = File.ReadAllText(sequenceHTMLTemplatePath);
 
-        var split = sequenceHTMLTemplate.Split("<!-- %INJECT_SEQUENCE_JS% -->");
+        string inject_sequence = "<!-- %INJECT_SEQUENCE_JS% -->";
+        var split = sequenceHTMLTemplate.Split(inject_sequence.ToCharArray(0, inject_sequence.Length));
             if(split.Length != 2)
         {
             throw new UnityEditor.Build.BuildFailedException("Sequence HTML template is corrupted - doesn't include one <!-- %INJECT_SEQUENCE_JS% --> marker.");
