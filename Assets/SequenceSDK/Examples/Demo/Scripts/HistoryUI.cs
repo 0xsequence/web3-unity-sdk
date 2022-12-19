@@ -27,7 +27,7 @@ public class HistoryUI : MonoBehaviour
     public void AddToHistoryList(HistoryUnit history)
     {
         _historyUnits.Add(history);
-        
+
     }
 
     public void ClearHistories()
@@ -35,7 +35,7 @@ public class HistoryUI : MonoBehaviour
         foreach(var history in _historyUnits)
         {
             Destroy(history.gameObject);
-            
+
         }
         _historyUnits.Clear();
     }

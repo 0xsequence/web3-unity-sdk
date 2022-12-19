@@ -89,7 +89,7 @@ public class Collection : MonoBehaviour
                     if (imgRequest.result != UnityWebRequest.Result.Success)
                     {
 
-                        Debug.Log(metaURL+", "+imgRequest.error);
+                        Debug.Log(metaURL + ", " + imgRequest.error);
                     }
                     else
                     {
@@ -102,7 +102,6 @@ public class Collection : MonoBehaviour
             var type = ContractType.UNKNOWN;
             try
             {
-                //type = Enum.Parse<ContractType>(contractInfo.type);
                 Enum.TryParse<ContractType>(contractInfo.type, out type);
             }
             catch
@@ -110,13 +109,8 @@ public class Collection : MonoBehaviour
                 // ok!
             }
 
-            /*BigInteger? tokenID =
-                (tokenMetadata != null)
-                    ? tokenMetadata.tokenId
-                    : null;*/
-            BigInteger tokenID;
-            if (tokenMetadata != null) tokenID = tokenMetadata.tokenId;
-
+            BigInteger tokenID = new BigInteger(0);
+                
             var newCatGo = Instantiate(categoryTemplate, tokensRoot);
             var newCategory = newCatGo.GetComponent<Category>();
 
@@ -149,7 +143,7 @@ public class Collection : MonoBehaviour
     }
 
     /// <summary>
-    /// Destroys all category gameobjects under <see cref="contentRoot"/>
+    /// Destroys all category gameobjects.
     /// </summary>
     private void ClearCategories()
     {

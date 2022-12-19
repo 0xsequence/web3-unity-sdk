@@ -313,73 +313,44 @@ public class DemoManager : MonoBehaviour
 
     public async void Connect()
     {
-        try
-        {
+        var connectDetails = await wallet.Connect(
+            new ConnectOptions { app = "Demo Unity Dapp" }
+        );
+        Debug.Log(
+            "[DemoDapp] Connect Details:  "
+                + JsonConvert.SerializeObject(
+                    connectDetails,
+                    Formatting.Indented,
+                    new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }
+                )
+        );
 
-            var connectDetails = await wallet.Connect(
-                new ConnectOptions { app = "Demo Unity Dapp" }
-            );
-            Debug.Log(
-                "[DemoDapp] Connect Details:  "
-                    + JsonConvert.SerializeObject(
-                        connectDetails,
-                        Formatting.Indented,
-                        new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }
-                    )
-            );
-
-            bool isConnected = await wallet.IsConnected();
-            m_connected = isConnected;
-            if (isConnected)
-            {
-                DisplayWelcomePanel();
-            }
-        }
-        catch (Exception e)
+        bool isConnected = await wallet.IsConnected();
+        m_connected = isConnected;
+        if (isConnected)
         {
-            Debug.Log(e);
+            DisplayWelcomePanel();
         }
     }
 
     public async void OpenWallet()
     {
-        try
-        {
-            await wallet.OpenWallet("wallet", null, null);
+        await wallet.OpenWallet("wallet", null, null);
 
-            Debug.Log("[DemoDapp] Wallet Opened with settings.");
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e);
-        }
+        Debug.Log("[DemoDapp] Wallet Opened with settings.");
     }
 
     public async void CloseWallet()
     {
-        try
-        {
-            await wallet.CloseWallet();
-            Debug.Log("[DemoDapp] Wallet Closed!");
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e);
-        }
+        await wallet.CloseWallet();
+        Debug.Log("[DemoDapp] Wallet Closed!");
     }
 
     public async void GetAddress()
     {
-        try
-        {
-            string accountAddress = await web3.GetAddress();
-            Debug.Log("[DemoDapp] accountAddress " + accountAddress);
-            DisplayAddressPanel(accountAddress);
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e);
-        }
+        string accountAddress = await web3.GetAddress();
+        Debug.Log("[DemoDapp] accountAddress " + accountAddress);
+        DisplayAddressPanel(accountAddress);
     }
 
     public async void ViewCollection()
@@ -456,7 +427,7 @@ public class DemoManager : MonoBehaviour
                     new Page { page = pageNumber }
                 );
                 var history = await Indexer.GetTransactionHistory(chainID, args);
-                
+
                 var txsWithNames = history.transactions.SelectMany(tx =>
                     tx.transfers.Select(t => (
                         name: GetTokenName(web3, t.contractType, t.contractAddress, t.tokenIds?[0]),
@@ -470,17 +441,16 @@ public class DemoManager : MonoBehaviour
         );
         var txNames = await Task.WhenAll(transactions.Select(t => t.name).ToArray());
         var txsWithNames = txNames.Zip(transactions.Select(t => (t.t, t.timestamp)), (name, t) => (name, t.t, t.timestamp));
-        foreach (var txn in txsWithNames)
+        foreach (var (name, t, timestamp) in txsWithNames)
         {
             GameObject unitGO = Instantiate(historyUnitPrefab);
             unitGO.transform.SetParent(historyScroll, false);
             unitGO.transform.localScale = new UnityEngine.Vector3(1f, 1f, 1f);
             HistoryUnit historyUnit = unitGO.GetComponent<HistoryUnit>();
-            
             historyUnit.SetUnit(
-                txn.timestamp,
-                txn.name,
-                txn.t.tokenIds.Length.ToString()
+                timestamp,
+                name,
+                t.tokenIds.Length.ToString()
             );
             historyUI.AddToHistoryList(historyUnit);
             uiManager.SetHistoryUnitStyle(historyUnit);
@@ -562,46 +532,32 @@ And that has made all the difference.
 
     public async void SendNFT()
     {
-        try
-        {
-            //Contract Address
-            BigInteger[] tokenIds = new BigInteger[1];
+        //Contract Address
+        BigInteger[] tokenIds = new BigInteger[1];
 
-            var contractAddr = exampleERC1155Address(await web3.Eth.ChainId.SendRequestAsync());
+        var contractAddr = exampleERC1155Address(await web3.Eth.ChainId.SendRequestAsync());
 
-            var contract = new ERC1155(web3, contractAddr);
-            var senderAddress = await web3.GetAddress();
+        var contract = new ERC1155(web3, contractAddr);
+        var senderAddress = await web3.GetAddress();
 
-            var transactionResp =
-                await contract.SafeTransferFrom(
-                    senderAddress,
-                    exampleToAccount,
-                    BigInteger.One,
-                    BigInteger.One
-                );
+        var transactionResp =
+            await contract.SafeTransferFrom(
+                senderAddress,
+                exampleToAccount,
+                BigInteger.One,
+                BigInteger.One
+            );
 
-            Debug.Log("[Sequence] ReceiptAmountSend:" + transactionResp);
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e);
-        }
+        Debug.Log("[Sequence] ReceiptAmountSend:" + transactionResp);
     }
 
     public async void Disconnect()
     {
-        try
-        {
-            await wallet.Disconnect();
-            Debug.Log("[DemoDapp] Disconnected.");
+        await wallet.Disconnect();
+        Debug.Log("[DemoDapp] Disconnected.");
 
-            // Return Back to Connect Panel
-            DisplayConnectPanel();
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e);
-        }
+        // Return Back to Connect Panel
+        DisplayConnectPanel();
     }
 
     public async void ERC20AbiExample()
@@ -611,7 +567,7 @@ And that has made all the difference.
         var erc20 = new ERC20(web3, contractAddress);
 
         Debug.Log("[Sequence] ERC20 Token Example:");
-        Debug.Log($"Using ERC20 address ${contractAddress} on chain ${chainID}.");
+        Debug.Log($"Using ERC20 address {contractAddress} on chain {chainID}.");
         var name = await erc20.Name();
         Debug.Log("name: " + name);
         var symbol = await erc20.Symbol();
@@ -630,7 +586,7 @@ And that has made all the difference.
         var erc721 = new ERC721(web3, contractAddress);
 
         Debug.Log("[Sequence] ERC721 Token Example:");
-        Debug.Log($"Using ERC721 address ${contractAddress} on chain ${chainID}.");
+        Debug.Log($"Using ERC721 address {contractAddress} on chain {chainID}.");
         Debug.Log("name: " + await erc721.Name());
         Debug.Log("symbol: " + await erc721.Symbol());
         Debug.Log("Token URI of token ID 1: " + await erc721.TokenURI(BigInteger.One));
@@ -644,7 +600,7 @@ And that has made all the difference.
         var erc1155 = new ERC1155(web3, contractAddress);
 
         Debug.Log("[Sequence] ERC1155 Token Example:");
-        Debug.Log($"Using ERC1155 address ${contractAddress} on chain ${chainID}.");
+        Debug.Log($"Using ERC1155 address {contractAddress} on chain {chainID}.");
         Debug.Log("URI of token ID 1: " + await erc1155.URI(BigInteger.One));
         // More methods available in the ERC1155 ABI :)
     }
@@ -774,7 +730,7 @@ And that has made all the difference.
                 throw new ArgumentException("Unsupported chain ID: " + chainID);
         }
     }
-    private async Task<string> GetTokenName(Web3 web3, ContractType contractType, string address, BigInteger? tokenID = null)
+    private async Task<string> GetTokenName(Web3 web3, ContractType contractType, string address, BigInteger? tokenID)
     {
         var n = "Unknown Token";
         try

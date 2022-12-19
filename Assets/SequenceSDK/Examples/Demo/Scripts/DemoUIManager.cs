@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine.EventSystems;
 using System.Linq;
 
+
 public class DemoUIManager : MonoBehaviour
 {
     enum ScreenRatio
@@ -24,6 +25,12 @@ public class DemoUIManager : MonoBehaviour
         Horizontal
     }
     public new Camera camera;
+    public RectTransform canvasRect;
+    private Vector2 parentSize;
+
+    //Wallet
+    [Header("Wallet")]
+    public Button walletBackButton;
 
     //Connect Panel
     [Header("Connect")]
@@ -34,12 +41,16 @@ public class DemoUIManager : MonoBehaviour
     [Header("Welcome Panel")]
     public GridLayoutGroup welcomePanelLayout;
     public DemoLayout abiExamplePanelLayout;
+    public RectTransform logoRect;
     private List<Button> welcomeButtons;
     private List<Button> abiExampleButtons;
     private Image welcomeBackgroundImage;
+
     [Header("NetworkDropdown")]
     public TMP_Dropdown networkDropdown;
     public RectTransform networkTemplateItemRect;
+    public RectTransform networkDropdownArrowRect;
+    public ScrollRect templateScroll;
 
 
     //Address Panel
@@ -79,9 +90,11 @@ public class DemoUIManager : MonoBehaviour
     public GameObject loadingPanel;
 
     //Console panel
-    [Header("Console panel")]
-    public RectTransform consolePanelRect;
-    public ScrollRect consoleScrollRect;
+    [Header("Log panel")]
+    public RectTransform logPanelRect;
+    public RectTransform logRect;
+    public ScrollRect logScrollRect;
+    public TMP_Text logText;
 
     //Sprites
     [Header("Sprites")]
@@ -96,9 +109,12 @@ public class DemoUIManager : MonoBehaviour
     public Color outlineColor; //Todo: make it gradient
     public Color addressTextColor;
 
+
     private ScreenRatio screenRatio = ScreenRatio.Default;
+
     private void Start()
     {
+        parentSize = canvasRect.rect.size;
         screenRatio = GetScreenRatio();
         GetAllElements();
         SetStyle();
@@ -146,46 +162,55 @@ public class DemoUIManager : MonoBehaviour
         switch (screenRatio)
         {
             case ScreenRatio.Two_One:
+                //SetWalletBackButtonStyle(40f);
                 SetConnectPanelStyle(35, 4f);
-                SetWelcomePanelStyle(3, new Vector2(200, 50), new Vector2(20, 25), 14, 4f,50);
+                SetWelcomePanelStyle(3, new Vector2(200, 50), new Vector2(20, 25), 12, 4f, 30);
                 SetABIExampleButtonStyle(10, 6f);
                 SetAddressPanelStyle(30);
                 SetCollectionsStyle(CollectionLayout.Vertical);
                 SetHistoryStyle(3, 12);
-
+                SetLogPanelStyle(0.12f,20);
                 break;
             case ScreenRatio.OneHalf_One:
+                //SetWalletBackButtonStyle(50f);
                 SetConnectPanelStyle(35, 4f);
-                SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f,50);
+                SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 12, 4f, 30);
                 SetABIExampleButtonStyle(10, 6f);
                 SetAddressPanelStyle(30);
                 SetCollectionsStyle(CollectionLayout.Vertical);
                 SetHistoryStyle(2, 18);
+                SetLogPanelStyle(0.1f,20);
 
                 break;
             case ScreenRatio.One_One:
+                //SetWalletBackButtonStyle(60f);
                 SetConnectPanelStyle(28, 4f);
-                SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f,50);
+                SetWelcomePanelStyle(2, new Vector2(300, 50), new Vector2(40, 25), 14, 4f, 40);
                 SetABIExampleButtonStyle(10, 6f);
                 SetAddressPanelStyle(28);
                 SetCollectionsStyle(CollectionLayout.Vertical);
                 SetHistoryStyle(2, 15);
+                SetLogPanelStyle(0.1f,20);
                 break;
             case ScreenRatio.One_OneHalf:
+                //SetWalletBackButtonStyle(100f);
                 SetConnectPanelStyle(28, 2f);
-                SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f,75);
+                SetWelcomePanelStyle(1, new Vector2(500, 65), new Vector2(0, 20), 22, 2f, 50);
                 SetABIExampleButtonStyle(25, 4f);
                 SetAddressPanelStyle(28);
                 SetCollectionsStyle(CollectionLayout.Horizontal);
                 SetHistoryStyle(1, 18);
+                SetLogPanelStyle(0.07f,20);
                 break;
             case ScreenRatio.One_Two:
+                //SetWalletBackButtonStyle(120f);
                 SetConnectPanelStyle(28, 2f);
-                SetWelcomePanelStyle(1, new Vector2(450, 90), new Vector2(0, 30), 28, 2f,75);
+                SetWelcomePanelStyle(1, new Vector2(500, 90), new Vector2(0, 30), 28, 2f, 50);
                 SetABIExampleButtonStyle(25, 4f);
                 SetAddressPanelStyle(28);
                 SetCollectionsStyle(CollectionLayout.Horizontal);
                 SetHistoryStyle(1, 18);
+                SetLogPanelStyle(0.07f,20);
                 break;
         }
 
@@ -228,7 +253,6 @@ public class DemoUIManager : MonoBehaviour
         var imgRect = img.GetComponent<RectTransform>();
         imgRect.pivot = new Vector2(0.5f, 0.5f);
 
-        Vector2 parentSize = collectionScrollRect.rect.size;
         //TODO: Calculate widht or height base on collection style
         if (collectionLayout == CollectionLayout.Horizontal)
         {
@@ -239,9 +263,9 @@ public class DemoUIManager : MonoBehaviour
             collectionScrollLayoutGroup.cellSize = new Vector2(side, side);
 
             labelRect.localPosition = new Vector2(0, -side / 4f);
-            
+
             //imgRect.sizeDelta = new Vector2(side / 2f, side / 2f);
-            imgRect.localPosition = new Vector2(0, side/5f);
+            imgRect.localPosition = new Vector2(0, side / 5f);
         }
         else
         {
@@ -254,11 +278,11 @@ public class DemoUIManager : MonoBehaviour
             labelRect.localPosition = new Vector2(0, -side / 4f);
 
             imgRect.sizeDelta = new Vector2(side / 2f, side / 2f);
-            imgRect.localPosition = new Vector2(0, side/5f);
+            imgRect.localPosition = new Vector2(0, side / 5f);
         }
 
-        
-        
+
+
 
 
     }
@@ -278,7 +302,6 @@ public class DemoUIManager : MonoBehaviour
         groupLabel.color = buttonTextColor;
         groupLabel.fontSize = collectionCategoryGroupFontSize;
 
-        Vector2 parentSize = collectionCatRect.rect.size;
         if (collectionLayout == CollectionLayout.Horizontal)
         {
             //portrait mode
@@ -306,7 +329,7 @@ public class DemoUIManager : MonoBehaviour
     /// <param name="historyUnit"></param>
     public void SetHistoryUnitStyle(HistoryUnit historyUnit)
     {
-        
+
 
         var img = historyUnit.GetUnitImage();
         img.color = buttonBackgroundColor;
@@ -331,6 +354,13 @@ public class DemoUIManager : MonoBehaviour
 
     }
 
+    private void SetWalletBackButtonStyle(float height)
+    {
+        var btnRect = walletBackButton.GetComponent<RectTransform>();
+        btnRect.sizeDelta = new Vector2(btnRect.rect.width, height);
+        btnRect.localPosition = new Vector2(0, parentSize.y/2f);
+    }
+
 
     /// <summary>
     /// Set Button styles in welcome panel
@@ -339,6 +369,8 @@ public class DemoUIManager : MonoBehaviour
     /// <param name="roundCorner">Unit per pixel in image component </param>
     private void SetWelcomePanelStyle(int groupConstraint, Vector2 buttonSize, Vector2 buttonSpacing, int fontSize, float roundCorner, float dropdownItemHeight)
     {
+        RectTransform welcomeRect = welcomePanelLayout.GetComponent<RectTransform>();
+        welcomeRect.localPosition = new Vector2(0, -parentSize.y*0.08f);
         //Panel Layout
         welcomePanelLayout.constraintCount = groupConstraint;
         welcomePanelLayout.cellSize = buttonSize;
@@ -363,9 +395,11 @@ public class DemoUIManager : MonoBehaviour
 
         }
 
+        logoRect.sizeDelta = new Vector2(buttonSize.x * 0.9f, buttonSize.y);
+
         SetNetworkDropdownStyle(buttonSize, fontSize, dropdownItemHeight);
 
-        
+
 
     }
     private void SetABIExampleButtonStyle(int fontSize, float roundCorner)
@@ -386,27 +420,47 @@ public class DemoUIManager : MonoBehaviour
     private void SetNetworkDropdownStyle(Vector2 buttonSize, int fontSize, float dropdownItemHeight)
     {
         //Chain Selector Dropdown
-        var parentWidth = welcomePanelLayout.GetComponent<RectTransform>().rect.width;
-        networkDropdown.GetComponent<RectTransform>().sizeDelta = new Vector2(parentWidth / 3f, buttonSize.y / 2f);
+        var barWidth = buttonSize.x *2f/ 3f;
+        var barHeight = buttonSize.y / 2f;
 
+        var dropdownRect = networkDropdown.GetComponent<RectTransform>();
+        dropdownRect.sizeDelta = new Vector2(barWidth, barHeight);
+        dropdownRect.localPosition = new Vector2(parentSize.x/2f-barWidth/2f - barHeight/2f, parentSize.y/2f-barHeight);
+
+        networkTemplateItemRect.sizeDelta = new Vector2(0, dropdownItemHeight);
+
+        networkDropdownArrowRect.pivot = new Vector2(0.5f, 0.5f);
+        networkDropdownArrowRect.localPosition = new Vector2(barWidth/2-barHeight/2, 0);
+        networkDropdownArrowRect.sizeDelta = new Vector2(barHeight, barHeight);
         //font and colors
         networkDropdown.GetComponent<Image>().color = buttonBackgroundColor;
         networkDropdown.template.GetComponent<Image>().color = buttonBackgroundColor;
 
+        //Caption
         networkDropdown.captionText.fontSize = fontSize;
         networkDropdown.captionText.color = buttonTextColor;
+
+        networkDropdown.captionImage.rectTransform.sizeDelta = new Vector2(barHeight / 2f, barHeight / 2f);
+        networkDropdown.captionImage.rectTransform.localPosition = new Vector2(-barWidth/2f + barHeight, 0);
+
+        //Template Items
+        
+        //logo
+        networkDropdown.itemImage.rectTransform.sizeDelta = new Vector2(barHeight / 2f, barHeight/ 2f);
+        networkDropdown.itemImage.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+        networkDropdown.itemImage.rectTransform.localPosition= new Vector2(-barWidth/2f + barHeight, 0);
+        //text
+        networkDropdown.itemText.rectTransform.sizeDelta = new Vector2(barWidth-barHeight,barHeight);
+        networkDropdown.itemText.rectTransform.localPosition = new Vector2(barHeight,0);
         networkDropdown.itemText.fontSize = fontSize;
         networkDropdown.itemText.color = buttonTextColor;
 
-        
-        networkDropdown.itemImage.rectTransform.sizeDelta = new Vector2(buttonSize.y / 2f, buttonSize.y / 2f);
         var scrollbar = networkDropdown.template.GetComponentInChildren<Scrollbar>();
         scrollbar.GetComponent<Image>().color = buttonBackgroundColor;
         scrollbar.handleRect.GetComponent<Image>().color = buttonHighlightColor;
 
-        networkTemplateItemRect.sizeDelta = new Vector2(networkTemplateItemRect.rect.size.x, dropdownItemHeight);
+        networkTemplateItemRect.sizeDelta = new Vector2(0, dropdownItemHeight);
         
-
         Toggle networkToggle = networkDropdown.template.GetComponentInChildren<Toggle>();
         networkToggle.GetComponentInChildren<TMP_Text>().fontSize = fontSize;
         networkToggle.GetComponentInChildren<TMP_Text>().color = buttonTextColor;
@@ -414,11 +468,6 @@ public class DemoUIManager : MonoBehaviour
         toggleCB.normalColor = buttonBackgroundColor;
         toggleCB.selectedColor = buttonHighlightColor;
         networkToggle.colors = toggleCB;
-    }
-
-    private void SetConsolePanelStyle()
-    {
-        
     }
 
 
@@ -446,7 +495,6 @@ public class DemoUIManager : MonoBehaviour
         addressText.color = addressTextColor;
         addressText.fontSize = addressFontSize;
         //Back Button:
-        Vector2 parentSize = addressPanel.GetComponent<RectTransform>().rect.size;
         SetBackButtonStyle(addressBackButton, parentSize);
 
         //outline
@@ -457,7 +505,7 @@ public class DemoUIManager : MonoBehaviour
 
     private void SetCollectionsStyle(CollectionLayout layout)
     {
-        
+
         collectionLayout = layout; //For button styles 
         Vector2 collectionPanelSize = collectionRect.sizeDelta;
         if (layout == CollectionLayout.Horizontal)
@@ -480,9 +528,9 @@ public class DemoUIManager : MonoBehaviour
         //suitable for portrait layout
         //Group Layout
 
-        collectionCatRect.sizeDelta = new Vector2(width, height);
+        collectionCatRect.sizeDelta = new Vector2(width, height-logRect.rect.height);
         collectionCatRect.pivot = new Vector2(0.5f, 0.5f);
-        collectionCatRect.localPosition = new Vector2(0, -height / 2f + parentSize.y / 2f);
+        collectionCatRect.localPosition = new Vector2(0, -height / 2f + parentSize.y / 2f+ logRect.rect.height/2f);
         //Token Layout
 
         collectionScrollRect.sizeDelta = new Vector2(width, parentSize.y - height);
@@ -491,7 +539,7 @@ public class DemoUIManager : MonoBehaviour
 
         //Back Btn
         SetBackButtonStyle(collectionBackButton, parentSize);
-        SetScrollBarStyle(collectionVerticalScrollBar,parentSize);
+        SetScrollBarStyle(collectionVerticalScrollBar, parentSize);
 
     }
     private void VerticalCollection(Vector2 parentSize)
@@ -500,9 +548,9 @@ public class DemoUIManager : MonoBehaviour
         var height = parentSize.y;
         //suitable for landscape layout
 
-        collectionCatRect.sizeDelta = new Vector2(width, height);
+        collectionCatRect.sizeDelta = new Vector2(width, height- logRect.rect.height);
         collectionCatRect.pivot = new Vector2(0.5f, 0.5f);
-        collectionCatRect.localPosition = new Vector2(width / 2f - parentSize.x / 2f, 0);
+        collectionCatRect.localPosition = new Vector2(width / 2f - parentSize.x / 2f, logRect.rect.height/2f);
 
         //Token Layout
 
@@ -522,17 +570,17 @@ public class DemoUIManager : MonoBehaviour
         historyTextFontSize = fontSize;
         historyLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
         historyLayoutGroup.constraintCount = col;
-        
-        if(col == 2)
+
+        if (col == 2)
         {
             historyLayoutGroup.cellSize = new Vector2(300, 100);
             historyLayoutGroup.spacing = new Vector2(40, 20);
-            historyUnitGridLayoutCellSize = new Vector2(80,0);
+            historyUnitGridLayoutCellSize = new Vector2(80, 0);
 
         }
-        else if(col == 3)
+        else if (col == 3)
         {
-            
+
             historyLayoutGroup.cellSize = new Vector2(200, 80);
             historyLayoutGroup.spacing = new Vector2(20, 20);
             historyUnitGridLayoutCellSize = new Vector2(50, 0);
@@ -544,7 +592,7 @@ public class DemoUIManager : MonoBehaviour
             historyUnitGridLayoutCellSize = new Vector2(150, 0);
         }
         SetBackButtonStyle(historyBackButton, historyRect.sizeDelta);
-        SetScrollBarStyle(historyVerticalScrollBar,historyRect.sizeDelta);
+        SetScrollBarStyle(historyVerticalScrollBar, historyRect.sizeDelta);
 
     }
 
@@ -594,7 +642,7 @@ public class DemoUIManager : MonoBehaviour
     }
 
 
-    private void SetBackButtonStyle(Button backButton,Vector2 panelSize)
+    private void SetBackButtonStyle(Button backButton, Vector2 panelSize)
     {
         RectTransform btnRect = backButton.GetComponent<RectTransform>();
         Vector2 btnSize = new Vector2(panelSize.x / 8f, panelSize.x / 16f);
@@ -615,6 +663,17 @@ public class DemoUIManager : MonoBehaviour
         scrollbar.gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(parentSize.x / 40, parentSize.y);
     }
 
+    private void SetLogPanelStyle(float heightRatio, int fontSize)
+    {
+
+        float height = parentSize.y * heightRatio;
+
+
+        logRect.sizeDelta = new Vector2(0, height);
+        logRect.localPosition = new Vector2(0, -logPanelRect.rect.height/2f+  height / 2f);
+        logText.fontSize = fontSize*(Screen.height/1000f);
+    }
+
 
     private ScreenRatio GetScreenRatio()
     {
@@ -627,11 +686,11 @@ public class DemoUIManager : MonoBehaviour
         {
             return ScreenRatio.OneHalf_One;
         }
-        else if (camera.aspect > 0.9)
+        else if (camera.aspect > 0.8)
         {
             return ScreenRatio.One_One;
         }
-        else if (camera.aspect > 0.5)
+        else if (camera.aspect > 0.65)
         {
             return ScreenRatio.One_OneHalf;
         }
