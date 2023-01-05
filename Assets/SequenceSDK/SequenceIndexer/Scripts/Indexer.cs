@@ -92,7 +92,7 @@ namespace SequenceSharp
         private static string HostName(BigInteger chainID)
         {
             var indexerName = IndexerNames[chainID];
-            return $"https://{indexerName}-indexer.sequence.app";
+            return $"https://{indexerName}-indexer-v2.sequence.app";
         }
 
         public static async Task<T[]> FetchMultiplePages<T>(Func<int, Task<(Page, T[])>> func, int maxPages)
