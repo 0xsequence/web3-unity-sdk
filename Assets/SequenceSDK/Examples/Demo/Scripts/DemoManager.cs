@@ -100,8 +100,8 @@ public class DemoManager : MonoBehaviour
 
     private bool m_connected = false; //For UI Only
 
-    public Web3 web3 = new Web3();
-    private SequenceInterceptor _sequenceInterceptor;
+    public Web3 web3;
+    private SequenceWeb3Client _sequenceWeb3Client;
     public static DemoManager Instance { get; private set; }
 
     private void Awake()
@@ -115,8 +115,8 @@ public class DemoManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        _sequenceInterceptor = new SequenceInterceptor(wallet, Chain.Polygon);
-        web3.Client.OverridingRequestInterceptor = _sequenceInterceptor;
+        _sequenceWeb3Client = new SequenceWeb3Client(wallet, Chain.Polygon);
+        web3 = new Web3(_sequenceWeb3Client);
     }
 
     private void OnEnable()
@@ -308,7 +308,7 @@ public class DemoManager : MonoBehaviour
 
     public void ChangeNetwork(BigInteger chainId)
     {
-        _sequenceInterceptor.chainID = chainId;
+        _sequenceWeb3Client.chainID = chainId;
     }
 
     public async void Connect()

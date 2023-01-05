@@ -29,23 +29,51 @@ namespace SequenceSharp
         public string hex;
     }
 
-    public class SequenceInterceptor : RequestInterceptor
+    public class SequenceWeb3Client : IClient
     {
         public BigInteger chainID;
         private readonly Wallet _wallet;
 
+        // TODO THIS IS WRONG! we need to get tx receipts from specific TXs.
         private TransactionReceipt transactionReceipt = new TransactionReceipt();
 
-        public SequenceInterceptor(Wallet wallet, BigInteger chainID)
+        public RequestInterceptor OverridingRequestInterceptor { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public SequenceWeb3Client(Wallet wallet, BigInteger chainID)
         {
             _wallet = wallet;
             this.chainID = chainID;
         }
 
-        public override async Task<object> InterceptSendRequestAsync<TResponse>(
-            Func<RpcRequest, string, Task<TResponse>> interceptedSendRequestAsync,
-            RpcRequest request,
-            string route = null
+        public async Task<T> SendRequestAsync<T>(
+                  RpcRequest request, string route = null
+              )
+        {
+            return (T)await _SendRequestAsync(request, route);
+        }
+
+
+        public Task<RpcRequestResponseBatch> SendBatchRequestAsync(RpcRequestResponseBatch rpcRequestResponseBatch)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<T> SendRequestAsync<T>(string method, string route = null, params object[] paramList)
+        {
+            return (T)await _SendRequestAsync(new RpcRequest("1234", method, paramList));
+        }
+
+        public async Task SendRequestAsync(RpcRequest request, string route = null)
+        {
+            await _SendRequestAsync(request, route);
+        }
+
+        public async Task SendRequestAsync(string method, string route = null, params object[] paramList)
+        {
+            await _SendRequestAsync(new RpcRequest("1234", method, paramList));
+        }
+        private async Task<object> _SendRequestAsync(
+            RpcRequest request, string route = null
         )
         {
             if (request.Method == ApiMethods.eth_sendTransaction.ToString())
@@ -82,7 +110,7 @@ namespace SequenceSharp
                         error: null
                     };
                 "
-                ).ConfigureAwait(false);
+                );
                 RpcResponseMessage rpcResponseMessage =
                     JsonConvert.DeserializeObject<RpcResponseMessage>(rpcResponse);
 
@@ -116,7 +144,7 @@ namespace SequenceSharp
 
                     return estimate;
 "
-                ).ConfigureAwait(false);
+                );
                 EstimatedGas gas = JsonConvert.DeserializeObject<EstimatedGas>(estimatedGas);
 
                 return new HexBigInteger(gas.hex);
@@ -149,7 +177,7 @@ namespace SequenceSharp
                             error: null
                         };
                     return rpcResponse;
-                ").ConfigureAwait(false);
+                ");
 
                 RpcResponseMessage rpcResponseMessage =
                     JsonConvert.DeserializeObject<RpcResponseMessage>(rpcResponse);
@@ -181,8 +209,8 @@ namespace SequenceSharp
             }
             else if (request.Method == ApiMethods.eth_getBalance.ToString())
             {
-                var accountAddress = await _wallet.GetAddress().ConfigureAwait(false);
-                var ethBalance = await Indexer.GetEtherBalance(chainID, accountAddress).ConfigureAwait(false);
+                var accountAddress = await _wallet.GetAddress();
+                var ethBalance = await Indexer.GetEtherBalance(chainID, accountAddress);
                 return ethBalance;
             }
             else if (request.Method == ApiMethods.eth_chainId.ToString())
@@ -196,17 +224,13 @@ namespace SequenceSharp
             }
             else if (request.Method == ApiMethods.eth_accounts.ToString())
             {
-                var addr = await _wallet.GetAddress().ConfigureAwait(false);
+                var addr = await _wallet.GetAddress();
                 return new string[] { addr };
             }
             else
             {
                 Debug.Log("Non-intercepted Sequence call: " + request.Method);
-                return await base.InterceptSendRequestAsync(
-                    interceptedSendRequestAsync,
-                    request,
-                    route
-                ).ConfigureAwait(false);
+                throw new NotImplementedException();
             }
         }
 
