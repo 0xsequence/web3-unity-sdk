@@ -100,7 +100,7 @@ namespace SequenceSharp
             Web.SetUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36 UnitySequence ");
             _walletWindow = CanvasWebViewPrefab.Instantiate();
             _walletWindow.transform.SetParent(this.transform);
-
+ 
             // set Widget to full-size of parent
             var rect = _walletWindow.GetComponent<RectTransform>();
             rect.sizeDelta = new Vector2(0, 0);

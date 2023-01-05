@@ -1,0 +1,16 @@
+{
+    "name": "SequenceSDK",
+    "rootNamespace": "",
+    "references": [
+        "GUID:510c782596b754f47a9cf55c173137ec"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

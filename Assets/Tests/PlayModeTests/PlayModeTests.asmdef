@@ -1,0 +1,38 @@
+{
+    "name": "PlayModeTests",
+    "rootNamespace": "",
+    "references": [
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "SequenceSDK"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll",
+        "Nethereum.Web3.dll",
+        "Newtonsoft.Json.dll",
+        "NBitcoin.dll",
+        "Nethereum.ABI.dll",
+        "Nethereum.Hex.dll",
+        "Nethereum.RPC.dll",
+        "Nethereum.JsonRpc.RpcClient.dll",
+        "Nethereum.JsonRpc.Client.dll",
+        "Nethereum.HdWallet.dll",
+        "Nethereum.Accounts.dll",
+        "Nethereum.Signer.dll",
+        "Nethereum.Util.dll",
+        "Nethereum.BlockchainProcessing.dll",
+        "Microsoft.Extensions.Logging.Abstractions.dll",
+        "Nethereum.RLP.dll",
+        "Nethereum.Contracts.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -31,6 +31,7 @@ namespace SequenceSharp
 
     public class SequenceWeb3Client : IClient
     {
+        public string name = "Sequence Web3 Client";
         public BigInteger chainID;
         private readonly Wallet _wallet;
 
