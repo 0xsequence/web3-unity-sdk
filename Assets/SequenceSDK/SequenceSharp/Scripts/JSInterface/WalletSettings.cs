@@ -76,11 +76,12 @@ public class WalletSettings
 
     /**
      * <summary>
-     * **Only Email signin is supported. Other login methods will not work.**
      * Specify which sign in options are allowed.
      * Will be ignored if user is already signed in.
+     * On non-webgl platforms, social logins won't work unless you follow the guide in the docs.
+     * Those social login options won't appear in non-webgl builds unless you follow the guide.
      * </summary>
      */
-    public string[]? signInOptions = new string[] { "email" };
+    public string[]? signInOptions;
 #nullable disable
 }

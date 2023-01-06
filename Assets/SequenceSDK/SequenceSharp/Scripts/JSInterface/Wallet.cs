@@ -16,6 +16,8 @@ using UnityEngine.Events;
 using Vuplex.WebView;
 #if UNITY_STANDALONE || UNITY_EDITOR
 using System.Linq;
+using System.Threading;
+using System.Net.Sockets;
 #endif
 #else
 using System.Runtime.InteropServices;
@@ -31,6 +33,13 @@ namespace SequenceSharp
     /// </summary>
     public class Wallet : MonoBehaviour
     {
+        private const int WINDOWS_IPC_PORT = 52836;
+
+        /// <summary>
+        /// The URL protocol you've set up for Sequence social login.
+        /// </summary>
+        public string appProtocol;
+
         /// <summary>
         /// Called when the Wallet is opened.
         /// You should subscribe to this event and make it visible.
@@ -122,8 +131,100 @@ namespace SequenceSharp
             });
 
             _internalWebView = Web.CreateWebView();
+
+            Application.deepLinkActivated += DeepLinkCallback;
+#if UNITY_STANDALONE_WIN
+            // Run a TCP server on Windows standalone to get the auth token from the other instance.
+            /**
+            ***** IMPORTANT NOTE *****
+            ***** IMPORTANT NOTE *****
+            ***** IMPORTANT NOTE *****
+            ***** IMPORTANT NOTE *****
+            ***** IMPORTANT NOTE *****
+
+            Do not add code to this TCP server/client without thinking very carefully; it's easy to get driveby exploited since this is a TCP server any application can talk to.
+            Do not increase the attack surface without careful thought.
+
+            ***** IMPORTANT NOTE *****
+            ***** IMPORTANT NOTE *****
+            ***** IMPORTANT NOTE *****
+            ***** IMPORTANT NOTE *****
+
+            **/
+            var syncContext = SynchronizationContext.Current;
+            var ipcListener = new Thread(() =>
+            {
+                var socketConnection = new TcpListener(System.Net.IPAddress.Parse("127.0.0.1"), WINDOWS_IPC_PORT);
+                socketConnection.Start();
+                var bytes = new System.Byte[1024];
+                var msg = "";
+                while (true)
+                {
+                    using (var connectedTcpClient = socketConnection.AcceptTcpClient())
+                    {
+                        using (NetworkStream stream = connectedTcpClient.GetStream())
+                        {
+                            int length;
+                            while ((length = stream.Read(bytes, 0, bytes.Length)) != 0)
+                            {
+                                var data = new byte[length];
+                                System.Array.Copy(bytes, 0, data, 0, length);
+                                // Convert byte array to string message. 							
+                                string clientMessage = System.Text.Encoding.ASCII.GetString(data);
+                                if (clientMessage.StartsWith("@@@@"))
+                                {
+                                    msg = clientMessage.Replace("@@@@", "");
+                                }
+                                else
+                                {
+                                    msg += clientMessage.Replace("$$$$", "");
+                                }
+
+                                if (msg.Length > 8192)
+                                {
+                                    // got some weird garbage, toss it to avoid memory leaks.
+                                    msg = "";
+                                }
+
+                                if (clientMessage.EndsWith("$$$$"))
+                                {
+                                    syncContext.Post((data) =>
+                                    {
+                                        DeepLinkCallback((string)data);
+
+                                    }, msg);
+                                }
+
+                            }
+                        }
+                    }
+                }
+            });
+            ipcListener.IsBackground = true;
+            ipcListener.Start();
+
+#endif
 #endif
             _HideWallet();
+        }
+
+        private void DeepLinkCallback(string link)
+        {
+            if (!link.Contains("://mobile.skyweaver.net/auth#"))
+            {
+                _SequenceDebugLogError("Invalid deep link " + link);
+                // random deep link, we don't care
+                return;
+            }
+            var authParam = link.Split("://mobile.skyweaver.net/auth#");
+            if (authParam.Length != 2)
+            {
+                _SequenceDebugLogError("Invalid deep link " + link);
+                return;
+            }
+            // use href change so JS can detect it 
+            var authUrl = "window.location.href = window.location.protocol +'//' + window.location.hostname + (window.location.port ? (':' + window.location.port) : '') + '/auth#" + authParam[1] + "'";
+            _walletWindow.WebView.ExecuteJavaScript(authUrl);
         }
 
         public async void Start()
@@ -170,7 +271,7 @@ namespace SequenceSharp
             var internalWebViewWithPopups = _internalWebView as IWithPopups;
             if (internalWebViewWithPopups == null)
             {
-                throw new IOException("Broken!");
+                throw new IOException("Failed to catch popups from JS controller webview!");
             }
             internalWebViewWithPopups.SetPopupMode(PopupMode.NotifyWithoutLoading);
             internalWebViewWithPopups.PopupRequested += (sender, eventArgs) =>
@@ -293,8 +394,19 @@ namespace SequenceSharp
             var walletWithPopups = _walletWindow.WebView as IWithPopups;
             if (walletWithPopups == null)
             {
-                throw new IOException("Broken!");
+                throw new IOException("Failed to catch popups from JS controller webview!");
             }
+            walletWithPopups.SetPopupMode(PopupMode.NotifyWithoutLoading);
+            // Open external links in the native browser.
+            walletWithPopups.PopupRequested += (_webview, p) =>
+            {
+                if (!p.Url.StartsWith("http"))
+                {
+                    _SequenceDebugLog("Sequence prevented opening non-web external link " + p.Url);
+                    return;
+                }
+                Application.OpenURL(p.Url);
+            };
 
             _walletWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) =>
             {
@@ -453,6 +565,54 @@ namespace SequenceSharp
         /// <exception cref="JSExecutionException">Thrown if the user declines the connection.</exception>
         public Task<ConnectDetails> Connect(ConnectOptions options)
         {
+            if (options.appProtocol == null && appProtocol.Length > 0)
+            {
+                options.appProtocol = appProtocol;
+            }
+
+            // In non-webgl builds, unless you have an app protocol set up, only email signin works.
+#if !UNITY_WEBGL
+            if (options.settings.signInOptions == null && options.appProtocol == null)
+            {
+                _SequenceDebugLogError("Set up an appProtocol in the Wallet prefab to enable social signin. Until you do, only email signin will be supported in non-webGL builds.");
+                options.settings.signInOptions = new string[] { "email" };
+            }
+#endif
+            if (options.appProtocol != null)
+            {
+#if UNITY_EDITOR
+                _SequenceDebugLog("You set up an appProtocol, but inside the Unity Editor, only email signin is supported. These signin methods will work in standalone builds.");
+                options.settings.signInOptions = new string[] { "email" };
+#elif UNITY_STANDALONE_OSX
+                // ensure our URL protocol handler is registered - MacOS sometimes doesn't pick it up from Info.plist.
+                var appPath = System.IO.Directory.GetParent(Application.dataPath);
+                var command = new System.Diagnostics.ProcessStartInfo();
+                command.FileName = "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister";
+                command.Arguments = " -R -f " + appPath;
+                command.UseShellExecute = false;
+                command.CreateNoWindow = true;
+                System.Diagnostics.Process.Start(command);
+#elif UNITY_STANDALONE_WIN
+                // Register a Windows URL protocol handler in the Windows Registry.
+                var appPath = Path.GetFullPath(Application.dataPath.Replace("_Data", ".exe"));
+                string[] commands = new string[]{
+                    $"add HKEY_CURRENT_USER\\Software\\Classes\\{options.appProtocol} /t REG_SZ /d \"URL:Sequence Login for {Application.productName}\" /f",
+                    $"add HKEY_CURRENT_USER\\Software\\Classes\\{options.appProtocol} /v \"URL Protocol\" /t REG_SZ /d \"\" /f",
+                    $"add HKEY_CURRENT_USER\\Software\\Classes\\{options.appProtocol}\\shell /f",
+                    $"add HKEY_CURRENT_USER\\Software\\Classes\\{options.appProtocol}\\shell\\open /f",
+                    $"add HKEY_CURRENT_USER\\Software\\Classes\\{options.appProtocol}\\shell\\open\\command /t REG_SZ /d \"\\\"{appPath}\\\" \\\"%1\\\"\" /f",
+                };
+                foreach(var args in commands) {
+                    var command = new System.Diagnostics.ProcessStartInfo();
+                    command.FileName = "C:\\Windows\\System32\\reg.exe";
+                    command.Arguments = args;
+                    command.UseShellExecute = false;
+                    command.CreateNoWindow = true;
+                    System.Diagnostics.Process.Start(command);
+                }
+#endif
+            }
+
             return ExecuteSequenceJSAndParseJSON<ConnectDetails>("return seq.getWallet().connect(" + ObjectToJson(options) + ");");
         }
 
@@ -565,11 +725,11 @@ namespace SequenceSharp
             });
         }
 #nullable disable
-        private void _SequenceDebugLog(string message)
+        private static void _SequenceDebugLog(string message)
         {
             Debug.Log("<color=#a340f5>[Sequence]</color> " + message);
         }
-        private void _SequenceDebugLogError(string message)
+        private static void _SequenceDebugLogError(string message)
         {
             Debug.LogError("<color=#f54073>[Sequence Error]</color> " + message);
         }
@@ -598,6 +758,25 @@ namespace SequenceSharp
                 _walletVisible = true;
             }
         }
+
+        // On Windows standalone, deep link will open a second instance of tghe game.
+        // We need to catch this, and send our deep link URL to the already-running instance (through a TCP server)
+#if UNITY_STANDALONE_WIN
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        static void OnBeforeSceneLoadRuntimeMethod()
+        {
+            _SequenceDebugLog("Absolute URL: " + Application.absoluteURL);
+            var args = System.Environment.GetCommandLineArgs();
+            if (args.Length > 1 && args[1].Contains("://"))
+            {
+                var socketConnection = new TcpClient("localhost", WINDOWS_IPC_PORT);
+                var bytes = System.Text.Encoding.ASCII.GetBytes("@@@@" + args[1] + "$$$$");
+                socketConnection.GetStream().Write(bytes, 0, bytes.Length);
+                socketConnection.Close();
+                Application.Quit();
+            }
+        }
+#endif
     }
 
     class PromiseReturn
