@@ -31,6 +31,12 @@ namespace SequenceSharp
     /// </summary>
     public class Wallet : MonoBehaviour
     {
+
+        /// <summary>
+        /// The URL protocol you've set up for Sequence social login.
+        /// </summary>
+        public string appProtocol;
+
         /// <summary>
         /// Called when the Wallet is opened.
         /// You should subscribe to this event and make it visible.
@@ -122,6 +128,26 @@ namespace SequenceSharp
             });
 
             _internalWebView = Web.CreateWebView();
+
+            Application.deepLinkActivated += (link) =>
+            {
+                if (!link.Contains("://mobile.skyweaver.net/auth#"))
+                {
+                    _SequenceDebugLogError("Invalid deep link " + link);
+                    // random deep link, we don't care
+                    return;
+                }
+                var authParam = link.Split("://mobile.skyweaver.net/auth#");
+                if (authParam.Length != 2)
+                {
+                    _SequenceDebugLogError("Invalid deep link " + link);
+                    return;
+                }
+                // use href change so JS can detect it 
+                var authUrl = "window.location.href = window.location.protocol +'//' + window.location.hostname + (window.location.port ? (':' + window.location.port) : '') + '/auth#" + authParam[1] + "'";
+                _walletWindow.WebView.ExecuteJavaScript(authUrl);
+            };
+
 #endif
             _HideWallet();
         }
@@ -170,7 +196,7 @@ namespace SequenceSharp
             var internalWebViewWithPopups = _internalWebView as IWithPopups;
             if (internalWebViewWithPopups == null)
             {
-                throw new IOException("Broken!");
+                throw new IOException("Failed to catch popups from JS controller webview!");
             }
             internalWebViewWithPopups.SetPopupMode(PopupMode.NotifyWithoutLoading);
             internalWebViewWithPopups.PopupRequested += (sender, eventArgs) =>
@@ -293,8 +319,19 @@ namespace SequenceSharp
             var walletWithPopups = _walletWindow.WebView as IWithPopups;
             if (walletWithPopups == null)
             {
-                throw new IOException("Broken!");
+                throw new IOException("Failed to catch popups from JS controller webview!");
             }
+            walletWithPopups.SetPopupMode(PopupMode.NotifyWithoutLoading);
+            // Open external links in the native browser.
+            walletWithPopups.PopupRequested += (_webview, p) =>
+            {
+                if (!p.Url.StartsWith("http"))
+                {
+                    _SequenceDebugLog("Sequence prevented opening non-web external link " + p.Url);
+                    return;
+                }
+                Application.OpenURL(p.Url);
+            };
 
             _walletWindow.WebView.CloseRequested += (popupWebView, closeEventArgs) =>
             {
@@ -453,6 +490,25 @@ namespace SequenceSharp
         /// <exception cref="JSExecutionException">Thrown if the user declines the connection.</exception>
         public Task<ConnectDetails> Connect(ConnectOptions options)
         {
+            if (options.appProtocol == null && appProtocol.Length > 0)
+            {
+                options.appProtocol = appProtocol;
+            }
+
+            // In non-webgl builds, unless you have an app protocol set up, only email signin works.
+#if !UNITY_WEBGL
+            if (options.settings.signInOptions == null && options.appProtocol == null)
+            {
+                _SequenceDebugLogError("Set up an appProtocol in the Wallet prefab to enable social signin. Until you do, only email signin will be supported in non-webGL builds.");
+                options.settings.signInOptions = new string[] { "email" };
+            }
+#endif
+#if UNITY_EDITOR
+            if (options.appProtocol != null)
+            {
+                _SequenceDebugLog("You set up an appProtocol, but inside the Unity Editor, only email signin is supported. These signin methods will work in standalone builds.");
+            }
+#endif
             return ExecuteSequenceJSAndParseJSON<ConnectDetails>("return seq.getWallet().connect(" + ObjectToJson(options) + ");");
         }
 

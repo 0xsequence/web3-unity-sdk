@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657815, g: 0.49641192, b: 0.57481617, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2604,8 +2604,16 @@ PrefabInstance:
     m_TransformParent: {fileID: 361576368}
     m_Modifications:
     - target: {fileID: 1185229546643505893, guid: f16c10dd27546e44a8dd181994e459b0, type: 3}
+      propertyPath: appProtocol
+      value: demo-dapp-sequence
+      objectReference: {fileID: 0}
+    - target: {fileID: 1185229546643505893, guid: f16c10dd27546e44a8dd181994e459b0, type: 3}
       propertyPath: enableRemoteDebugging
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1185229546643505893, guid: f16c10dd27546e44a8dd181994e459b0, type: 3}
+      propertyPath: providerConfig.walletAppURL
+      value: https://sequence.app/
       objectReference: {fileID: 0}
     - target: {fileID: 1400256527652218485, guid: f16c10dd27546e44a8dd181994e459b0, type: 3}
       propertyPath: m_Pivot.x

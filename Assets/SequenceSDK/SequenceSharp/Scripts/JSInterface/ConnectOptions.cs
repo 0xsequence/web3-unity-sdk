@@ -20,6 +20,13 @@
 
         /**
             <summary>
+            Social auth redirect protocol - usually set internally by the Wallet.
+            </summary>
+        */
+        public string? appProtocol;
+
+        /**
+            <summary>
             Expiry number (in seconds) to expire connect session. Default is 1 week of seconds.
             </summary>
         */

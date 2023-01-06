@@ -100,7 +100,6 @@ namespace SequenceSharp
                         + transactionInput.Data
                         + @"'
                     };
-                    console.log(signer);
                     const txnResponse = await signer.sendTransactionBatch([tx]);
                 
                     return {
