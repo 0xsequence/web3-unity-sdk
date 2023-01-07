@@ -14,24 +14,25 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using NUnit.Framework;
-
+using Asyncoroutine;
 public class EthCallTest
 {
     public Web3 web3;
     private SequenceWeb3Client _sequenceWeb3Client;
-
+    private SequenceSharp.Wallet _wallet;
+    private Camera cam;
     //Scene
 
     private GameObject cameraObject;
-    private GameObject canvasObject;
+    private GameObject walletObject;
 
     [SetUp]
     public void Setup()
     {
- 
+        Debug.Log("Set up");
         cameraObject = new GameObject();
         cameraObject.name = "camera";
-        Camera cam = cameraObject.AddComponent<Camera>();
+        cam = cameraObject.AddComponent<Camera>();
         cam.clearFlags = CameraClearFlags.SolidColor;
         cam.backgroundColor = Color.black;
         cam.cullingMask = LayerMask.NameToLayer("Everything");
@@ -42,53 +43,82 @@ public class EthCallTest
         cam.rect = new Rect(0, 0, 1, 1);
         cam.depth = -1;
 
+        WalletInitialization();
+    }
+    [TearDown]
+    public void Reset()
+    {
+        Debug.Log("Tear Down");
+        GameObject.Destroy(cameraObject);
+        GameObject.Destroy(walletObject);
 
-        canvasObject = new GameObject();
-        canvasObject.name = "Canvas - Wallet";
-        Canvas walletCanvas = canvasObject.AddComponent<Canvas>();
+    }
+
+    public IEnumerator WalletInitialization()
+    {
+        walletObject = GameObject.Instantiate(Resources.Load("Canvas-Wallet") as GameObject);
+        Canvas walletCanvas = walletObject.GetComponent<Canvas>();
         walletCanvas.renderMode = RenderMode.ScreenSpaceCamera;
         walletCanvas.worldCamera = cam;
         walletCanvas.planeDistance = 100;
         walletCanvas.sortingLayerID = 1;
-
-        CanvasScaler walletCanvasScaler = canvasObject.AddComponent<CanvasScaler>();
-        walletCanvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        walletCanvasScaler.referenceResolution = new UnityEngine.Vector2(800, 600);
-        walletCanvasScaler.matchWidthOrHeight = 0f;
-        walletCanvasScaler.referencePixelsPerUnit = 100;
-
-        GraphicRaycaster walletGraphicRaycaster = canvasObject.AddComponent<GraphicRaycaster>();
-        walletGraphicRaycaster.ignoreReversedGraphics = true;
-        walletGraphicRaycaster.blockingObjects = GraphicRaycaster.BlockingObjects.None;
-        walletGraphicRaycaster.blockingMask = LayerMask.NameToLayer("Everything");
-
-
-
-
-    }
-
-    [UnityTest]
-    public IEnumerator WalletInitialization()
-    {
-
-        GameObject sequenceWalletPrefab = GameObject.Instantiate(Resources.Load("Canvas-Wallet") as GameObject);
-        Wallet wallet = sequenceWalletPrefab.GetComponent<Wallet>();
-        _sequenceWeb3Client = new SequenceWeb3Client(wallet, Chain.Polygon);
+        _wallet = walletObject.GetComponentInChildren<Wallet>();
+        _sequenceWeb3Client = new SequenceWeb3Client(_wallet, Chain.Polygon);
         Assert.AreEqual(_sequenceWeb3Client.name, "Sequence Web3 Client");
         web3 = new Web3(_sequenceWeb3Client);
         Assert.NotNull(web3);
+        yield return null;
 
-        yield return new WaitForSeconds(1);
+
     }
 
-    [UnityTest]
+/*    [Test]
+    public async Task Connect()
+    {
+        
+        Debug.Log("Connecting..." + _wallet);
+        var connectDetails = await _wallet.Connect(
+            new ConnectOptions { app = "Demo Unity Dapp" }
+        );
+        Debug.Log(
+            "[DemoDapp] Connect Details:  "
+                + JsonConvert.SerializeObject(
+                    connectDetails,
+                    Formatting.Indented,
+                    new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }
+                )
+        );
+
+        bool isConnected = await _wallet.IsConnected();
+        Debug.Log("Is Connected: " + isConnected);
+    }*/
+
+    
+
+
+/*    [UnityTest]
     public IEnumerator WalletConnect()
     {
-        Assert.Fail("TEST NOT IMPLEMENTED");
-        yield return null;
-    }
+        yield return WalletInitialization();
 
-    #region API_METHOD_methods tests
+        Debug.Log("web3 in wallet: "+ _wallet+", connect: " + web3.Client);
+        
+        yield return Connect((connectDetails)=>{
+            Debug.Log(
+            "[DemoDapp] Connect Details:  "
+                + JsonConvert.SerializeObject(
+                    connectDetails,
+                    Formatting.Indented,
+                    new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }
+                )
+        );
+        });
+        
+        // yield return _wallet.OpenWallet("wallet", null, null);
+    }*/
+
+    
+/*    #region API_METHOD_methods tests
 
     [UnityTest]
     public IEnumerator API_METHOD_Eth_ChainId()
@@ -142,6 +172,7 @@ public class EthCallTest
     [UnityTest]
     public IEnumerator API_METHOD_Eth_FeeHistory()
     {
+        Assert.Fail("TEST NOT IMPLEMENTED");
         yield return null;
     }
 
@@ -205,14 +236,17 @@ public class EthCallTest
     {
         Assert.Fail("TEST NOT IMPLEMENTED");
         yield return null;
-    }
-    [UnityTest]
-    public IEnumerator API_METHOD_Eth_Sign()
+    }*/
+    [Test]
+    public async void API_METHOD_Eth_Sign()
     {
-        Assert.Fail("TEST NOT IMPLEMENTED");
-        yield return null;
+        await WalletInitialization();
+        var message = "";
+        var signature=  web3.Eth.Sign.SendRequestAsync(await web3.GetAddress(), message);
+        Debug.Log("Signature: " + signature);
+        
     }
-    [UnityTest]
+/*    [UnityTest]
     public IEnumerator API_METHOD_Eth_SendTransaction()
     {
         Assert.Fail("TEST NOT IMPLEMENTED");
@@ -379,6 +413,6 @@ public class EthCallTest
         Assert.Fail("TEST NOT IMPLEMENTED");
         yield return null;
     }
-    #endregion
-
+    #endregion*/
+    
 }
