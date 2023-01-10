@@ -17,13 +17,16 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 namespace SequenceSharp
 {
     public class EthCallTest : MonoBehaviour
     {
+        public GameObject initializingUI;
         public Web3 web3;
         private SequenceWeb3Client _sequenceWeb3Client;
-        
+        private bool _initialized;
+        private string _address;
 
         [SerializeField]
         private SequenceSharp.Wallet wallet;
@@ -31,15 +34,22 @@ namespace SequenceSharp
         private int testId = 1;
         private string TestFailMessage = " <color=#B54423>[Eth Call Test]</color>";
         // Start is called before the first frame update
-        async void Start()
+         void Start()
         {
             _sequenceWeb3Client = new SequenceWeb3Client(wallet, Chain.Polygon);
             web3 = new Web3(_sequenceWeb3Client);
-
-            Connect();
+           
+            StartCoroutine(WaitForInitialization());
         }
 
-        public async void Connect()
+        IEnumerator WaitForInitialization()
+        {
+            initializingUI.SetActive(true);
+            yield return new WaitForSeconds(3);
+            initializingUI.SetActive(false); ;
+            Connect();
+        }
+        public async Task Connect()
         {
             var connectDetails = await wallet.Connect(
                 new ConnectOptions { app = "Demo Unity Dapp" }
@@ -55,12 +65,17 @@ namespace SequenceSharp
             );
 
             bool isConnected = await wallet.IsConnected();
+            Debug.Log("Is Wallet Connected: " + isConnected);
+            if (isConnected) _address = await wallet.GetAddress();
             Debug.Assert(isConnected, TestFailMessage + "Wallet is not connected! ");
+
+            await RunTests();
         }
 
             public async Task RunTests()
         {
-            
+            Debug.Log("Tests Started...");
+            await API_Method_Eth_Sign();
         }
 
         #region API_Method_methods tests
@@ -224,8 +239,8 @@ namespace SequenceSharp
 
         public async Task API_Method_Eth_Sign()
         {
-
-            var parameters = new object[] { };
+            var message = "Test Message";
+            var parameters = new object[] { _address, message };
             RpcRequest request = new RpcRequest(testId, ApiMethods.eth_sign.ToString(), parameters);
             var response = await web3.Client.SendRequestAsync<object>(request);
             Debug.Assert(response.GetType() == typeof(string), TestFailMessage + " Eth Sign Return Type is not string");
@@ -250,8 +265,9 @@ namespace SequenceSharp
         
         public async Task API_Method_Eth_Call()
         {
-            var message = "test message";
-            RpcRequest request = new RpcRequest(1, ApiMethods.eth_call.ToString(), new object[] { message });
+            var parameters = new object[] { };
+
+            RpcRequest request = new RpcRequest(1, ApiMethods.eth_call.ToString(), parameters);
             var response = await web3.Client.SendRequestAsync<object>(request);           
             Debug.Assert(response.GetType() == typeof(string), TestFailMessage + " Eth Call Return Type is not string");
 
