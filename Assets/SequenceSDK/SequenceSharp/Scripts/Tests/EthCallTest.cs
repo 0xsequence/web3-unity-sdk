@@ -45,7 +45,7 @@ namespace SequenceSharp
         IEnumerator WaitForInitialization()
         {
             initializingUI.SetActive(true);
-            yield return new WaitForSeconds(3);
+            yield return new WaitUntil(() => wallet.readyToConnect == true);
             initializingUI.SetActive(false); ;
             Connect();
         }
@@ -76,6 +76,7 @@ namespace SequenceSharp
         {
             Debug.Log("Tests Started...");
             await API_Method_Eth_Sign();
+
         }
 
         #region API_Method_methods tests
@@ -481,5 +482,6 @@ namespace SequenceSharp
             Debug.Assert(response.GetType() == typeof(Nullable), TestFailMessage + " Wallet_SwitchEthereumChain Return Type is not null");
         }
         #endregion
+
     }
 }
