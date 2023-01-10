@@ -32,7 +32,45 @@ namespace SequenceSharp
         private SequenceSharp.Wallet wallet;
 
         private int testId = 1;
-        private string TestFailMessage = " <color=#B54423>[Eth Call Test]</color>";
+        private string testLogMessage = " <color=#9042f5>[Eth Call Test]</color> ";
+        private string testFailMessage = " <color=#B54423>[Eth Call Test]</color> ";
+
+        private static readonly string testABI =
+            @"[
+                    {
+                    ""inputs"": [
+                    {
+                        ""internalType"": ""address"",
+                        ""name"": ""from"",
+                        ""type"": ""address""
+                    },
+                    {
+                        ""internalType"": ""address"",
+                        ""name"": ""to"",
+                        ""type"": ""address""
+                    },
+                    {
+                        ""internalType"": ""uint256"",
+                        ""name"": ""id"",
+                        ""type"": ""uint256""
+                    },
+                    {
+                        ""internalType"": ""uint256"",
+                        ""name"": ""amount"",
+                        ""type"": ""uint256""
+                    },
+                    {
+                        ""internalType"": ""bytes"",
+                        ""name"": ""data"",
+                        ""type"": ""bytes""
+                    }
+                    ],
+                    ""name"": ""safeTransferFrom"",
+                    ""outputs"": [],
+                    ""stateMutability"": ""nonpayable"",
+                    ""type"": ""function""
+                }
+            ]";
         // Start is called before the first frame update
          void Start()
         {
@@ -67,7 +105,7 @@ namespace SequenceSharp
             bool isConnected = await wallet.IsConnected();
             Debug.Log("Is Wallet Connected: " + isConnected);
             if (isConnected) _address = await wallet.GetAddress();
-            Debug.Assert(isConnected, TestFailMessage + "Wallet is not connected! ");
+            Debug.Assert(isConnected, testFailMessage + "Wallet is not connected! ");
 
             await RunTests();
         }
@@ -75,7 +113,8 @@ namespace SequenceSharp
             public async Task RunTests()
         {
             Debug.Log("Tests Started...");
-            await API_Method_Eth_Sign();
+            //await API_Method_Eth_Sign();
+            await API_Method_Eth_SendTransaction();
 
         }
 
@@ -87,7 +126,7 @@ namespace SequenceSharp
             var parameters = new object[] { };
             RpcRequest request = new RpcRequest(testId, ApiMethods.eth_chainId.ToString(), parameters);
             var response = await web3.Client.SendRequestAsync<object>(request);
-            Debug.Assert(response.GetType() == typeof(HexBigInteger), TestFailMessage + " Eth ChainId Return Type is not HexBigInteger");
+            Debug.Assert(response.GetType() == typeof(HexBigInteger), testFailMessage + " Eth ChainId Return Type is not HexBigInteger");
 
         }
 
@@ -160,7 +199,7 @@ namespace SequenceSharp
             var parameters = new object[] { };
             RpcRequest request = new RpcRequest(testId, ApiMethods.eth_accounts.ToString(), parameters);
             var response = await web3.Client.SendRequestAsync<object>(request);
-            Debug.Assert(response.GetType() == typeof(string[]), TestFailMessage + " Eth Accounts Return Type is not string[] ");
+            Debug.Assert(response.GetType() == typeof(string[]), testFailMessage + " Eth Accounts Return Type is not string[] ");
 
         }
 
@@ -178,7 +217,7 @@ namespace SequenceSharp
             var parameters = new object[] { };
             RpcRequest request = new RpcRequest(testId, ApiMethods.eth_getBalance.ToString(), parameters);
             var response = await web3.Client.SendRequestAsync<object>(request);
-            Debug.Assert(response.GetType() == typeof(EtherBalance), TestFailMessage + " Eth GetBalance Return Type is not EtherBalance");
+            Debug.Assert(response.GetType() == typeof(EtherBalance), testFailMessage + " Eth GetBalance Return Type is not EtherBalance");
 
         }
         
@@ -244,15 +283,33 @@ namespace SequenceSharp
             var parameters = new object[] { _address, message };
             RpcRequest request = new RpcRequest(testId, ApiMethods.eth_sign.ToString(), parameters);
             var response = await web3.Client.SendRequestAsync<object>(request);
-            Debug.Assert(response.GetType() == typeof(string), TestFailMessage + " Eth Sign Return Type is not string");
+            Debug.Log(testLogMessage + "Response : " + response);
+            Debug.Assert(response.GetType() == typeof(string), testFailMessage + " Eth Sign Return Type is not string");
 
         }
         
         public async Task API_Method_Eth_SendTransaction()
         {
-            RpcRequest request = new RpcRequest(testId, ApiMethods.eth_sendTransaction.ToString(), new object[] { });
+            string data = null;
+            string testContractAddress = "0x631998e91476DA5B870D741192fc5Cbc55F5a52E";
+            Nethereum.Contracts.Contract contract = web3.Eth.GetContract(testABI, testContractAddress); 
+            var transactionInput = contract.GetFunction("safeTransferFrom").CreateTransactionInput(
+                                                        _address,
+                                                        new HexBigInteger(BigInteger.Zero),
+                                                        new HexBigInteger(BigInteger.Zero),
+                                                        new HexBigInteger(BigInteger.One),                                                       
+                                                        _address,
+                                                        exampleToAccount,
+                                                        BigInteger.One,
+                                                        BigInteger.One,
+                                                        data == null ? new Byte[] { } : data);
+            Debug.Log("transaction input : " + transactionInput);
+            var parameters = new object[] { transactionInput };
+            RpcRequest request = new RpcRequest(testId, ApiMethods.eth_sendTransaction.ToString(), parameters);
             var response = await web3.Client.SendRequestAsync<object>(request);
-            Debug.Assert(response.GetType() == typeof(string), TestFailMessage + " Eth SendTransaction Return Type is not string");
+            Debug.Log(testLogMessage + "Response : " + response);
+            Debug.Assert(response.GetType() == typeof(string), testFailMessage + " Eth SendTransaction Return Type is not string");
+
 
         }
         
@@ -270,7 +327,7 @@ namespace SequenceSharp
 
             RpcRequest request = new RpcRequest(1, ApiMethods.eth_call.ToString(), parameters);
             var response = await web3.Client.SendRequestAsync<object>(request);           
-            Debug.Assert(response.GetType() == typeof(string), TestFailMessage + " Eth Call Return Type is not string");
+            Debug.Assert(response.GetType() == typeof(string), testFailMessage + " Eth Call Return Type is not string");
 
 
         }
@@ -281,7 +338,7 @@ namespace SequenceSharp
             var parameters = new object[] { };
             RpcRequest request = new RpcRequest(testId, ApiMethods.eth_estimateGas.ToString(), parameters);
             var response = await web3.Client.SendRequestAsync<object>(request);
-            Debug.Assert(response.GetType() == typeof(HexBigInteger), TestFailMessage + " Eth EstimateGas Return Type is not HexBigInteger");
+            Debug.Assert(response.GetType() == typeof(HexBigInteger), testFailMessage + " Eth EstimateGas Return Type is not HexBigInteger");
         }
 
         
@@ -326,7 +383,7 @@ namespace SequenceSharp
             var parameters = new object[] { };
             RpcRequest request = new RpcRequest(testId, ApiMethods.eth_getTransactionReceipt.ToString(), parameters);
             var response = await web3.Client.SendRequestAsync<object>(request);
-            Debug.Assert(response.GetType() == typeof(TransactionReceipt), TestFailMessage + " Eth GetTransactionReceipt Return Type is not TransactionReceipt");
+            Debug.Assert(response.GetType() == typeof(TransactionReceipt), testFailMessage + " Eth GetTransactionReceipt Return Type is not TransactionReceipt");
         }
         
         public async Task API_Method_Eth_GetUncleByBlockHashAndIndex()
@@ -479,9 +536,19 @@ namespace SequenceSharp
             RpcRequest request = new RpcRequest(testId, ApiMethods.wallet_switchEthereumChain.ToString(), parameters);
             var response = await web3.Client.SendRequestAsync<object>(request);
 
-            Debug.Assert(response.GetType() == typeof(Nullable), TestFailMessage + " Wallet_SwitchEthereumChain Return Type is not null");
+            Debug.Assert(response.GetType() == typeof(Nullable), testFailMessage + " Wallet_SwitchEthereumChain Return Type is not null");
         }
         #endregion
+
+
+        public static Mnemonic exampleMnemo = new Mnemonic(Wordlist.English, WordCount.Twelve);
+        public static string exampleWords = exampleMnemo.ToString(); // "ripple scissors kick mammal hire column oak again sun offer wealth tomorrow wagon turn fatal"
+        public static string examplePassword = "password";
+        public static Nethereum.HdWallet.Wallet exampleWallet = new Nethereum.HdWallet.Wallet(
+            exampleWords,
+            examplePassword
+        );
+        public static string exampleToAccount = exampleWallet.GetAccount(0).Address;
 
     }
 }

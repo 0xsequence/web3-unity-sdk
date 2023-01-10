@@ -77,11 +77,10 @@ namespace SequenceSharp
             RpcRequest request, string route = null
         )
         {
-
+            Debug.Log("Method: " + request.Method);
             if (request.Method == ApiMethods.eth_sendTransaction.ToString())
             {
                 TransactionInput transactionInput = (TransactionInput)request.RawParameters[0];
-
                 string rpcResponse = await _wallet.ExecuteSequenceJS(
                     @"
                     const signer = seq.getWallet().getSigner("
