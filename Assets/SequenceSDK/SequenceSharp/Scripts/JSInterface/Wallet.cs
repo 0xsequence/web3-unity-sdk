@@ -504,12 +504,39 @@ namespace SequenceSharp
                 options.settings.signInOptions = new string[] { "email" };
             }
 #endif
-#if UNITY_EDITOR
             if (options.appProtocol != null)
             {
+#if UNITY_EDITOR
                 _SequenceDebugLog("You set up an appProtocol, but inside the Unity Editor, only email signin is supported. These signin methods will work in standalone builds.");
-            }
+                options.settings.signInOptions = new string[] { "email" };
+#elif UNITY_STANDALONE_OSX
+                // ensure our URL protocol handler is registered - MacOS sometimes doesn't pick it up from Info.plist.
+                var appPath = System.IO.Directory.GetParent(Application.dataPath);
+                var command = new System.Diagnostics.ProcessStartInfo();
+                command.FileName = "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister";
+                command.Arguments = " -R -f " + appPath;
+                System.Diagnostics.Process.Start(command);
+#elif  UNITY_STANDALONE_WIN
+                // Register a Windows URL protocol handler in the Windows Registry.
+                var appPath = System.IO.Directory.GetParent(Application.dataPath);
+                var protoName = $"Sequence{options.appProtocol}"
+                string[] commands = new string[]{
+                    $"add HKEY_CLASSES_ROOT\{protoName} /t REG_SZ /d \"Sequence Login for {Application.productName}\" /f",
+                    $"add HKEY_CLASSES_ROOT\{protoName} /v "URL Protocol" /t REG_SZ /d \"\" /f",
+                    $"add HKEY_CLASSES_ROOT\{protoName}\shell /f",
+                    $"add HKEY_CLASSES_ROOT\{protoName}\shell\open /f",
+                    $"add HKEY_CLASSES_ROOT\{protoName}\shell\open\command /t REG_EXPAND_SZ /d \"{appPath}\" /f",
+                };
+                foreach(args in commands) {
+                    Debug.Log(command);
+                    var command = new System.Diagnostics.ProcessStartInfo();
+                    command.FileName = "C:\Windows\System32\reg.exe";
+                    command.Arguments = args;
+                    System.Diagnostics.Process.Start(command);
+                }
 #endif
+            }
+
             return ExecuteSequenceJSAndParseJSON<ConnectDetails>("return seq.getWallet().connect(" + ObjectToJson(options) + ");");
         }
 
