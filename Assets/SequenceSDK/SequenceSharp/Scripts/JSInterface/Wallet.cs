@@ -565,13 +565,14 @@ namespace SequenceSharp
         /// <exception cref="JSExecutionException">Thrown if the user declines the connection.</exception>
         public Task<ConnectDetails> Connect(ConnectOptions options)
         {
+#if !UNITY_WEBGL
+            // Don't ever set appProtocol in WebGL.
             if (options.appProtocol == null && appProtocol.Length > 0)
             {
                 options.appProtocol = appProtocol;
             }
 
             // In non-webgl builds, unless you have an app protocol set up, only email signin works.
-#if !UNITY_WEBGL
             if (options.settings.signInOptions == null && options.appProtocol == null)
             {
                 _SequenceDebugLogError("Set up an appProtocol in the Wallet prefab to enable social signin. Until you do, only email signin will be supported in non-webGL builds.");
