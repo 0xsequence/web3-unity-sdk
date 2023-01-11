@@ -16,6 +16,8 @@ using UnityEngine.Events;
 using Vuplex.WebView;
 #if UNITY_STANDALONE || UNITY_EDITOR
 using System.Linq;
+using System.Threading;
+using System.Net.Sockets;
 #endif
 #else
 using System.Runtime.InteropServices;
@@ -31,6 +33,7 @@ namespace SequenceSharp
     /// </summary>
     public class Wallet : MonoBehaviour
     {
+        private const int WINDOWS_IPC_PORT = 52836;
 
         /// <summary>
         /// The URL protocol you've set up for Sequence social login.
@@ -129,27 +132,83 @@ namespace SequenceSharp
 
             _internalWebView = Web.CreateWebView();
 
-            Application.deepLinkActivated += (link) =>
+            Application.deepLinkActivated += DeepLinkCallback;
+#if UNITY_STANDALONE_WIN
+            // Run a TCP server on Windows standalone to get the auth token from the other instance.
+            var syncContext = SynchronizationContext.Current;
+            var ipcListener = new Thread(() =>
             {
-                if (!link.Contains("://mobile.skyweaver.net/auth#"))
+                var socketConnection = new TcpListener(System.Net.IPAddress.Parse("127.0.0.1"), WINDOWS_IPC_PORT);
+                socketConnection.Start();
+                var bytes = new System.Byte[1024];
+                var msg = "";
+                while (true)
                 {
-                    _SequenceDebugLogError("Invalid deep link " + link);
-                    // random deep link, we don't care
-                    return;
+                    using (var connectedTcpClient = socketConnection.AcceptTcpClient())
+                    {
+                        using (NetworkStream stream = connectedTcpClient.GetStream())
+                        {
+                            int length;
+                            while ((length = stream.Read(bytes, 0, bytes.Length)) != 0)
+                            {
+                                var data = new byte[length];
+                                System.Array.Copy(bytes, 0, data, 0, length);
+                                // Convert byte array to string message. 							
+                                string clientMessage = System.Text.Encoding.ASCII.GetString(data);
+                                if (clientMessage.StartsWith("@@@@"))
+                                {
+                                    msg = clientMessage.Replace("@@@@", "");
+                                }
+                                else
+                                {
+                                    msg += clientMessage.Replace("$$$$", "");
+                                }
+
+                                if (msg.Length > 8192)
+                                {
+                                    // got some weird garbage, toss it to avoid memory leaks.
+                                    msg = "";
+                                }
+
+                                if (clientMessage.EndsWith("$$$$"))
+                                {
+                                    syncContext.Post((data) =>
+                                    {
+                                        DeepLinkCallback((string)data);
+
+                                    }, msg);
+                                }
+
+                            }
+                        }
+                    }
                 }
-                var authParam = link.Split("://mobile.skyweaver.net/auth#");
-                if (authParam.Length != 2)
-                {
-                    _SequenceDebugLogError("Invalid deep link " + link);
-                    return;
-                }
-                // use href change so JS can detect it 
-                var authUrl = "window.location.href = window.location.protocol +'//' + window.location.hostname + (window.location.port ? (':' + window.location.port) : '') + '/auth#" + authParam[1] + "'";
-                _walletWindow.WebView.ExecuteJavaScript(authUrl);
-            };
+            });
+            ipcListener.IsBackground = true;
+            ipcListener.Start();
 
 #endif
+#endif
             _HideWallet();
+        }
+
+        private void DeepLinkCallback(string link)
+        {
+            if (!link.Contains("://mobile.skyweaver.net/auth#"))
+            {
+                _SequenceDebugLogError("Invalid deep link " + link);
+                // random deep link, we don't care
+                return;
+            }
+            var authParam = link.Split("://mobile.skyweaver.net/auth#");
+            if (authParam.Length != 2)
+            {
+                _SequenceDebugLogError("Invalid deep link " + link);
+                return;
+            }
+            // use href change so JS can detect it 
+            var authUrl = "window.location.href = window.location.protocol +'//' + window.location.hostname + (window.location.port ? (':' + window.location.port) : '') + '/auth#" + authParam[1] + "'";
+            _walletWindow.WebView.ExecuteJavaScript(authUrl);
         }
 
         public async void Start()
@@ -515,23 +574,25 @@ namespace SequenceSharp
                 var command = new System.Diagnostics.ProcessStartInfo();
                 command.FileName = "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister";
                 command.Arguments = " -R -f " + appPath;
+                command.UseShellExecute = false;
+                command.CreateNoWindow = true;
                 System.Diagnostics.Process.Start(command);
-#elif  UNITY_STANDALONE_WIN
+#elif UNITY_STANDALONE_WIN
                 // Register a Windows URL protocol handler in the Windows Registry.
-                var appPath = System.IO.Directory.GetParent(Application.dataPath);
-                var protoName = $"Sequence{options.appProtocol}"
+                var appPath = Path.GetFullPath(Application.dataPath.Replace("_Data", ".exe"));
                 string[] commands = new string[]{
-                    $"add HKEY_CLASSES_ROOT\{protoName} /t REG_SZ /d \"Sequence Login for {Application.productName}\" /f",
-                    $"add HKEY_CLASSES_ROOT\{protoName} /v "URL Protocol" /t REG_SZ /d \"\" /f",
-                    $"add HKEY_CLASSES_ROOT\{protoName}\shell /f",
-                    $"add HKEY_CLASSES_ROOT\{protoName}\shell\open /f",
-                    $"add HKEY_CLASSES_ROOT\{protoName}\shell\open\command /t REG_EXPAND_SZ /d \"{appPath}\" /f",
+                    $"add HKEY_CURRENT_USER\\Software\\Classes\\{options.appProtocol} /t REG_SZ /d \"URL:Sequence Login for {Application.productName}\" /f",
+                    $"add HKEY_CURRENT_USER\\Software\\Classes\\{options.appProtocol} /v \"URL Protocol\" /t REG_SZ /d \"\" /f",
+                    $"add HKEY_CURRENT_USER\\Software\\Classes\\{options.appProtocol}\\shell /f",
+                    $"add HKEY_CURRENT_USER\\Software\\Classes\\{options.appProtocol}\\shell\\open /f",
+                    $"add HKEY_CURRENT_USER\\Software\\Classes\\{options.appProtocol}\\shell\\open\\command /t REG_SZ /d \"\\\"{appPath}\\\" \\\"%1\\\"\" /f",
                 };
-                foreach(args in commands) {
-                    Debug.Log(command);
+                foreach(var args in commands) {
                     var command = new System.Diagnostics.ProcessStartInfo();
-                    command.FileName = "C:\Windows\System32\reg.exe";
+                    command.FileName = "C:\\Windows\\System32\\reg.exe";
                     command.Arguments = args;
+                    command.UseShellExecute = false;
+                    command.CreateNoWindow = true;
                     System.Diagnostics.Process.Start(command);
                 }
 #endif
@@ -649,11 +710,11 @@ namespace SequenceSharp
             });
         }
 #nullable disable
-        private void _SequenceDebugLog(string message)
+        private static void _SequenceDebugLog(string message)
         {
             Debug.Log("<color=#a340f5>[Sequence]</color> " + message);
         }
-        private void _SequenceDebugLogError(string message)
+        private static void _SequenceDebugLogError(string message)
         {
             Debug.LogError("<color=#f54073>[Sequence Error]</color> " + message);
         }
@@ -682,6 +743,25 @@ namespace SequenceSharp
                 _walletVisible = true;
             }
         }
+
+        // On Windows standalone, deep link will open a second instance of tghe game.
+        // We need to catch this, and send our deep link URL to the already-running instance (through a TCP server)
+#if UNITY_STANDALONE_WIN
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        static void OnBeforeSceneLoadRuntimeMethod()
+        {
+            _SequenceDebugLog("Absolute URL: " + Application.absoluteURL);
+            var args = System.Environment.GetCommandLineArgs();
+            if (args.Length > 1 && args[1].Contains("://"))
+            {
+                var socketConnection = new TcpClient("localhost", WINDOWS_IPC_PORT);
+                var bytes = System.Text.Encoding.ASCII.GetBytes("@@@@" + args[1] + "$$$$");
+                socketConnection.GetStream().Write(bytes, 0, bytes.Length);
+                socketConnection.Close();
+                Application.Quit();
+            }
+        }
+#endif
     }
 
     class PromiseReturn
