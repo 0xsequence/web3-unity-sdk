@@ -133,6 +133,7 @@ namespace SequenceSharp
             _internalWebView = Web.CreateWebView();
 
             Application.deepLinkActivated += DeepLinkCallback;
+            
 #if UNITY_STANDALONE_WIN
             // Run a TCP server on Windows standalone to get the auth token from the other instance.
             /**
@@ -173,7 +174,7 @@ namespace SequenceSharp
                                 string clientMessage = System.Text.Encoding.ASCII.GetString(data);
                                 if (clientMessage.StartsWith("@@@@"))
                                 {
-                                    msg = clientMessage.Replace("@@@@", "");
+                                    msg = clientMessage.Replace("@@@@", "").Replace("$$$$", "");
                                 }
                                 else
                                 {
