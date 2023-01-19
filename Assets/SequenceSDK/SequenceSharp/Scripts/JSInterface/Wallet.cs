@@ -208,7 +208,7 @@ namespace SequenceSharp
 #endif
             _HideWallet();
         }
-
+#if IS_EDITOR_OR_NOT_WEBGL
         private void DeepLinkCallback(string link)
         {
             if (!link.Contains("://mobile.skyweaver.net/auth#"))
@@ -227,7 +227,7 @@ namespace SequenceSharp
             var authUrl = "window.location.href = window.location.protocol +'//' + window.location.hostname + (window.location.port ? (':' + window.location.port) : '') + '/auth#" + authParam[1] + "'";
             _walletWindow.WebView.ExecuteJavaScript(authUrl);
         }
-
+#endif
         public async void Start()
         {
 
