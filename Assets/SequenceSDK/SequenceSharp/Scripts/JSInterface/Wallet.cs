@@ -265,7 +265,7 @@ namespace SequenceSharp
             Debug.Log("loaded asset" + loadedAsset);
 
             var assets = loadedAsset.LoadAllAssets();
-            foreach(var asset  in assets)
+            foreach (var asset in assets)
             {
                 Debug.Log(asset);
             }
