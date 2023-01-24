@@ -265,10 +265,7 @@ namespace SequenceSharp
             Debug.Log("loaded asset" + loadedAsset);
 
             var assets = loadedAsset.LoadAllAssets();
-            foreach (var asset in assets)
-            {
-                Debug.Log(asset);
-            }
+            
 
             //End Test
 #if IS_EDITOR_OR_NOT_WEBGL
