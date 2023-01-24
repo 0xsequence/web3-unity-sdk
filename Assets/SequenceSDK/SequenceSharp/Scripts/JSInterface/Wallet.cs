@@ -255,10 +255,27 @@ namespace SequenceSharp
         public async Task Initialize(ProviderConfig providerConfig)
         {
             _HideWallet();
+            //Load Asset Locally Test
+            var loadedAsset = AssetBundle.LoadFromFile(Path.Combine(Application.dataPath + "/SequenceAssetBundles/", "sequencebundle"));
+            if (loadedAsset == null)
+            {
+                Debug.Log("Failed to load AssetBundle!");
+                return;
+            }
+            Debug.Log("loaded asset" + loadedAsset);
+
+            var assets = loadedAsset.LoadAllAssets();
+            foreach(var asset  in assets)
+            {
+                Debug.Log(asset);
+            }
+
+            //End Test
 #if IS_EDITOR_OR_NOT_WEBGL
             await _internalWebView.Init(1, 1);
 
             _internalWebView.SetRenderingEnabled(false);
+
             _internalWebView.LoadUrl("streaming-assets://sequence/sequence.html");
             await _internalWebView.WaitForNextPageLoadToFinish();
 #endif
