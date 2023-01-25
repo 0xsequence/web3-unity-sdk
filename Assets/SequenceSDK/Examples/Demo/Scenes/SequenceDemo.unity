@@ -2604,9 +2604,21 @@ PrefabInstance:
     m_TransformParent: {fileID: 361576368}
     m_Modifications:
     - target: {fileID: 1185229546643505893, guid: f16c10dd27546e44a8dd181994e459b0, type: 3}
+      propertyPath: ethersJS
+      value: 
+      objectReference: {fileID: 4900000, guid: 9a35ffdb59a88284ea43849dba160b12, type: 3}
+    - target: {fileID: 1185229546643505893, guid: f16c10dd27546e44a8dd181994e459b0, type: 3}
+      propertyPath: sequenceJS
+      value: 
+      objectReference: {fileID: 4900000, guid: 6f308b9d0b6018b4398649948a0c0be3, type: 3}
+    - target: {fileID: 1185229546643505893, guid: f16c10dd27546e44a8dd181994e459b0, type: 3}
       propertyPath: appProtocol
       value: demo-dapp-sequence
       objectReference: {fileID: 0}
+    - target: {fileID: 1185229546643505893, guid: f16c10dd27546e44a8dd181994e459b0, type: 3}
+      propertyPath: sequenceHTML
+      value: 
+      objectReference: {fileID: 4900000, guid: be3c261df869ecd42bb61e425813b696, type: 3}
     - target: {fileID: 1185229546643505893, guid: f16c10dd27546e44a8dd181994e459b0, type: 3}
       propertyPath: enableRemoteDebugging
       value: 1
@@ -3185,7 +3197,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1912370345}
   m_HandleRect: {fileID: 1912370343}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:

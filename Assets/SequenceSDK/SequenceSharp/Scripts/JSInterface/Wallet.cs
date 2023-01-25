@@ -99,6 +99,11 @@ namespace SequenceSharp
         private ulong _callbackIndex;
         private IDictionary<ulong, TaskCompletionSource<string>> _callbackDict = new Dictionary<ulong, TaskCompletionSource<string>>();
 
+        AssetBundle sequenceAsset;
+        public TextAsset sequenceJS;
+        public TextAsset ethersJS;
+        public TextAsset sequenceHTML;
+
         private void Awake()
         {
 #if IS_EDITOR_OR_NOT_WEBGL
@@ -230,7 +235,7 @@ namespace SequenceSharp
 #endif
         public async void Start()
         {
-
+            
             await Initialize(providerConfig);
         }
 
@@ -252,35 +257,35 @@ namespace SequenceSharp
             }
         }
 
-        public async Task Initialize(ProviderConfig providerConfig)
+       void LoadFileFromAssetBundle()
         {
-            _HideWallet();
-            //Load Asset Locally Test
-            var loadedAsset = AssetBundle.LoadFromFile(Path.Combine(Application.dataPath + "/SequenceAssetBundles/", "sequencebundle"));
-            if (loadedAsset == null)
+
+            sequenceAsset = AssetBundle.LoadFromFile(Path.Combine(Application.dataPath + "/SequenceAssetBundles/", "sequencebundle"));
+
+            if (sequenceAsset == null)
             {
                 Debug.Log("Failed to load AssetBundle!");
                 return;
             }
-            Debug.Log("loaded asset" + loadedAsset);
 
-            var assets = loadedAsset.LoadAllAssets();
-            
+        }
 
-            //End Test
+        public async Task Initialize(ProviderConfig providerConfig)
+        {
+            _HideWallet();
+           
 #if IS_EDITOR_OR_NOT_WEBGL
             await _internalWebView.Init(1, 1);
 
             _internalWebView.SetRenderingEnabled(false);
 
-            _internalWebView.LoadUrl("streaming-assets://sequence/sequence.html");
+            _internalWebView.LoadUrl("https://example.com");
+
             await _internalWebView.WaitForNextPageLoadToFinish();
 #endif
-            var sequenceJS = await LoadFileFromStreamingAssets("sequence/sequence.js");
 
-
-            var ethersJS = await LoadFileFromStreamingAssets("sequence/ethers.js");
-            _InternalRawExecuteJS(sequenceJS + ";" + ethersJS);
+            _InternalRawExecuteJS(sequenceJS.text + ";" + ethersJS.text);
+            
 
 #if IS_EDITOR_OR_NOT_WEBGL
             var internalWebViewWithPopups = _internalWebView as IWithPopups;
