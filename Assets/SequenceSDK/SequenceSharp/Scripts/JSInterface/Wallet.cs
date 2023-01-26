@@ -98,8 +98,8 @@ namespace SequenceSharp
         private bool _walletVisible = true;
         private ulong _callbackIndex;
         private IDictionary<ulong, TaskCompletionSource<string>> _callbackDict = new Dictionary<ulong, TaskCompletionSource<string>>();
-
-        AssetBundle sequenceAsset;
+        
+        //Sequence Assets
         public TextAsset sequenceJS;
         public TextAsset ethersJS;
         public TextAsset sequenceHTML;
@@ -257,18 +257,6 @@ namespace SequenceSharp
             }
         }
 
-       void LoadFileFromAssetBundle()
-        {
-
-            sequenceAsset = AssetBundle.LoadFromFile(Path.Combine(Application.dataPath + "/SequenceAssetBundles/", "sequencebundle"));
-
-            if (sequenceAsset == null)
-            {
-                Debug.Log("Failed to load AssetBundle!");
-                return;
-            }
-
-        }
 
         public async Task Initialize(ProviderConfig providerConfig)
         {
