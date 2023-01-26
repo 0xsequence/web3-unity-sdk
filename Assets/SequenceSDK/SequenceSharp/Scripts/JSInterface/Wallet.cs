@@ -267,7 +267,7 @@ namespace SequenceSharp
 
             _internalWebView.SetRenderingEnabled(false);
 
-            _internalWebView.LoadUrl("https://blank.sequence.xyz/");
+            _internalWebView.LoadUrl("https://blank.sequence.app/");
 
             await _internalWebView.WaitForNextPageLoadToFinish();
 #endif
