@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -11,8 +8,10 @@ public struct MouseInput
 }
 public class SequenceInputModule : StandaloneInputModule
 {
-    MouseInput walletRejectButtonPosition;
-    MouseInput walletConfirmButtonPosition;
+    public bool rejectBtnIsRecorded;
+    public bool confirmBtnIsRecorded;
+    MouseInput _walletRejectButtonPosition;
+    MouseInput _walletConfirmButtonPosition;
     
     protected override void Start()
     {
@@ -33,11 +32,11 @@ public class SequenceInputModule : StandaloneInputModule
     
     public void ClickWalletRejectButton()
     {
-        ClickAt(walletRejectButtonPosition.X, walletRejectButtonPosition.Y);
+        ClickAt(_walletRejectButtonPosition.X, _walletRejectButtonPosition.Y);
     }
     public void ClickWalletConfirmButton()
     {
-        ClickAt(walletConfirmButtonPosition.X, walletConfirmButtonPosition.Y);
+        ClickAt(_walletConfirmButtonPosition.X, _walletConfirmButtonPosition.Y);
     }
     public void ClickAt(float x, float y)
     {
@@ -52,14 +51,15 @@ public class SequenceInputModule : StandaloneInputModule
 
     public void RecordWalletRejectButtonPosition(Vector3 record)
     {
-        walletRejectButtonPosition.X = record.x;
-        walletRejectButtonPosition.Y = record.y;
+        _walletRejectButtonPosition.X = record.x;
+        _walletRejectButtonPosition.Y = record.y;
+
     }
 
     public void RecordWalletConfirmButtonPosition(Vector3 record)
     {
-        walletConfirmButtonPosition.X = record.x;
-        walletConfirmButtonPosition.Y = record.y;
+        _walletConfirmButtonPosition.X = record.x;
+        _walletConfirmButtonPosition.Y = record.y;
     }
 
 }
