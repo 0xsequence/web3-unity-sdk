@@ -102,7 +102,6 @@ namespace SequenceSharp
         //Sequence Assets
         public TextAsset sequenceJS;
         public TextAsset ethersJS;
-        public TextAsset sequenceHTML;
 
         private void Awake()
         {

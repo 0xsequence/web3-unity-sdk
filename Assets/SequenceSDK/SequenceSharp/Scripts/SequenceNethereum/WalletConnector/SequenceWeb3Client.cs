@@ -191,9 +191,9 @@ namespace SequenceSharp
             }
             else if (request.Method == ApiMethods.eth_sign.ToString())
             {
-                return await _wallet.ExecuteSequenceJS(
+                string rpcResponse = await _wallet.ExecuteSequenceJS(
                     @"
-                    const wallet = sequence.getWallet();
+                    const wallet = seq.getWallet();
 
                     const signer = wallet.getSigner("
                         + chainID.ToString()
@@ -202,9 +202,22 @@ namespace SequenceSharp
                     const message = `"
                         + request.RawParameters[1]
                         + @"`
-
-                    return signer.signMessage(message);
+                    
+                    var sig = await signer.signMessage(message);
+                    console.log('signature:', sig)
+                    let rpcResponse = {
+                            jsonrpc: '2.0',
+                            result: sig,
+                            id: 0, //parsedMessage.id,(???)
+                            error: null
+                        };
+                    return rpcResponse;
                 ");
+                RpcResponseMessage rpcResponseMessage =
+                    JsonConvert.DeserializeObject<RpcResponseMessage>(rpcResponse);
+                var response = ConvertResponse<string>(rpcResponseMessage);
+                Debug.Log(response);
+                return response;
             }
             else if (request.Method == ApiMethods.eth_getBalance.ToString())
             {
