@@ -73,23 +73,52 @@ namespace SequenceSharp
                 }
             ]";
         // Start is called before the first frame update
-         void Start()
+        async void Start()
         {
+            
             _sequenceWeb3Client = new SequenceWeb3Client(_wallet, Chain.Polygon);
             _web3 = new Web3(_sequenceWeb3Client);
-           
+
             StartCoroutine(WaitForInitialization());
+            
+            
         }
 
         IEnumerator WaitForInitialization()
         {
             _initializingUI.SetActive(true);
             yield return new WaitUntil(() => _wallet.readyToConnect == true);
-            _initializingUI.SetActive(false); ;
-            Connect();
+            _initializingUI.SetActive(false);
+            StartCoroutine(WaitForConnect());
+
+        }
+
+        IEnumerator WaitForConnect()
+        {
+            Task connectTask = Connect();
+            yield return new WaitUntil(() => connectTask.IsCompleted);
+            Debug.Log("Connect Task Completed!");
+            StartCoroutine(WaitForRecord());
+        }
+
+        IEnumerator WaitForRecord()
+        {
+            Task recordTask = RecordRejectClickPosition();
+            yield return new WaitUntil(() => recordTask.IsCompleted);
+            Debug.Log("Recording Task Completed!");
+            StartCoroutine(WaitForTests());
+        }
+
+        IEnumerator WaitForTests()
+        {
+            Task testTask = RunTests();
+            yield return new WaitUntil(() => testTask.IsCompleted);
+            Debug.Log("Eth Call Test Task Completed!");
+            
         }
         public async Task Connect()
         {
+
             var connectDetails = await _wallet.Connect(
                 new ConnectOptions { app = "Demo Unity Dapp" }
             );
@@ -108,24 +137,42 @@ namespace SequenceSharp
             if (isConnected) _address = await _wallet.GetAddress();
             Debug.Assert(isConnected, _testFailMessage + "Wallet is not connected! ");
 
-            await RunTests();
         }
 
-            public async Task RunTests()
+        public async Task RecordRejectClickPosition()
         {
             Debug.Log("Please Record Wallet Button Positions First :D");
-            await API_Method_Eth_Sign();
-            
-            
-            //Await for Button Record
-            Debug.Log("Rejecting Tests Started...");
             await API_Method_Eth_SendTransaction();
-            //_sequenceInputModule.ClickWalletRejectButton();
+        }
+
+
+        public async Task RunTests()
+        {
+            //Await for Button Record
+            try
+            {
+                Debug.Log("Rejecting Tests Started...");
+                Task transactionTask = API_Method_Eth_SendTransaction();  
+                Debug.Log("after send transaction");
+                await Task.Delay(1000);
+                Debug.Log("after 1 second");
+                _sequenceInputModule.ClickWalletRejectButton();
+            }catch(Exception e)
+            {
+                Debug.Log(e);
+            }
+            
+        }
+
+        public async void CloseWallet()
+        {
+            await _wallet.CloseWallet();
+            Debug.Log("[Eth Call Tests] Wallet Closed!");
         }
 
         #region API_Method_methods tests
 
-        
+
         public async Task API_Method_Eth_ChainId()
         {
             var parameters = new object[] { };
@@ -135,7 +182,7 @@ namespace SequenceSharp
 
         }
 
-        
+
         public async Task API_Method_Eth_ProtocolVersion()
         {
 
@@ -144,7 +191,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
         }
 
-        
+
         public async Task API_Method_Eth_Syncing()
         {
             var parameters = new object[] { };
@@ -153,7 +200,7 @@ namespace SequenceSharp
 
         }
 
-        
+
         public async Task API_Method_Eth_Coinbase()
         {
             var parameters = new object[] { };
@@ -162,7 +209,7 @@ namespace SequenceSharp
 
         }
 
-        
+
         public async Task API_Method_Eth_Mining()
         {
             var parameters = new object[] { };
@@ -171,7 +218,7 @@ namespace SequenceSharp
 
         }
 
-        
+
         public async Task API_Method_Eth_Hashrate()
         {
             var parameters = new object[] { };
@@ -180,7 +227,7 @@ namespace SequenceSharp
 
         }
 
-        
+
         public async Task API_Method_Eth_GasPrice()
         {
             var parameters = new object[] { };
@@ -189,7 +236,7 @@ namespace SequenceSharp
 
         }
 
-        
+
         public async Task API_Method_Eth_FeeHistory()
         {
 
@@ -198,7 +245,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
         }
 
-        
+
         public async Task API_Method_Eth_Accounts()
         {
             var parameters = new object[] { };
@@ -208,7 +255,7 @@ namespace SequenceSharp
 
         }
 
-        
+
         public async Task API_Method_Eth_BlockNumber()
         {
             var parameters = new object[] { };
@@ -216,7 +263,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_GetBalance()
         {
             var parameters = new object[] { };
@@ -225,7 +272,7 @@ namespace SequenceSharp
             Debug.Assert(response.GetType() == typeof(EtherBalance), _testFailMessage + " Eth GetBalance Return Type is not EtherBalance");
 
         }
-        
+
         public async Task API_Method_Eth_GetStorageAt()
         {
 
@@ -233,7 +280,7 @@ namespace SequenceSharp
             RpcRequest request = new RpcRequest(_testId, ApiMethods.eth_getStorageAt.ToString(), parameters);
             var response = await _web3.Client.SendRequestAsync<object>(request);
         }
-        
+
         public async Task API_Method_Eth_GetTransactionCount()
         {
             var parameters = new object[] { };
@@ -241,7 +288,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_GetBlockTransactionCountByHash()
         {
             var parameters = new object[] { };
@@ -249,7 +296,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_GetBlockTransactionCountByNumber()
         {
             var parameters = new object[] { };
@@ -257,7 +304,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_GetUncleCountByBlockHash()
         {
             var parameters = new object[] { };
@@ -265,7 +312,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_GetUncleCountByBlockNumber()
         {
             var parameters = new object[] { };
@@ -273,7 +320,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_GetCode()
         {
             var parameters = new object[] { };
@@ -292,23 +339,22 @@ namespace SequenceSharp
             Debug.Assert(response.GetType() == typeof(string), _testFailMessage + " Eth Sign Return Type is not string");
 
         }
-        
+
         public async Task API_Method_Eth_SendTransaction()
         {
             string data = null;
             string testContractAddress = "0x631998e91476DA5B870D741192fc5Cbc55F5a52E";
-            Nethereum.Contracts.Contract contract = _web3.Eth.GetContract(_testABI, testContractAddress); 
+            Nethereum.Contracts.Contract contract = _web3.Eth.GetContract(_testABI, testContractAddress);
             var transactionInput = contract.GetFunction("safeTransferFrom").CreateTransactionInput(
                                                         _address,
                                                         new HexBigInteger(BigInteger.Zero),
                                                         new HexBigInteger(BigInteger.Zero),
-                                                        new HexBigInteger(BigInteger.One),                                                       
+                                                        new HexBigInteger(BigInteger.One),
                                                         _address,
                                                         exampleToAccount,
                                                         BigInteger.One,
                                                         BigInteger.One,
                                                         data == null ? new Byte[] { } : data);
-            Debug.Log("transaction input : " + transactionInput);
             var parameters = new object[] { transactionInput };
             RpcRequest request = new RpcRequest(_testId, ApiMethods.eth_sendTransaction.ToString(), parameters);
             var response = await _web3.Client.SendRequestAsync<object>(request);
@@ -317,7 +363,7 @@ namespace SequenceSharp
 
 
         }
-        
+
         public async Task API_Method_Eth_SendRawTransaction()
         {
 
@@ -325,18 +371,18 @@ namespace SequenceSharp
             RpcRequest request = new RpcRequest(_testId, ApiMethods.eth_sendRawTransaction.ToString(), parameters);
             var response = await _web3.Client.SendRequestAsync<object>(request);
         }
-        
+
         public async Task API_Method_Eth_Call()
         {
             var parameters = new object[] { };
 
             RpcRequest request = new RpcRequest(1, ApiMethods.eth_call.ToString(), parameters);
-            var response = await _web3.Client.SendRequestAsync<object>(request);           
+            var response = await _web3.Client.SendRequestAsync<object>(request);
             Debug.Assert(response.GetType() == typeof(string), _testFailMessage + " Eth Call Return Type is not string");
 
 
         }
-        
+
         public async Task API_Method_Eth_EstimateGas()
         {
 
@@ -346,7 +392,7 @@ namespace SequenceSharp
             Debug.Assert(response.GetType() == typeof(HexBigInteger), _testFailMessage + " Eth EstimateGas Return Type is not HexBigInteger");
         }
 
-        
+
         public async Task API_Method_Eth_GetBlockByHash()
         {
             var parameters = new object[] { };
@@ -355,7 +401,7 @@ namespace SequenceSharp
 
         }
 
-        
+
         public async Task API_Method_Eth_GetBlockByNumber()
         {
 
@@ -364,7 +410,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
         }
 
-        
+
         public async Task API_Method_Eth_GetTransactionByBlockHashAndIndex()
         {
             var parameters = new object[] { };
@@ -373,7 +419,7 @@ namespace SequenceSharp
 
         }
 
-        
+
         public async Task API_Method_Eth_GetTransactionByBlockNumberAndIndex()
         {
 
@@ -382,7 +428,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
         }
 
-        
+
         public async Task API_Method_Eth_GetTransactionReceipt()
         {
             var parameters = new object[] { };
@@ -390,7 +436,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
             Debug.Assert(response.GetType() == typeof(TransactionReceipt), _testFailMessage + " Eth GetTransactionReceipt Return Type is not TransactionReceipt");
         }
-        
+
         public async Task API_Method_Eth_GetUncleByBlockHashAndIndex()
         {
             var parameters = new object[] { };
@@ -398,7 +444,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_GetUncleByBlockNumberAndIndex()
         {
 
@@ -406,7 +452,7 @@ namespace SequenceSharp
             RpcRequest request = new RpcRequest(_testId, ApiMethods.eth_getUncleByBlockNumberAndIndex.ToString(), parameters);
             var response = await _web3.Client.SendRequestAsync<object>(request);
         }
-        
+
         public async Task API_Method_Eth_GetCompilers()
         {
 
@@ -414,7 +460,7 @@ namespace SequenceSharp
             RpcRequest request = new RpcRequest(_testId, ApiMethods.eth_getCompilers.ToString(), parameters);
             var response = await _web3.Client.SendRequestAsync<object>(request);
         }
-        
+
         public async Task API_Method_Eth_CompileLLL()
         {
             var parameters = new object[] { };
@@ -422,7 +468,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_CompileSolidity()
         {
             var parameters = new object[] { };
@@ -430,7 +476,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_CompileSerpent()
         {
             var parameters = new object[] { };
@@ -438,7 +484,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_NewFilter()
         {
             var parameters = new object[] { };
@@ -446,7 +492,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_NewBlockFilter()
         {
             var parameters = new object[] { };
@@ -454,7 +500,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_NewPendingTransactionFilter()
         {
             var parameters = new object[] { };
@@ -462,7 +508,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_UninstallFilter()
         {
             var parameters = new object[] { };
@@ -470,7 +516,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_GetFilterChanges()
         {
             var parameters = new object[] { };
@@ -478,7 +524,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_GetFilterLogs()
         {
             var parameters = new object[] { };
@@ -486,7 +532,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_GetLogs()
         {
             var parameters = new object[] { };
@@ -494,7 +540,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_GetWork()
         {
             var parameters = new object[] { };
@@ -502,7 +548,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_SubmitWork()
         {
             var parameters = new object[] { };
@@ -510,7 +556,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_SubmitHashrate()
         {
             var parameters = new object[] { };
@@ -518,7 +564,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_Subscribe()
         {
             var parameters = new object[] { };
@@ -526,7 +572,7 @@ namespace SequenceSharp
             var response = await _web3.Client.SendRequestAsync<object>(request);
 
         }
-        
+
         public async Task API_Method_Eth_Unsubscribe()
         {
             var parameters = new object[] { };

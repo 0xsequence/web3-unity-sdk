@@ -161,6 +161,8 @@ MonoBehaviour:
   m_InputActionsPerSecond: 10
   m_RepeatDelay: 0.5
   m_ForceModuleActive: 0
+  rejectBtnIsRecorded: 0
+  confirmBtnIsRecorded: 0
 --- !u!114 &140835002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -673,6 +675,34 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 8711631396381635612, guid: 7cbc55cc749f8e54083f8707d4bfadec, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8711631396381635612, guid: 7cbc55cc749f8e54083f8707d4bfadec, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8711631396381635612, guid: 7cbc55cc749f8e54083f8707d4bfadec, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 986621494}
+    - target: {fileID: 8711631396381635612, guid: 7cbc55cc749f8e54083f8707d4bfadec, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8711631396381635612, guid: 7cbc55cc749f8e54083f8707d4bfadec, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CloseWallet
+      objectReference: {fileID: 0}
+    - target: {fileID: 8711631396381635612, guid: 7cbc55cc749f8e54083f8707d4bfadec, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: SequenceSharp.EthCallTest, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 8711631396381635612, guid: 7cbc55cc749f8e54083f8707d4bfadec, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 8711631396757374031, guid: 7cbc55cc749f8e54083f8707d4bfadec, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -757,6 +787,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8711631396757374032, guid: 7cbc55cc749f8e54083f8707d4bfadec, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 1945408245}
+    - target: {fileID: 8711631396757374032, guid: 7cbc55cc749f8e54083f8707d4bfadec, type: 3}
+      propertyPath: m_PixelPerfect
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8711631396757374035, guid: 7cbc55cc749f8e54083f8707d4bfadec, type: 3}
       propertyPath: m_Name
       value: Canvas-Wallet
@@ -777,6 +815,7 @@ GameObject:
   m_Component:
   - component: {fileID: 986621495}
   - component: {fileID: 986621494}
+  - component: {fileID: 986621496}
   m_Layer: 0
   m_Name: SequenceEthCallTests
   m_TagString: Untagged
@@ -814,6 +853,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &986621496
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 986621493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eacfaa3c855703242a076eb0541f53ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1077807021 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7536538025136583533, guid: 7cbc55cc749f8e54083f8707d4bfadec, type: 3}
@@ -877,7 +928,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
+  orthographic: 1
   orthographic size: 5
   m_Depth: -1
   m_CullingMask:

@@ -307,7 +307,7 @@ namespace SequenceSharp
                 else if (eventArgs.Value.Contains("vuplexFunctionError"))
                 {
                     var promiseReturn = JsonConvert.DeserializeObject<PromiseReturn>(eventArgs.Value);
-
+                    
                     _callbackDict[promiseReturn.callbackNumber].TrySetException(new JSExecutionException(promiseReturn.returnValue));
                     _callbackDict.Remove(promiseReturn.callbackNumber);
                 }

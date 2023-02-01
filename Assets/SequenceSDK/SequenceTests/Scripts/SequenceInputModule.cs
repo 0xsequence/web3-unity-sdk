@@ -32,6 +32,7 @@ public class SequenceInputModule : StandaloneInputModule
     
     public void ClickWalletRejectButton()
     {
+        Debug.Log("Clicking At: " + _walletRejectButtonPosition.X + ", " + _walletRejectButtonPosition.Y);
         ClickAt(_walletRejectButtonPosition.X, _walletRejectButtonPosition.Y);
     }
     public void ClickWalletConfirmButton()
@@ -51,9 +52,8 @@ public class SequenceInputModule : StandaloneInputModule
 
     public void RecordWalletRejectButtonPosition(Vector3 record)
     {
-        _walletRejectButtonPosition.X = record.x;
         _walletRejectButtonPosition.Y = record.y;
-
+        _walletRejectButtonPosition.X = record.x;
     }
 
     public void RecordWalletConfirmButtonPosition(Vector3 record)

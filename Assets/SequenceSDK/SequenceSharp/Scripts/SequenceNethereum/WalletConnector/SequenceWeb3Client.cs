@@ -110,6 +110,7 @@ namespace SequenceSharp
                     };
                 "
                 );
+                Debug.Log("rpc response: " + rpcResponse);
                 RpcResponseMessage rpcResponseMessage =
                     JsonConvert.DeserializeObject<RpcResponseMessage>(rpcResponse);
 
