@@ -52,14 +52,17 @@ public class SequenceInputModule : StandaloneInputModule
 
     public void RecordWalletRejectButtonPosition(Vector3 record)
     {
+
         _walletRejectButtonPosition.Y = record.y;
         _walletRejectButtonPosition.X = record.x;
+        Debug.Log("Recject/Cancel Button Position Recorded: " + _walletRejectButtonPosition.X + ", " + _walletRejectButtonPosition.Y);
     }
 
     public void RecordWalletConfirmButtonPosition(Vector3 record)
     {
         _walletConfirmButtonPosition.X = record.x;
         _walletConfirmButtonPosition.Y = record.y;
+        Debug.Log("Confirm Button Position Recorded: " + _walletRejectButtonPosition.X + ", " + _walletRejectButtonPosition.Y);
     }
 
 }

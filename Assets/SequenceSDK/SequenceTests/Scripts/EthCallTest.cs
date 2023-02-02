@@ -148,20 +148,140 @@ namespace SequenceSharp
 
         public async Task RunTests()
         {
-            //Await for Button Record
+            //Send Transaction
             try
             {
-                Debug.Log("Rejecting Tests Started...");
-                Task transactionTask = API_Method_Eth_SendTransaction();  
-                Debug.Log("after send transaction");
-                await Task.Delay(1000);
-                Debug.Log("after 1 second");
+                Task task = API_Method_Eth_SendTransaction();
+                await Task.Delay(3000);
                 _sequenceInputModule.ClickWalletRejectButton();
-            }catch(Exception e)
+                
+                if (await _wallet.IsOpened())
+                {
+                    CloseWallet();
+                }
+            }
+            catch (Exception e)
             {
                 Debug.Log(e);
             }
-            
+            await Task.Delay(1000);
+
+            //Transaction Receipt
+            try
+            {
+                Task task = API_Method_Eth_GetTransactionReceipt();
+                await Task.Delay(3000);
+
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
+            await Task.Delay(1000);
+
+            //Estimate Gas
+            try
+            {
+                Task task = API_Method_Eth_EstimateGas();
+                await Task.Delay(3000);
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
+            await Task.Delay(1000);
+
+            //Eth Call
+            try
+            {
+                Task task = API_Method_Eth_Call();
+                await Task.Delay(3000);
+                _sequenceInputModule.ClickWalletRejectButton();
+                
+                if (await _wallet.IsOpened())
+                {
+                    CloseWallet();
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
+            await Task.Delay(1000);
+
+            //Sign
+            try
+            {
+                Task task = API_Method_Eth_Sign();
+                await Task.Delay(3000);
+                _sequenceInputModule.ClickWalletRejectButton();
+                
+                if (await _wallet.IsOpened())
+                {
+                    CloseWallet();
+                }
+
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            } 
+            await Task.Delay(1000);
+
+            //Get Balance
+            try
+            {
+                Task task = API_Method_Eth_GetBalance();
+                await Task.Delay(3000);
+
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
+            await Task.Delay(1000);
+
+            //Chain Id
+            try
+            {
+                Task task = API_Method_Eth_ChainId();
+                await Task.Delay(3000);
+
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
+            await Task.Delay(1000);
+
+            //Switch Ethereum Chain
+            try
+            {
+                Task task = API_Method_Wallet_SwitchEthereumChain();
+                await Task.Delay(3000);
+
+
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
+            await Task.Delay(1000);
+
+            //Accounts
+            try
+            {
+                Task task = API_Method_Eth_Accounts();
+                await Task.Delay(3000);
+
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
+            await Task.Delay(1000);
+
+
         }
 
         public async void CloseWallet()
@@ -175,6 +295,7 @@ namespace SequenceSharp
 
         public async Task API_Method_Eth_ChainId()
         {
+            Debug.Log(_testLogMessage + "Testing ChainId");
             var parameters = new object[] { };
             RpcRequest request = new RpcRequest(_testId, ApiMethods.eth_chainId.ToString(), parameters);
             var response = await _web3.Client.SendRequestAsync<object>(request);
@@ -248,6 +369,7 @@ namespace SequenceSharp
 
         public async Task API_Method_Eth_Accounts()
         {
+            Debug.Log(_testLogMessage + "Testing Accounts");
             var parameters = new object[] { };
             RpcRequest request = new RpcRequest(_testId, ApiMethods.eth_accounts.ToString(), parameters);
             var response = await _web3.Client.SendRequestAsync<object>(request);
@@ -266,6 +388,7 @@ namespace SequenceSharp
 
         public async Task API_Method_Eth_GetBalance()
         {
+            Debug.Log(_testLogMessage + "Testing GetBalance");
             var parameters = new object[] { };
             RpcRequest request = new RpcRequest(_testId, ApiMethods.eth_getBalance.ToString(), parameters);
             var response = await _web3.Client.SendRequestAsync<object>(request);
@@ -331,6 +454,7 @@ namespace SequenceSharp
 
         public async Task API_Method_Eth_Sign()
         {
+            Debug.Log(_testLogMessage + "Testing Sign");
             var message = "Test Message";
             var parameters = new object[] { _address, message };
             RpcRequest request = new RpcRequest(_testId, ApiMethods.eth_sign.ToString(), parameters);
@@ -342,6 +466,7 @@ namespace SequenceSharp
 
         public async Task API_Method_Eth_SendTransaction()
         {
+            Debug.Log(_testLogMessage + "Testing SendTransaction");
             string data = null;
             string testContractAddress = "0x631998e91476DA5B870D741192fc5Cbc55F5a52E";
             Nethereum.Contracts.Contract contract = _web3.Eth.GetContract(_testABI, testContractAddress);
@@ -374,8 +499,8 @@ namespace SequenceSharp
 
         public async Task API_Method_Eth_Call()
         {
+            Debug.Log(_testLogMessage + "Testing Eth Call");
             var parameters = new object[] { };
-
             RpcRequest request = new RpcRequest(1, ApiMethods.eth_call.ToString(), parameters);
             var response = await _web3.Client.SendRequestAsync<object>(request);
             Debug.Assert(response.GetType() == typeof(string), _testFailMessage + " Eth Call Return Type is not string");
@@ -385,7 +510,7 @@ namespace SequenceSharp
 
         public async Task API_Method_Eth_EstimateGas()
         {
-
+            Debug.Log(_testLogMessage + "Testing Estimate Gas");
             var parameters = new object[] { };
             RpcRequest request = new RpcRequest(_testId, ApiMethods.eth_estimateGas.ToString(), parameters);
             var response = await _web3.Client.SendRequestAsync<object>(request);
@@ -431,6 +556,7 @@ namespace SequenceSharp
 
         public async Task API_Method_Eth_GetTransactionReceipt()
         {
+            Debug.Log(_testLogMessage + "Testing Transaction Receipt");
             var parameters = new object[] { };
             RpcRequest request = new RpcRequest(_testId, ApiMethods.eth_getTransactionReceipt.ToString(), parameters);
             var response = await _web3.Client.SendRequestAsync<object>(request);
@@ -583,6 +709,7 @@ namespace SequenceSharp
 
         public async Task API_Method_Wallet_SwitchEthereumChain()
         {
+            Debug.Log(_testLogMessage + "Testing Switch Chain");
             var parameters = new object[] { };
             RpcRequest request = new RpcRequest(_testId, ApiMethods.wallet_switchEthereumChain.ToString(), parameters);
             var response = await _web3.Client.SendRequestAsync<object>(request);
