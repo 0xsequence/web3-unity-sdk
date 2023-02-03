@@ -18,7 +18,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-namespace SequenceSharp
+namespace SequenceTest
 {
     public class EthCallTest : MonoBehaviour
     {

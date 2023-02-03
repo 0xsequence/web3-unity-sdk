@@ -2,24 +2,27 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-internal class MainThread : MonoBehaviour
+namespace SequenceDemo
 {
-    internal static MainThread wkr;
-    Queue<Action> jobs = new Queue<Action>();
-
-    void Awake()
+    internal class MainThread : MonoBehaviour
     {
-        wkr = this;
-    }
+        internal static MainThread mainThread;
+        Queue<Action> jobs = new Queue<Action>();
 
-    void Update()
-    {
-        while (jobs.Count > 0)
-            jobs.Dequeue().Invoke();
-    }
+        void Awake()
+        {
+            mainThread = this;
+        }
 
-    internal void AddJob(Action newJob)
-    {
-        jobs.Enqueue(newJob);
+        void Update()
+        {
+            while (jobs.Count > 0)
+                jobs.Dequeue().Invoke();
+        }
+
+        internal void AddJob(Action newJob)
+        {
+            jobs.Enqueue(newJob);
+        }
     }
 }

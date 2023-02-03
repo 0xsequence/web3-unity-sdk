@@ -1,29 +1,32 @@
 using UnityEngine;
 
-public static class TextureHelper
+namespace SequenceDemo
 {
-    /// <summary>
-    /// Converts <paramref name="tex"/> to Texture2D
-    /// </summary>
-    /// <param name="tex"></param>
-    /// <param name="width"></param>
-    /// <param name="height"></param>
-    /// <returns></returns>
-    public static Texture2D ConvertToTexture2D(this Texture tex, int width, int height)
+    public static class TextureHelper
     {
-        Texture2D texture2D = new Texture2D(width, height, TextureFormat.RGBA32, false);
+        /// <summary>
+        /// Converts <paramref name="tex"/> to Texture2D
+        /// </summary>
+        /// <param name="tex"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        public static Texture2D ConvertToTexture2D(this Texture tex, int width, int height)
+        {
+            Texture2D texture2D = new Texture2D(width, height, TextureFormat.RGBA32, false);
 
-        RenderTexture currentRT = RenderTexture.active;
+            RenderTexture currentRT = RenderTexture.active;
 
-        RenderTexture renderTexture = new RenderTexture(width, height, 32);
-        Graphics.Blit(tex, renderTexture);
+            RenderTexture renderTexture = new RenderTexture(width, height, 32);
+            Graphics.Blit(tex, renderTexture);
 
-        RenderTexture.active = renderTexture;
-        texture2D.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
-        texture2D.Apply();
+            RenderTexture.active = renderTexture;
+            texture2D.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
+            texture2D.Apply();
 
-        RenderTexture.active = currentRT;
+            RenderTexture.active = currentRT;
 
-        return texture2D;
+            return texture2D;
+        }
     }
 }
