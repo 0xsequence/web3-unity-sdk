@@ -1,8 +1,7 @@
 using UnityEngine;
 using System;
 using System.Threading.Tasks;
-using Nethereum.JsonRpc.Client;
-using Nethereum.JsonRpc.Client.RpcMessages;
+//using Nethereum.JsonRpc.Client.RpcMessages;
 using Nethereum.RPC;
 using Nethereum.RPC.Eth.DTOs;
 using Newtonsoft.Json;
@@ -53,10 +52,10 @@ namespace SequenceSharp
         }
 
 
-        public Task<RpcRequestResponseBatch> SendBatchRequestAsync(RpcRequestResponseBatch rpcRequestResponseBatch)
+/*        public Task<RpcRequestResponseBatch> SendBatchRequestAsync(RpcRequestResponseBatch rpcRequestResponseBatch)
         {
             throw new NotImplementedException();
-        }
+        }*/
 
         public async Task<T> SendRequestAsync<T>(string method, string route = null, params object[] paramList)
         {
@@ -251,7 +250,7 @@ namespace SequenceSharp
         {
             if (response.HasError)
                 throw new RpcResponseException(
-                    new Nethereum.JsonRpc.Client.RpcError(
+                    new RpcError(
                         response.Error.Code,
                         response.Error.Message,
                         response.Error.Data

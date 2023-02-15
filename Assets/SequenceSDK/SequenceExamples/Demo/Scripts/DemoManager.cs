@@ -1,7 +1,7 @@
 using NBitcoin;
 using Nethereum.ABI.EIP712;
 using Nethereum.Hex.HexTypes;
-using Nethereum.Web3;
+//using Nethereum.Web3;
 using Newtonsoft.Json;
 using SequenceSharp;
 using System;

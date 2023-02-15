@@ -1,22 +1,17 @@
 using NBitcoin;
-using Nethereum.ABI.EIP712;
 using Nethereum.Hex.HexTypes;
-using Nethereum.Web3;
-using Nethereum.JsonRpc.Client;
-using Nethereum.JsonRpc.Client.RpcMessages;
+//using Nethereum.Web3;
+//using Nethereum.JsonRpc.Client;
 using Newtonsoft.Json;
 using Nethereum.RPC;
 using Nethereum.RPC.Eth.DTOs;
 using SequenceSharp;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.UI;
-
+using SequenceSharp;
 
 namespace SequenceTest
 {
