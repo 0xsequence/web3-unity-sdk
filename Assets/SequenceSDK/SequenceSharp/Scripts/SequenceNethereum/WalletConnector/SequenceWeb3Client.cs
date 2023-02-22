@@ -1,13 +1,14 @@
 using UnityEngine;
 using System;
 using System.Threading.Tasks;
-//using Nethereum.JsonRpc.Client.RpcMessages;
+using Nethereum.JsonRpc.Client.RpcMessages;
 using Nethereum.RPC;
 using Nethereum.RPC.Eth.DTOs;
 using Newtonsoft.Json;
 using Nethereum.Hex.HexTypes;
 using System.Numerics;
 using Nethereum.Web3;
+using Nethereum.JsonRpc.Client;
 
 namespace SequenceSharp
 {
@@ -45,34 +46,34 @@ namespace SequenceSharp
         }
 
         public async Task<T> SendRequestAsync<T>(
-                  RpcRequest request, string route = null
+                  Nethereum.JsonRpc.Client.RpcRequest request, string route = null
               )
         {
             return (T)await _SendRequestAsync(request, route);
         }
 
 
-/*        public Task<RpcRequestResponseBatch> SendBatchRequestAsync(RpcRequestResponseBatch rpcRequestResponseBatch)
+        public Task<RpcRequestResponseBatch> SendBatchRequestAsync(RpcRequestResponseBatch rpcRequestResponseBatch)
         {
             throw new NotImplementedException();
-        }*/
+        }
 
         public async Task<T> SendRequestAsync<T>(string method, string route = null, params object[] paramList)
         {
-            return (T)await _SendRequestAsync(new RpcRequest("1234", method, paramList));
+            return (T)await _SendRequestAsync(new Nethereum.JsonRpc.Client.RpcRequest ("1234", method, paramList));
         }
 
-        public async Task SendRequestAsync(RpcRequest request, string route = null)
+        public async Task SendRequestAsync(Nethereum.JsonRpc.Client.RpcRequest request, string route = null)
         {
             await _SendRequestAsync(request, route);
         }
 
         public async Task SendRequestAsync(string method, string route = null, params object[] paramList)
         {
-            await _SendRequestAsync(new RpcRequest("1234", method, paramList));
+            await _SendRequestAsync(new Nethereum.JsonRpc.Client.RpcRequest("1234", method, paramList));
         }
         private async Task<object> _SendRequestAsync(
-            RpcRequest request, string route = null
+            Nethereum.JsonRpc.Client.RpcRequest request, string route = null
         )
         {
             if (request.Method == ApiMethods.eth_sendTransaction.ToString())
@@ -250,7 +251,7 @@ namespace SequenceSharp
         {
             if (response.HasError)
                 throw new RpcResponseException(
-                    new RpcError(
+                    new Nethereum.JsonRpc.Client.RpcError(
                         response.Error.Code,
                         response.Error.Message,
                         response.Error.Data
@@ -273,5 +274,6 @@ namespace SequenceSharp
                 );
             }
         }
+
     }
 }

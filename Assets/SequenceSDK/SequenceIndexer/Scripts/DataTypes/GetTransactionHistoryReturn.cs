@@ -4,6 +4,6 @@ namespace SequenceSharp
     public class GetTransactionHistoryReturn
     {
         public Page page;
-        public Transaction[] transactions;
+        public TransactionHistory[] transactions;
     }
 }

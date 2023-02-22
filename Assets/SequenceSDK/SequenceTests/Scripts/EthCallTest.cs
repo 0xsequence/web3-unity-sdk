@@ -1,17 +1,17 @@
 using NBitcoin;
 using Nethereum.Hex.HexTypes;
-//using Nethereum.Web3;
-//using Nethereum.JsonRpc.Client;
+using Nethereum.Web3;
+using Nethereum.JsonRpc.Client;
 using Newtonsoft.Json;
 using Nethereum.RPC;
 using Nethereum.RPC.Eth.DTOs;
-using SequenceSharp;
+
 using System;
 using System.Collections;
 using System.Numerics;
 using System.Threading.Tasks;
 using UnityEngine;
-using SequenceSharp;
+using Nethereum.Contracts;
 
 namespace SequenceTest
 {
@@ -20,7 +20,7 @@ namespace SequenceTest
         public GameObject _initializingUI;
         public SequenceInputModule _sequenceInputModule;
         public Web3 _web3;
-        private SequenceWeb3Client _sequenceWeb3Client;
+        private SequenceSharp.SequenceWeb3Client _sequenceWeb3Client;
         private bool _initialized;
         private string _address;
 
@@ -71,7 +71,7 @@ namespace SequenceTest
         async void Start()
         {
             
-            _sequenceWeb3Client = new SequenceWeb3Client(_wallet, Chain.Polygon);
+            _sequenceWeb3Client = new SequenceSharp.SequenceWeb3Client(_wallet, SequenceSharp.Chain.Polygon);
             _web3 = new Web3(_sequenceWeb3Client);
 
             StartCoroutine(WaitForInitialization());
@@ -115,7 +115,7 @@ namespace SequenceTest
         {
 
             var connectDetails = await _wallet.Connect(
-                new ConnectOptions { app = "Demo Unity Dapp" }
+                new SequenceSharp.ConnectOptions { app = "Demo Unity Dapp" }
             );
 
             Debug.Log(
@@ -387,7 +387,7 @@ namespace SequenceTest
             var parameters = new object[] { };
             RpcRequest request = new RpcRequest(_testId, ApiMethods.eth_getBalance.ToString(), parameters);
             var response = await _web3.Client.SendRequestAsync<object>(request);
-            Debug.Assert(response.GetType() == typeof(EtherBalance), _testFailMessage + " Eth GetBalance Return Type is not EtherBalance");
+            Debug.Assert(response.GetType() == typeof(SequenceSharp.EtherBalance), _testFailMessage + " Eth GetBalance Return Type is not EtherBalance");
 
         }
 
@@ -464,7 +464,7 @@ namespace SequenceTest
             Debug.Log(_testLogMessage + "Testing SendTransaction");
             string data = null;
             string testContractAddress = "0x631998e91476DA5B870D741192fc5Cbc55F5a52E";
-            Nethereum.Contracts.Contract contract = _web3.Eth.GetContract(_testABI, testContractAddress);
+            Contract contract = _web3.Eth.GetContract(_testABI, testContractAddress);
             var transactionInput = contract.GetFunction("safeTransferFrom").CreateTransactionInput(
                                                         _address,
                                                         new HexBigInteger(BigInteger.Zero),
