@@ -64,7 +64,7 @@ namespace SequenceSharp
         /// <summary>
         /// Transfers some amount of this ERC20 to another address.
         /// </summary>
-        public async Task<TransactionReceipt> Transfer(string recipientAddress, BigInteger amount)
+        public async Task<Nethereum.RPC.Eth.DTOs.TransactionReceipt> Transfer(string recipientAddress, BigInteger amount)
         {
             var address = await this._web3.GetAddress();
             UnityEngine.Debug.Log("Got ERC20 transfer call!");
@@ -97,7 +97,7 @@ namespace SequenceSharp
         /// <param name="spenderAddress"></param>
         /// <param name="amount"></param>
         /// <returns></returns>
-        public async Task<TransactionReceipt> Approve(string spenderAddress, string amount)
+        public async Task<Nethereum.RPC.Eth.DTOs.TransactionReceipt> Approve(string spenderAddress, string amount)
         {
             var address = await this._web3.GetAddress();
             return await contract
@@ -119,7 +119,7 @@ namespace SequenceSharp
         /// <param name="recipientAddress"></param>
         /// <param name="amount"></param>
         /// <returns></returns>
-        public async Task<TransactionReceipt> TransferFrom(
+        public async Task<Nethereum.RPC.Eth.DTOs.TransactionReceipt> TransferFrom(
             string senderAddress,
             string recipientAddress,
             string amount

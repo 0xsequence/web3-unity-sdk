@@ -6,6 +6,7 @@ using Nethereum.Web3;
 using Nethereum.Hex.HexTypes;
 using Nethereum.RPC.Eth.DTOs;
 
+
 namespace SequenceSharp
 {
     public class ERC1155
@@ -61,7 +62,7 @@ namespace SequenceSharp
         /// <param name="operatorAddress"></param>
         /// <param name="approved"></param>
         /// <returns></returns>
-        public async Task<TransactionReceipt> SetApprovalForAll(string operatorAddress, bool approved)
+        public async Task<Nethereum.RPC.Eth.DTOs.TransactionReceipt> SetApprovalForAll(string operatorAddress, bool approved)
         {
             var address = await this._web3.GetAddress();
             return await contract
@@ -101,7 +102,7 @@ namespace SequenceSharp
         /// <param name="amount"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public async Task<TransactionReceipt> SafeTransferFrom(
+        public async Task<Nethereum.RPC.Eth.DTOs.TransactionReceipt> SafeTransferFrom(
             string from,
             string to,
             BigInteger id,
@@ -134,7 +135,7 @@ namespace SequenceSharp
         /// <param name="amounts"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public async Task<TransactionReceipt> SafeBatchTransferFrom(
+        public async Task<Nethereum.RPC.Eth.DTOs.TransactionReceipt> SafeBatchTransferFrom(
             string from,
             string to,
             List<BigInteger> ids,

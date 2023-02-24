@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace SequenceSharp
+namespace SequenceSharp.RPC
 {
     public class SequenceEthClient : IEthClient
     {

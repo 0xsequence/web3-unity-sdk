@@ -1,23 +1,28 @@
 
-public class AddressCoder : ICoder
+namespace SequenceSharp.ABI
 {
-    public T Decode<T>(byte[] encoded)
-    {
-        throw new System.NotImplementedException();
-    }
 
-    public T DefaultValue<T>()
-    {
-        throw new System.NotImplementedException();
-    }
 
-    public byte[] Encode(object value)
+    public class AddressCoder : ICoder
     {
-        throw new System.NotImplementedException();
-    }
+        public T Decode<T>(byte[] encoded)
+        {
+            throw new System.NotImplementedException();
+        }
 
-    public bool IsSupportedType()
-    {
-        throw new System.NotImplementedException();
+        public T DefaultValue<T>()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public byte[] Encode(object value)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public bool IsSupportedType()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

@@ -1,16 +1,22 @@
 
-namespace SequenceSharp
-{
+using System.Numerics;
 
+namespace SequenceSharp.RPC
+{
+    [System.Serializable]
     public class RpcRequest
     {
-        public RpcRequest(object id, string method, params object[] parameterList)
+        public string jsonrpc = "2.0";
+        public BigInteger id;
+        public string method;
+        public object[] rawParameters;
+        public RpcRequest(BigInteger _id, string _method, params object[] _parameterList)
         {
-
+            id = _id;
+            method = _method;
+            rawParameters = _parameterList;
         }
 
-        public object Id { get; set; }
-        public string Method { get; }
-        public object[] RawParameters { get; }
+        
     }
 }

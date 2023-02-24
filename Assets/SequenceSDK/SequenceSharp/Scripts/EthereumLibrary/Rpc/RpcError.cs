@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
-namespace SequenceSharp
+namespace SequenceSharp.RPC
 {
     public class RpcError
     {

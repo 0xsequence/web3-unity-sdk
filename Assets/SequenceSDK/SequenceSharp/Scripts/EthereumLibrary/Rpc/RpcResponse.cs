@@ -1,5 +1,5 @@
 
-namespace SequenceSharp
+namespace SequenceSharp.RPC
 {
     public class RpcResponse<T>
     {

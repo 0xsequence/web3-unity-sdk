@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using UnityEngine;
 
-namespace SequenceSharp
+namespace SequenceSharp.RPC
 {
 	// Standard Ethereum JSON-RPC methods:
 	// https://ethereum.org/en/developers/docs/apis/json-rpc/

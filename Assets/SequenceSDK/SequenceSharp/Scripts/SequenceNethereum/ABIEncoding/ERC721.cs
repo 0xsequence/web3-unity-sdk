@@ -93,7 +93,7 @@ namespace SequenceSharp
         /// <param name="to"> cannot be the zero address</param>
         /// <param name="tokenId">token must exist and be owned by from</param>
         /// <returns></returns>
-        public async Task<TransactionReceipt> SafeTransferFrom(string from, string to, BigInteger tokenId)
+        public async Task<Nethereum.RPC.Eth.DTOs.TransactionReceipt> SafeTransferFrom(string from, string to, BigInteger tokenId)
         {
             var address = await this._web3.GetAddress();
             return await contract
@@ -116,7 +116,7 @@ namespace SequenceSharp
         /// <param name="to">cannot be the zero address</param>
         /// <param name="tokenId">tokenId token must be owned by from</param>
         /// <returns></returns>
-        public async Task<TransactionReceipt> TransferFrom(string from, string to, BigInteger tokenId)
+        public async Task<Nethereum.RPC.Eth.DTOs.TransactionReceipt> TransferFrom(string from, string to, BigInteger tokenId)
         {
             var address = await this._web3.GetAddress();
             return await contract
@@ -138,7 +138,7 @@ namespace SequenceSharp
         /// <param name="to"></param>
         /// <param name="tokenId"></param>
         /// <returns></returns>
-        public async Task<TransactionReceipt> Approve(string to, BigInteger tokenId)
+        public async Task<Nethereum.RPC.Eth.DTOs.TransactionReceipt> Approve(string to, BigInteger tokenId)
         {
             var address = await this._web3.GetAddress();
             return await contract
@@ -173,7 +173,7 @@ namespace SequenceSharp
         /// <param name="operatorAddress">The operator cannot be the caller</param>
         /// <param name="approved"></param>
         /// <returns></returns>
-        public async Task<TransactionReceipt> SetApprovalForAll(string operatorAddress, bool approved)
+        public async Task<Nethereum.RPC.Eth.DTOs.TransactionReceipt> SetApprovalForAll(string operatorAddress, bool approved)
         {
             var address = await this._web3.GetAddress();
             return await contract
