@@ -1,10 +1,12 @@
 
 namespace SequenceSharp.RPC
 {
-    public class RpcResponse<T>
+    [System.Serializable]
+    public class RpcResponse 
     {
-        public int Id { get; set; }
-        public T Result { get; set; }
-        public RpcError Error { get; set; }
+        public int id;
+        public string result;
+        public RpcError error;
+
     }
 }

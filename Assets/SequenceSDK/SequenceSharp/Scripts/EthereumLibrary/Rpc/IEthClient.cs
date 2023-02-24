@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace SequenceSharp.RPC
@@ -65,108 +66,273 @@ namespace SequenceSharp.RPC
 	public interface IEthClient
 	{
 
-		// ChainID = eth_chainId
-		string ChainID();
 
-		// BlockByHash = eth_getBlockByHash (true)
-		Block BlockByHash(string blockHash);
+		/// <summary>
+		/// ChainID = eth_chainId
+		/// </summary>
+		/// <returns></returns>
+		Task<string> ChainID();
 
-		// BlockByNumber = eth_getBlockByNumber (true)
-		Block BlockByNumber(string blockNumber);
+		/// <summary>
+		/// BlockByHash = eth_getBlockByHash (true)
+		/// </summary>
+		/// <param name="blockHash"></param>
+		/// <returns></returns>
+		Task<Block> BlockByHash(string blockHash);
 
-		// BlockNumber = eth_blockNumber
-		string BlockNumber();
 
-		// BlockRange = eth_getBlockRange
-		// https://community.optimism.io/docs/developers/build/json-rpc/#eth-getblockrange
-		List<Block> BlockRange(string start = "earliest", string end = "earliest", bool? full= true );
+		/// <summary>
+		/// BlockByNumber = eth_getBlockByNumber (true)
+		/// </summary>
+		/// <param name="blockNumber"></param>
+		/// <returns></returns>
+		Task<Block> BlockByNumber(string blockNumber);
 
-		// PeerCount = net_peerCount
-		BigInteger PeerCount();
 
-		// HeaderByHash = eth_getBlockByHash (false)
-		void HeaderByHash(string blockHash);
+		/// <summary>
+		/// BlockNumber = eth_blockNumber
+		/// </summary>
+		/// <returns></returns>
+		Task<string> BlockNumber();
 
-		// HeaderByNumber = eth_getBlockByHash (true)
-		void HeaderByNumber(string blockNumber);
+	
+		/// <summary>
+		/// BlockRange = eth_getBlockRange
+		/// https://community.optimism.io/docs/developers/build/json-rpc/#eth-getblockrange
+		/// </summary>
+		/// <param name="start"></param>
+		/// <param name="end"></param>
+		/// <param name="full"></param>
+		/// <returns></returns>
+		Task<List<Block>> BlockRange(string start = "earliest", string end = "earliest", bool? full= true );
 
-		// TransactionByHash = eth_getTransactionByHash
-		Transaction TransactionByHash(string transactionHash);
 
-		// TransactionSender is a wrapper for eth_getTransactionByBlockHashAndIndex
-		Transaction TransactionSender(string blockHash, BigInteger transactionIndex);
+		/// <summary>
+		/// PeerCount = net_peerCount
+		/// </summary>
+		/// <returns></returns>
+		Task<BigInteger> PeerCount();
 
-		// TransactionCount = eth_getBlockTransactionCountByHash
-		BigInteger TransactionCount(string blockHash);
 
-		// TransactionInBlock = eth_getTransactionByBlockHashAndIndex
-		Transaction TransactionInBlock(string blockHash, BigInteger transactionIndex);
-		// TransactionReceipt = eth_getTransactionReceipt
-		TransactionReceipt TransactionReceipt(string transactionHash);
+		/// <summary>
+		/// HeaderByHash = eth_getBlockByHash (false)
+		/// </summary>
+		/// <param name="blockHash"></param>
+		/// <returns></returns>
+		Task<Block> HeaderByHash(string blockHash);
 
-		// SyncProgress = eth_syncing
-		SyncStatus SyncProgress();
+ 
+		/// <summary>
+		/// HeaderByNumber = eth_getBlockByHash (true)
+		/// </summary>
+		/// <param name="blockNumber"></param>
+		/// <returns></returns>
+		Task<Block> HeaderByNumber(string blockNumber);
 
-		// NetworkID = net_version
-		string NetworkID();
 
-		// BalanceAt = eth_getBalance
-		BigInteger BalanceAt(string address, string blockNumber);
+		/// <summary>
+		/// TransactionByHash = eth_getTransactionByHash
+		/// </summary>
+		/// <param name="transactionHash"></param>
+		/// <returns></returns>
+		Task<Transaction> TransactionByHash(string transactionHash);
 
-		// StorageAt = eth_getStorageAt
-		string StorageAt(string address, BigInteger storagePosition, string blockNumber);
 
-		// CodeAt = eth_getCode
-		string CodeAt(string address, string blockNumber);
+		/// <summary>
+		/// TransactionSender is a wrapper for eth_getTransactionByBlockHashAndIndex
+		/// </summary>
+		/// <param name="blockHash"></param>
+		/// <param name="transactionIndex"></param>
+		/// <returns></returns>
+		Task<Transaction> TransactionSender(string blockHash, BigInteger transactionIndex);
 
-		// NonceAt = eth_getTransactionCount
-		BigInteger NonceAt(string address, string blockNumber);
 
-		// FilterLogs = eth_getLogs
-		List<Log> FilterLogs(Filter filter);
+		/// <summary>
+		/// TransactionCount = eth_getBlockTransactionCountByHash
+		/// </summary>
+		/// <param name="blockHash"></param>
+		/// <returns></returns>
+		Task<BigInteger> TransactionCount(string blockHash);
 
-		// PendingBalanceAt = eth_getBalance ("pending")
-		BigInteger PendingBalanceAt(string address);
 
-		// PendingStorageAt = eth_getStorageAt ("pending")
-		string PendingStorageAt(string address, BigInteger storagePosition);
+		/// <summary>
+		///  TransactionInBlock = eth_getTransactionByBlockHashAndIndex
+		/// </summary>
+		/// <param name="blockHash"></param>
+		/// <param name="transactionIndex"></param>
+		/// <returns></returns>
+		Task<Transaction> TransactionInBlock(string blockHash, BigInteger transactionIndex);
 
-		// PendingCodeAt = eth_getCode ("pending")
-		string PendingCodeAt(string address);
 
-		// PendingNonceAt = eth_getTransactionCount ("pending")
-		BigInteger PendingNonceAt(string address);
+		/// <summary>
+		/// TransactionReceipt = eth_getTransactionReceipt
+		/// </summary>
+		/// <param name="transactionHash"></param>
+		/// <returns></returns>
+		Task<TransactionReceipt> TransactionReceipt(string transactionHash);
 
-		// PendingTransactionCount = eth_getBlockTransactionCountByNumber ("pending")
-		BigInteger PendingTransactionCount();
 
-		// CallContract = eth_call (blockNumber)
-		//TODO: ?
-		string CallContract();
+		/// <summary>
+		/// SyncProgress = eth_syncing
+		/// </summary>
+		/// <returns></returns>
+		Task<SyncStatus> SyncProgress();
 
-		// CallContractAtHash = eth_call (blockHash)
-		//TODO: ?
-		string CallContractAtHash();
 
-		// PendingCallContract = eth_call ("pending")
-		string PendingCallContract(TransactionCall transactionCall);
+		/// <summary>
+		/// NetworkID = net_version
+		/// </summary>
+		/// <returns></returns>
+		Task<string> NetworkID();
+ 
+		/// <summary>
+		/// BalanceAt = eth_getBalance
+		/// </summary>
+		/// <param name="address"></param>
+		/// <param name="blockNumber"></param>
+		/// <returns></returns>
+		Task<BigInteger> BalanceAt(string address, string blockNumber);
 
-		// SuggestGasPrice = eth_gasPrice
-		BigInteger SuggestGasPrice();
 
-		// SuggestGasTipCap = eth_maxPriorityFeePerGas
-		string SuggestGasTipCap();
+		/// <summary>
+		/// StorageAt = eth_getStorageAt
+		/// </summary>
+		/// <param name="address"></param>
+		/// <param name="storagePosition"></param>
+		/// <param name="blockNumber"></param>
+		/// <returns></returns>
+		Task<string> StorageAt(string address, BigInteger storagePosition, string blockNumber);
 
-		// FeeHistory = eth_feeHistory
-		FeeHistoryResult FeeHistory(string blockCount, string newestBlock, int? REWARDPERCENTILES);
-		// EstimateGas = eth_estimateGas
-		BigInteger EstimateGas(TransactionCall transactionCall, string blockNumber);
 
-		// SendTransaction = eth_sendRawTransaction
-		//return the transaction hash
-		string SendTransaction(Transaction transaction);
+		/// <summary>
+		/// CodeAt = eth_getCode
+		/// </summary>
+		/// <param name="address"></param>
+		/// <param name="blockNumber"></param>
+		/// <returns></returns>
+		Task<string> CodeAt(string address, string blockNumber);
 
-		// SendRawTransaction = eth_sendRawTransaction
-		string SendRawTransaction(string signedTransactionData);
+
+		/// <summary>
+		/// NonceAt = eth_getTransactionCount
+		/// </summary>
+		/// <param name="address"></param>
+		/// <param name="blockNumber"></param>
+		/// <returns></returns>
+		Task<BigInteger> NonceAt(string address, string blockNumber);
+
+		/// <summary>
+		/// FilterLogs = eth_getLogs
+		/// </summary>
+		/// <param name="filter"></param>
+		/// <returns></returns>
+		Task<List<Log>> FilterLogs(Filter filter);
+
+		/// <summary>
+		/// PendingBalanceAt = eth_getBalance ("pending")
+		/// </summary>
+		/// <param name="address"></param>
+		/// <returns></returns>
+		Task<BigInteger> PendingBalanceAt(string address);
+
+
+		/// <summary>
+		/// PendingStorageAt = eth_getStorageAt ("pending")
+		/// </summary>
+		/// <param name="address"></param>
+		/// <param name="storagePosition"></param>
+		/// <returns></returns>
+		Task<string> PendingStorageAt(string address, BigInteger storagePosition);
+
+
+		/// <summary>
+		/// PendingCodeAt = eth_getCode ("pending")
+		/// </summary>
+		/// <param name="address"></param>
+		/// <returns></returns>
+		Task<string> PendingCodeAt(string address);
+
+		/// <summary>
+		/// PendingNonceAt = eth_getTransactionCount ("pending")
+		/// </summary>
+		/// <param name="address"></param>
+		/// <returns></returns>
+		Task<BigInteger> PendingNonceAt(string address);
+
+		/// <summary>
+		/// PendingTransactionCount = eth_getBlockTransactionCountByNumber ("pending")
+		/// </summary>
+		/// <returns></returns>
+		Task<BigInteger> PendingTransactionCount();
+
+
+		/// <summary>
+		/// CallContract = eth_call (blockNumber)
+		/// </summary>
+		/// <returns></returns>
+		Task<string> CallContract();
+
+
+		/// <summary>
+		/// CallContractAtHash = eth_call (blockHash)
+		/// </summary>
+		/// <returns></returns>
+		Task<string> CallContractAtHash();
+
+
+		/// <summary>
+		/// PendingCallContract = eth_call ("pending")
+		/// </summary>
+		/// <param name="transactionCall"></param>
+		/// <returns></returns>
+		Task<string> PendingCallContract(TransactionCall transactionCall);
+
+		/// <summary>
+		/// SuggestGasPrice = eth_gasPrice
+		/// </summary>
+		/// <returns></returns>
+		Task<BigInteger> SuggestGasPrice();
+
+
+		/// <summary>
+		/// SuggestGasTipCap = eth_maxPriorityFeePerGas
+		/// </summary>
+		/// <returns></returns>
+		Task<string> SuggestGasTipCap();
+
+		/// <summary>
+		/// FeeHistory = eth_feeHistory
+		/// </summary>
+		/// <param name="blockCount"></param>
+		/// <param name="newestBlock"></param>
+		/// <param name="REWARDPERCENTILES"></param>
+		/// <returns></returns>
+		Task<FeeHistoryResult> FeeHistory(string blockCount, string newestBlock, int? REWARDPERCENTILES);
+
+
+		/// <summary>
+		/// EstimateGas = eth_estimateGas
+		/// </summary>
+		/// <param name="transactionCall"></param>
+		/// <param name="blockNumber"></param>
+		/// <returns></returns>
+		Task<BigInteger> EstimateGas(TransactionCall transactionCall, string blockNumber);
+
+
+		/// <summary>
+		/// SendTransaction = eth_sendRawTransaction
+		/// return the transaction hash
+		/// </summary>
+		/// <param name="transaction"></param>
+		/// <returns></returns>
+		Task<string> SendTransaction(Transaction transaction);
+
+
+		/// <summary>
+		/// SendRawTransaction = eth_sendRawTransaction
+		/// </summary>
+		/// <param name="signedTransactionData"></param>
+		/// <returns></returns>
+		Task<string> SendRawTransaction(string signedTransactionData);
 	}
 }
