@@ -9,6 +9,11 @@ public class ClientTest : MonoBehaviour
     // Start is called before the first frame update
     async void Start()
     {
+        BigInteger number = new BigInteger(-2324254325223);
+        var hex = number.ToString("x");
+        string encodedString = new string('f', 64 - hex.Length) + hex;
+        Debug.Log(encodedString);
+
         Debug.Log("start");
         var valueBytes = ((BigInteger)10).ToByteArray();
 

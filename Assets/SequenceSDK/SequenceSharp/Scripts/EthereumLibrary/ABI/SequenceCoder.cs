@@ -4,8 +4,22 @@ using System.Text;
 
 namespace SequenceSharp.ABI
 {
+    /// <summary>
+    /// https://docs.soliditylang.org/en/v0.8.13/abi-spec.html
+    /// </summary>
+    public enum ABIType
+    {
+
+    }
     public class SequenceCoder
     {
+        /// <summary>
+        /// https://docs.soliditylang.org/en/v0.8.13/abi-spec.html
+        /// For any ABI value X, we recursively define enc(X), depending on the type of X being different types
+        /// </summary>
+        /// <param name="abi"></param>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
         public static byte[] EncodeParameter(string abi, object parameter)
         {
             //Switch
