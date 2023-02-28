@@ -1,6 +1,5 @@
 namespace SequenceSharp.ABI
 {
-
     public interface ICoder
     {
         byte[] Encode(object value);

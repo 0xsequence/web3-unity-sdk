@@ -1,3 +1,6 @@
+using System;
+using System.Numerics;
+
 namespace SequenceSharp.ABI
 {
 
@@ -15,6 +18,27 @@ namespace SequenceSharp.ABI
 
         public byte[] Encode(object value)
         {
+            byte[] valueBytes = ((BigInteger)value).ToByteArray();
+            // Make sure Big Endian
+            if(BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(valueBytes); // not 100% sure, check later
+            }
+            // Check bounds are safe for encoding
+            //TODO: if length > 32, recursive call:
+            //else
+
+            //Encode
+
+            //if signed
+
+
+
+            var encoded = new byte[32];
+            for( int i = 0; i < encoded.Length; i++ )
+            {
+
+            }
             throw new System.NotImplementedException();
         }
 
