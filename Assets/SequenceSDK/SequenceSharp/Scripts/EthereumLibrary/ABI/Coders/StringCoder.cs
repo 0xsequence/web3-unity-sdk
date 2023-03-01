@@ -1,8 +1,11 @@
+using System.Text;
+
 namespace SequenceSharp.ABI
 {
 
     public class StringCoder : ICoder
     {
+        BytesCoder _bytesCoder;
         public T Decode<T>(byte[] encoded)
         {
             throw new System.NotImplementedException();
@@ -22,7 +25,9 @@ namespace SequenceSharp.ABI
         /// <returns></returns>
         public byte[] Encode(object value)
         {
-            throw new System.NotImplementedException();
+            Encoding utf8 = Encoding.UTF8;
+            
+            return _bytesCoder.Encode(utf8.GetBytes((string)value));
         }
 
         public bool IsSupportedType()
