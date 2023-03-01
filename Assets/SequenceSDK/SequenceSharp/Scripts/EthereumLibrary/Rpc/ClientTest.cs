@@ -12,6 +12,12 @@ public class ClientTest : MonoBehaviour
     // Start is called before the first frame update
     async void Start()
     {
+        //decode int test
+        string encoded = "0000000000000000000000000000000000000000000000000000000000000005";
+        var trimmedString = encoded.TrimStart(new char[] { '0' });
+        BigInteger decodedNumber = BigInteger.Parse(trimmedString);
+        Debug.Log("decoded:" + decodedNumber);
+
         byte[] byteArray = { 0xaa, 0xaa };
         string str = "string";
         Encoding utf8 = Encoding.UTF8;

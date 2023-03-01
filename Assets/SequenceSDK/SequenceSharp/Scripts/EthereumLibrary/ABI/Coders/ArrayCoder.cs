@@ -10,7 +10,7 @@ namespace SequenceSharp.ABI
     /// </summary>
     public class ArrayCoder : ICoder
     {
-        public T Decode<T>(byte[] encoded)
+        public object Decode(byte[] encoded)
         {
             throw new System.NotImplementedException();
         }

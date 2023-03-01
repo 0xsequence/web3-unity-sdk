@@ -3,9 +3,11 @@ namespace SequenceSharp.ABI
 
     public class BooleanCoder : ICoder
     {
-        public T Decode<T>(byte[] encoded)
+        public object Decode(byte[] encoded)
         {
-            throw new System.NotImplementedException();
+            int length = encoded.Length;
+            if (encoded[length - 1] == 1) return true;
+            return false;
         }
 
         public T DefaultValue<T>()

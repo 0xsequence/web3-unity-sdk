@@ -7,7 +7,7 @@ namespace SequenceSharp.ABI
 
     public class AddressCoder : ICoder
     {
-        public T Decode<T>(byte[] encoded)
+        public object Decode(byte[] encoded)
         {
             throw new System.NotImplementedException();
         }

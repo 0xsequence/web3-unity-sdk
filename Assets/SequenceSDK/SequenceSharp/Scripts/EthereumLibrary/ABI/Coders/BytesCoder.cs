@@ -8,7 +8,7 @@ namespace SequenceSharp.ABI
     public class BytesCoder : ICoder
     {
         IntCoder _intCoder;
-        public T Decode<T>(byte[] encoded)
+        public object Decode(byte[] encoded)
         {
             throw new System.NotImplementedException();
         }

@@ -6,9 +6,13 @@ namespace SequenceSharp.ABI
 
     public class IntCoder : ICoder
     {
-        public T Decode<T>(byte[] encoded)
+        public object Decode(byte[] encoded)
         {
-            throw new System.NotImplementedException();
+            //Trim 0s
+            string encodedString = SequenceCoder.ByteArrayToHexString(encoded);
+            var trimmedString = encodedString.TrimStart(new char[] { '0' });
+            BigInteger decodedNumber = BigInteger.Parse(trimmedString);
+            return decodedNumber;
         }
 
         public T DefaultValue<T>()
