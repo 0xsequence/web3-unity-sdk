@@ -1,17 +1,29 @@
 
 using UnityEngine;
 using SequenceSharp.RPC;
+using SequenceSharp.ABI;
 using System.Numerics;
 using Org.BouncyCastle.Crypto;
+using System.Globalization;
+using System.Text;
 
 public class ClientTest : MonoBehaviour
 {
     // Start is called before the first frame update
     async void Start()
     {
-        BigInteger number = new BigInteger(-2324254325223);
-        var hex = number.ToString("x");
-        string encodedString = new string('f', 64 - hex.Length) + hex;
+
+
+        string address = "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
+        if (address.StartsWith("0x"))
+        {
+
+            address.Remove(0, 2);
+        }
+        Debug.Log("address" + address);
+        BigInteger number = BigInteger.Parse("8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9", NumberStyles.AllowHexSpecifier);//new BigInteger(-2324254325223);
+        var hex = "8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";// number.ToString("x");
+        string encodedString = new string('0', 64 - hex.Length) + hex;
         Debug.Log(encodedString);
 
         Debug.Log("start");
