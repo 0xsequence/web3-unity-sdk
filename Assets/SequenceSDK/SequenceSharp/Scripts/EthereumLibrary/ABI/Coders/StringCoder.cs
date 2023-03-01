@@ -12,7 +12,14 @@ namespace SequenceSharp.ABI
         {
             throw new System.NotImplementedException();
         }
-
+        /// <summary>
+        /// string: dynamic sized unicode string assumed to be UTF-8 encoded.
+        /// string:
+        ///       enc(X) = enc(enc_utf8(X)), i.e.X is UTF-8 encoded and this value is interpreted as of bytes type and encoded further.Note that the length used in this subsequent encoding is the number of bytes of the UTF-8 encoded string, not its number of characters.
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public byte[] Encode(object value)
         {
             throw new System.NotImplementedException();
