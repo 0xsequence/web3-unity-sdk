@@ -12,7 +12,7 @@ public class ClientTest : MonoBehaviour
     // Start is called before the first frame update
     async void Start()
     {
-        byte[] byteArray = { 0xaa };
+        byte[] byteArray = { 0xaa, 0xaa };
         string str = "string";
         Encoding utf8 = Encoding.UTF8;
         utf8.GetBytes(str);
