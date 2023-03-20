@@ -11,7 +11,8 @@ namespace SequenceSharp.ABI
     {
         public object Decode(byte[] encoded)
         {
-            throw new System.NotImplementedException();
+            string encodedString = SequenceCoder.ByteArrayToHexString(encoded);
+            return DecodeFromString(encodedString);
         }
 
         public T DefaultValue<T>()
@@ -44,9 +45,11 @@ namespace SequenceSharp.ABI
             return encodedString.ToLower();
         }
 
-        public string DecodeToString(byte[] encoded)
+        public string DecodeFromString(string encodedString)
         {
-            throw new System.NotImplementedException();
+            //cut leading zeros
+            encodedString = encodedString.TrimStart('0');
+            return "0x" + encodedString;
         }
 
         public bool IsSupportedType()

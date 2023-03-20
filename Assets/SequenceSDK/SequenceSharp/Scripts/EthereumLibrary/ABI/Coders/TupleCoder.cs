@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -25,7 +26,7 @@ namespace SequenceSharp.ABI
         BooleanCoder _booleanCoder = new BooleanCoder();
         FixedBytesCoder _fixedBytesCoder = new FixedBytesCoder();
         BytesCoder _bytesCoder = new BytesCoder();
-        IntCoder _intCoder = new IntCoder();
+        NumberCoder _numberCoder = new NumberCoder();
         StringCoder _stringCoder = new StringCoder();
 
         public object Decode(byte[] encoded)
@@ -72,31 +73,31 @@ namespace SequenceSharp.ABI
                         head_i = _booleanCoder.EncodeToString(valueTuple[i]);
                         break;
                     case ABIType.NUMBER:
-                        head_i = _intCoder.EncodeToString(valueTuple[i]);
+                        head_i = _numberCoder.EncodeToString(valueTuple[i]);
                         break;
                     case ABIType.ADDRESS:
                         head_i = _addressCoder.EncodeToString(valueTuple[i]);
                         break;
                     //Dynamics: head(X(i)) = enc(len( head(X(1)) ... head(X(k)) tail(X(1)) ... tail(X(i-1)) )) tail(X(i)) = enc(X(i))
                     case ABIType.BYTES:
-                        head_i = _intCoder.EncodeToString((object)(headerTotalByteLength + tailLength));
+                        head_i = _numberCoder.EncodeToString((object)(headerTotalByteLength + tailLength));
                         tail_i = _fixedBytesCoder.EncodeToString(valueTuple[i]);
                         break;
                     case ABIType.STRING:
                         Encoding utf8 = Encoding.UTF8;
-                        head_i = _intCoder.EncodeToString((object)(headerTotalByteLength + tailLength));
+                        head_i = _numberCoder.EncodeToString((object)(headerTotalByteLength + tailLength));
                         tail_i = _fixedBytesCoder.EncodeToString(utf8.GetBytes((string)valueTuple[i]));
                         break;
                     case ABIType.DYNAMICARRAY:
-                        head_i = _intCoder.EncodeToString((object)(headerTotalByteLength + tailLength));
-                        tail_i = _intCoder.EncodeToString(((List<object>)(valueTuple[i])).Count) + EncodeToString(valueTuple[i]);
+                        head_i = _numberCoder.EncodeToString((object)(headerTotalByteLength + tailLength));
+                        tail_i = _numberCoder.EncodeToString(((List<object>)(valueTuple[i])).Count) + EncodeToString(valueTuple[i]);
                         break;
                     case ABIType.FIXEDARRAY:
-                        head_i = _intCoder.EncodeToString((object)(headerTotalByteLength + tailLength));
+                        head_i = _numberCoder.EncodeToString((object)(headerTotalByteLength + tailLength));
                         tail_i = EncodeToString(valueTuple[i]);
                         break;
                     case ABIType.TUPLE:
-                        head_i = _intCoder.EncodeToString((object)(headerTotalByteLength + tailLength));
+                        head_i = _numberCoder.EncodeToString((object)(headerTotalByteLength + tailLength));
                         tail_i = EncodeToString(valueTuple[i]);
                         break;
                     default:
@@ -124,9 +125,107 @@ namespace SequenceSharp.ABI
             return encoded;
         }
 
-        public string DecodeToString(byte[] encoded)
+
+        public List<object> DecodeFromString(string encodedString, List<object> types)
         {
-            throw new System.NotImplementedException();
+            List<object> decodedList = new List<object>();
+            List<int> offsetList = new List<int>();
+            int encodedLength = encodedString.Length;
+            int index = 0;
+            foreach(ABIType type in types)
+            {
+
+                switch (type)
+                {
+                    //Statics: head(X(i)) = enc(X(i) and tail(X(i)) = "" (the empty string)
+                    case ABIType.BOOLEAN:
+                        bool decodedBool = _booleanCoder.DecodeFromString(encodedString.Substring(index*64,(index+1)*64));
+                        decodedList.Add(decodedBool);
+                        break;
+                    case ABIType.NUMBER:
+                        int decodedNumber =(int) _numberCoder.DecodeFromString(encodedString.Substring(index * 64, (index + 1) * 64));
+                        decodedList.Add(decodedNumber);
+                        break;
+                    case ABIType.ADDRESS:
+                        string decodedAddress = _addressCoder.DecodeFromString(encodedString.Substring(index * 64, (index + 1) * 64));
+                        decodedList.Add(decodedAddress);
+                        break;
+                    //Dynamics: head(X(i)) = enc(len( head(X(1)) ... head(X(k)) tail(X(1)) ... tail(X(i-1)) )) tail(X(i)) = enc(X(i))
+                    case ABIType.BYTES:
+                        int byteOffset = (int)_numberCoder.DecodeFromString(encodedString.Substring(index * 64, (index + 1) * 64));
+                        offsetList.Add(byteOffset);
+                        break;
+                    case ABIType.STRING:
+                        int stringOffset = (int)_numberCoder.DecodeFromString(encodedString.Substring(index * 64, (index + 1) * 64));
+                        offsetList.Add(stringOffset);
+                        break;
+                    case ABIType.DYNAMICARRAY:
+                        int dArrayOffset = (int)_numberCoder.DecodeFromString(encodedString.Substring(index * 64, (index + 1) * 64));
+                        offsetList.Add(dArrayOffset);
+                        break;
+                    case ABIType.FIXEDARRAY:
+                        int fArrayOffset = (int)_numberCoder.DecodeFromString(encodedString.Substring(index * 64, (index + 1) * 64));
+                        offsetList.Add(fArrayOffset);
+                        break;
+                    case ABIType.TUPLE:
+                        int tupleOffset = (int)_numberCoder.DecodeFromString(encodedString.Substring(index * 64, (index + 1) * 64));
+                        offsetList.Add(tupleOffset);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            int offsetIndex = 0;
+            List<object> typeWrapper;
+            foreach (object type in types)
+            {
+                if (offsetIndex < (offsetList.Count - 1))
+                {
+                    switch (type)
+                    {
+                        //Dynamics: head(X(i)) = enc(len( head(X(1)) ... head(X(k)) tail(X(1)) ... tail(X(i-1)) )) tail(X(i)) = enc(X(i))
+                        case ABIType.BYTES:
+                            string bytesEncodedString = encodedString.Substring(offsetList[offsetIndex] * 64, (offsetList[offsetIndex + 1]) * 64);
+                            decodedList.Add(_fixedBytesCoder.DecodeFromString(bytesEncodedString));
+                            offsetIndex++;
+                            break;
+                        case ABIType.STRING:
+                            string stringEncodedString = encodedString.Substring(offsetList[offsetIndex] * 64, (offsetList[offsetIndex + 1]) * 64);
+                            decodedList.Add(_stringCoder.DecodeFromString(stringEncodedString));
+                            offsetIndex++;
+                            break;
+                        case ABIType.DYNAMICARRAY:
+                        case List<ABIType>:
+                            string dArrayEncodedString = encodedString.Substring(offsetList[offsetIndex] * 64, (offsetList[offsetIndex + 1]) * 64);
+                            //TODO: Needs to know the type 
+                            typeWrapper = new List<object>();
+                            typeWrapper.Add(type);
+                            decodedList.Add(DecodeFromString(dArrayEncodedString, typeWrapper));
+                            offsetIndex++;
+                            break;
+                        case ABIType.FIXEDARRAY:
+                            string fArrayEncodedString = encodedString.Substring(offsetList[offsetIndex] * 64, (offsetList[offsetIndex + 1]) * 64);
+                            typeWrapper = new List<object>();
+                            typeWrapper.Add(type);
+                            decodedList.Add(DecodeFromString(fArrayEncodedString, typeWrapper));
+                            offsetIndex++;
+                            break;
+                        case ABIType.TUPLE:
+                            string tupleArrayEncodedString = encodedString.Substring(offsetList[offsetIndex] * 64, (offsetList[offsetIndex + 1]) * 64);
+                            typeWrapper = new List<object>();
+                            typeWrapper.Add(type);
+                            decodedList.Add(DecodeFromString(tupleArrayEncodedString, typeWrapper));
+                            offsetIndex++;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+
+
+            return decodedList;
         }
 
         public bool IsSupportedType()

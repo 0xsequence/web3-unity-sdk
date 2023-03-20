@@ -4,15 +4,13 @@ using System.Numerics;
 namespace SequenceSharp.ABI
 {
 
-    public class IntCoder : ICoder
+    public class NumberCoder : ICoder
     {
         public object Decode(byte[] encoded)
         {
             //Trim 0s
             string encodedString = SequenceCoder.ByteArrayToHexString(encoded);
-            var trimmedString = encodedString.TrimStart(new char[] { '0' });
-            BigInteger decodedNumber = BigInteger.Parse(trimmedString);
-            return decodedNumber;
+            return DecodeFromString(encodedString);
         }
 
         public T DefaultValue<T>()
@@ -60,9 +58,11 @@ namespace SequenceSharp.ABI
             return encoded;
         }
 
-        public string DecodeToString(byte[] encoded)
+        public object DecodeFromString(string encodedString)
         {
-            throw new System.NotImplementedException();
+            var trimmedString = encodedString.TrimStart(new char[] { '0' });
+            BigInteger decodedNumber = BigInteger.Parse(trimmedString);
+            return decodedNumber;
         }
 
         public bool IsSupportedType()

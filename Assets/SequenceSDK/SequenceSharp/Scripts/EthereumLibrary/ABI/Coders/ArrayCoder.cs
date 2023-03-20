@@ -39,9 +39,11 @@ namespace SequenceSharp.ABI
             return _tupleCoder.EncodeToString(valueWrapper);
         }
 
-        public string DecodeToString(byte[] encoded)
+        public List<object> DecodeFromString(string encodedString)
         {
-            throw new System.NotImplementedException();
+            List<object> typeWrapperList = new List<object>();
+            typeWrapperList.Add(ABIType.DYNAMICARRAY);//TODO: 
+            return _tupleCoder.DecodeFromString(encodedString, typeWrapperList);
         }
 
         public bool IsSupportedType()

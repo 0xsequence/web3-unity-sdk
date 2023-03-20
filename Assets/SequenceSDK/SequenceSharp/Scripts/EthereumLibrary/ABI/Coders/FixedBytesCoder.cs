@@ -6,10 +6,11 @@ namespace SequenceSharp.ABI
 {
     public class FixedBytesCoder : ICoder
     {
-        IntCoder _intCoder = new IntCoder();
+        NumberCoder _numberCoder = new NumberCoder();
         public object Decode(byte[] encoded)
         {
-            throw new System.NotImplementedException();
+            string encodedStr = SequenceCoder.ByteArrayToHexString(encoded);
+            return SequenceCoder.HexStringToByteArray(DecodeFromString(encodedStr));
         }
 
         public T DefaultValue<T>()
@@ -34,7 +35,7 @@ namespace SequenceSharp.ABI
         public string EncodeToString(object value)
         {
             var numberOfBytes = ((byte[])value).Length;
-            string numberOfBytesStr = _intCoder.EncodeUnsignedIntString(numberOfBytes, 64);
+            string numberOfBytesStr = _numberCoder.EncodeUnsignedIntString(numberOfBytes, 64);
             // followed by the minimum number of zero-bytes such that len(enc(X)) is a multiple of 32
             int currentTotalLength = 64 + numberOfBytes;
             int zeroBytesNeeded = 64 - currentTotalLength % 64;
@@ -44,9 +45,18 @@ namespace SequenceSharp.ABI
             return encodedStr;
         }
 
-        public string DecodeToString(byte[] encoded)
+        public string DecodeFromString(string encodedString)
         {
-            throw new System.NotImplementedException();
+            
+            int trailingZero = 0;
+            for (int i = encodedString.Length - 1; i > 64; i--)
+            {
+                if (encodedString[i] == '0') trailingZero++;
+                else break;
+            }
+            string byteStr = encodedString.Substring(64, encodedString.Length - trailingZero);
+
+            return byteStr;
         }
 
         public bool IsSupportedType()

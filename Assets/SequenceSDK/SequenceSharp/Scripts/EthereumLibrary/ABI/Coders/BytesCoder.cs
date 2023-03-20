@@ -9,10 +9,11 @@ namespace SequenceSharp.ABI
     public class BytesCoder : ICoder
     {
         FixedBytesCoder _fixedBytesCoder = new FixedBytesCoder();
-        IntCoder _intCoder = new IntCoder();
+        NumberCoder _numberCoder = new NumberCoder();
         public object Decode(byte[] encoded)
         {
-            throw new System.NotImplementedException();
+            string encodedStr = SequenceCoder.ByteArrayToHexString(encoded);
+            return SequenceCoder.HexStringToByteArray(DecodeFromString(encodedStr));
         }
 
         public T DefaultValue<T>()
@@ -36,14 +37,16 @@ namespace SequenceSharp.ABI
 
         public string EncodeToString(object value)
         {
-            string headStr = _intCoder.EncodeToString(32); 
+            string headStr = _numberCoder.EncodeToString(32); 
             string bytesStr = _fixedBytesCoder.EncodeToString(value);
             return headStr + bytesStr;
         }
 
-        public string DecodeToString(byte[] encoded)
+        public string DecodeFromString(string encodedString)
         {
-            throw new System.NotImplementedException();
+            
+            string fixedStr = encodedString.Substring(64, encodedString.Length);
+            return _fixedBytesCoder.DecodeFromString(fixedStr);
         }
 
         public bool IsSupportedType()

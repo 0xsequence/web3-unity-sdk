@@ -8,9 +8,9 @@ namespace SequenceSharp.ABI
         BytesCoder _bytesCoder = new BytesCoder();
         public object Decode(byte[] encoded)
         {
-            int length = encoded.Length;
-            if (encoded[length - 1] == 1) return true;
-            return false;
+            string encodedString = SequenceCoder.ByteArrayToHexString(encoded);
+            string decodedString = DecodeFromString(encodedString);
+            return SequenceCoder.HexStringToByteArray(decodedString);
         }
 
         public T DefaultValue<T>()
@@ -37,9 +37,12 @@ namespace SequenceSharp.ABI
             return SequenceCoder.ByteArrayToHexString(Encode(value));
         }
 
-        public string DecodeToString(byte[] encoded)
+        public string DecodeFromString(string encodedString)
         {
-            throw new System.NotImplementedException();
+            string decodedStr =  _bytesCoder.DecodeFromString(encodedString);
+            byte[] decoded = SequenceCoder.HexStringToByteArray(decodedStr);
+            Encoding utf8 = Encoding.UTF8;
+            return utf8.GetString(decoded);
         }
 
         public bool IsSupportedType()

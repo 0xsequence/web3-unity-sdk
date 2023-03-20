@@ -35,9 +35,11 @@ namespace SequenceSharp.ABI
             return new string('0', 63) + '0';
         }
 
-        public string DecodeToString(byte[] encoded)
+        public bool DecodeFromString(string encodedString)
         {
-            throw new System.NotImplementedException();
+            int length = encodedString.Length;
+            if (encodedString[length - 1] == '1') return true;
+            return false;
         }
 
         public bool IsSupportedType()

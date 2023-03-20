@@ -3,6 +3,8 @@ using SequenceSharp.ABI;
 using System.Numerics;
 using System.Linq;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 public class CoderTest : MonoBehaviour
 {
@@ -11,7 +13,7 @@ public class CoderTest : MonoBehaviour
     BooleanCoder _booleanCoder = new BooleanCoder();
     BytesCoder _bytesCoder = new BytesCoder();
     //FixedBytesCoder _fixedBytesCoder = new FixedBytesCoder();
-    IntCoder _intCoder = new IntCoder();
+    NumberCoder _numberCoder = new NumberCoder();
     StringCoder _stringCoder = new StringCoder();
     private void Start()
     {
@@ -22,6 +24,42 @@ public class CoderTest : MonoBehaviour
         IntCoderTest();
         StringCoderTest();
         TupleCoderTest();
+
+        var dtest = JsonConvert.DeserializeObject<dynamic>(@"{
+                    ""anonymous"": false,
+                    ""inputs"": [
+                    {
+                        ""indexed"": true,
+                        ""internalType"": ""address"",
+                        ""name"": ""operator"",
+                        ""type"": ""address""
+                    },
+                    {
+                        ""indexed"": true,
+                        ""internalType"": ""address"",
+                        ""name"": ""from"",
+                        ""type"": ""address""
+                    },
+                    {
+                        ""indexed"": true,
+                        ""internalType"": ""address"",
+                        ""name"": ""to"",
+                        ""type"": ""address""
+                    },
+                    {
+                        ""indexed"": false,
+                        ""internalType"": ""uint256[]"",
+                        ""name"": ""ids"",
+                        ""type"": ""uint256[]""
+                    },
+                    {
+                        ""indexed"": false,
+                        ""internalType"": ""uint256[]"",
+                        ""name"": ""values"",
+                        ""type"": ""uint256[]""
+                    }
+                    ]}");
+        Debug.Log( dtest.inputs[0].indexed);
     }
 
 
@@ -136,7 +174,7 @@ public class CoderTest : MonoBehaviour
             string abi = @"{name: 'sequence', type: 'uint8'} ";
             BigInteger parameter = 5;
             byte[] expected = SequenceCoder.HexStringToByteArray("0000000000000000000000000000000000000000000000000000000000000005");
-            byte[] encoded = _intCoder.Encode(parameter);
+            byte[] encoded = _numberCoder.Encode(parameter);
             Debug.Assert(expected.SequenceEqual(encoded));
 
 /*            //Decode
@@ -149,7 +187,7 @@ public class CoderTest : MonoBehaviour
             string abi = @"{name: 'sequence', type: 'uint8'} ";
             BigInteger parameter = -5;
             byte[] expected = SequenceCoder.HexStringToByteArray("fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffb");
-            byte[] encoded = _intCoder.Encode(parameter);
+            byte[] encoded = _numberCoder.Encode(parameter);
             Debug.Assert(expected.SequenceEqual(encoded));
 
 /*            //Decode
