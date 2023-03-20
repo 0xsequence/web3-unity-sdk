@@ -1,14 +1,11 @@
-using System;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace SequenceSharp.ABI
 {
-    /// <summary>
-    /// Note that in the dynamic case, head(X(i)) is well-defined since the lengths of the head parts only depend on the types and not the values. The value of head(X(i)) is the offset of the beginning of tail(X(i)) relative to the start of enc(X).
-    /// </summary>
-    public class BytesCoder : ICoder
+    public class FixedBytesCoder : ICoder
     {
-        FixedBytesCoder _fixedBytesCoder = new FixedBytesCoder();
         IntCoder _intCoder = new IntCoder();
         public object Decode(byte[] encoded)
         {
@@ -36,9 +33,15 @@ namespace SequenceSharp.ABI
 
         public string EncodeToString(object value)
         {
-            string headStr = _intCoder.EncodeToString(32); 
-            string bytesStr = _fixedBytesCoder.EncodeToString(value);
-            return headStr + bytesStr;
+            var numberOfBytes = ((byte[])value).Length;
+            string numberOfBytesStr = _intCoder.EncodeUnsignedIntString(numberOfBytes, 64);
+            // followed by the minimum number of zero-bytes such that len(enc(X)) is a multiple of 32
+            int currentTotalLength = 64 + numberOfBytes;
+            int zeroBytesNeeded = 64 - currentTotalLength % 64;
+            int totalLength = currentTotalLength + zeroBytesNeeded;
+            string valueStr = SequenceCoder.ByteArrayToHexString(((byte[])value));
+            string encodedStr = (numberOfBytesStr + valueStr).PadRight(totalLength, '0');
+            return encodedStr;
         }
 
         public string DecodeToString(byte[] encoded)
@@ -50,5 +53,6 @@ namespace SequenceSharp.ABI
         {
             throw new System.NotImplementedException();
         }
+
     }
 }

@@ -22,11 +22,22 @@ namespace SequenceSharp.ABI
         /// <returns></returns>
         public byte[] Encode(object value)
         {
-            if((bool)value)
+            string encodedStr = EncodeToString(value);
+            return SequenceCoder.HexStringToByteArray(encodedStr);
+        }
+
+        public string EncodeToString(object value)
+        {
+            if ((bool)value)
             {
-                return SequenceCoder.HexStringToByteArray(new string('0', 63) + '1');
+                return new string('0', 63) + '1';
             }
-            return SequenceCoder.HexStringToByteArray(new string('0', 63) + '0');
+            return new string('0', 63) + '0';
+        }
+
+        public string DecodeToString(byte[] encoded)
+        {
+            throw new System.NotImplementedException();
         }
 
         public bool IsSupportedType()

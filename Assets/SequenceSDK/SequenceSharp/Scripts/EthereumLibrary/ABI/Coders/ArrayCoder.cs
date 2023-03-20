@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
+
 namespace SequenceSharp.ABI
 {
     /// <summary>
@@ -10,6 +13,7 @@ namespace SequenceSharp.ABI
     /// </summary>
     public class ArrayCoder : ICoder
     {
+        TupleCoder _tupleCoder = new TupleCoder();
         public object Decode(byte[] encoded)
         {
             throw new System.NotImplementedException();
@@ -20,7 +24,22 @@ namespace SequenceSharp.ABI
             throw new System.NotImplementedException();
         }
 
-        public byte[] Encode(object value)
+        public byte[] Encode<T>(List<T> value)
+        {
+            string encodedStr = EncodeToString(value);
+            return SequenceCoder.HexStringToByteArray(encodedStr);
+            
+        }
+
+        public string EncodeToString<T>(List<T> value)
+        {
+            List<object> valueWrapper = new List<object>();         
+            var valueList = value.Cast<object>().ToList();
+            valueWrapper.Add(valueList);
+            return _tupleCoder.EncodeToString(valueWrapper);
+        }
+
+        public string DecodeToString(byte[] encoded)
         {
             throw new System.NotImplementedException();
         }
@@ -30,11 +49,9 @@ namespace SequenceSharp.ABI
             throw new System.NotImplementedException();
         }
 
-        public byte[] EncodeStatic(object value, int k)
+        public byte[] Encode(object value)
         {
             throw new System.NotImplementedException();
         }
-
-        
     }
 }

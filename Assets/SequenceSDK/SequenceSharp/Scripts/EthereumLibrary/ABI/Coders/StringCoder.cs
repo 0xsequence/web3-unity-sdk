@@ -5,7 +5,7 @@ namespace SequenceSharp.ABI
 
     public class StringCoder : ICoder
     {
-        BytesCoder _bytesCoder;
+        BytesCoder _bytesCoder = new BytesCoder();
         public object Decode(byte[] encoded)
         {
             int length = encoded.Length;
@@ -30,6 +30,16 @@ namespace SequenceSharp.ABI
             Encoding utf8 = Encoding.UTF8;
             
             return _bytesCoder.Encode(utf8.GetBytes((string)value));
+        }
+
+        public string EncodeToString(object value)
+        {
+            return SequenceCoder.ByteArrayToHexString(Encode(value));
+        }
+
+        public string DecodeToString(byte[] encoded)
+        {
+            throw new System.NotImplementedException();
         }
 
         public bool IsSupportedType()

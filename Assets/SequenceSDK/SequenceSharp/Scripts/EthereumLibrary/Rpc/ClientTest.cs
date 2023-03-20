@@ -6,49 +6,36 @@ using System.Numerics;
 using Org.BouncyCastle.Crypto;
 using System.Globalization;
 using System.Text;
+using System.Collections;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 
 public class ClientTest : MonoBehaviour
 {
+
     // Start is called before the first frame update
     async void Start()
     {
-        //decode int test
-        string encoded = "0000000000000000000000000000000000000000000000000000000000000005";
-        var trimmedString = encoded.TrimStart(new char[] { '0' });
-        BigInteger decodedNumber = BigInteger.Parse(trimmedString);
-        Debug.Log("decoded:" + decodedNumber);
-
-        byte[] byteArray = { 0xaa, 0xaa };
-        string str = "string";
-        Encoding utf8 = Encoding.UTF8;
-        utf8.GetBytes(str);
-
-        string address = "0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";
-        if (address.StartsWith("0x"))
+       /* List<int> testlist = new List<int>
         {
-
-            address.Remove(0, 2);
-        }
-        Debug.Log("address" + address);
-        BigInteger number = BigInteger.Parse("8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9", NumberStyles.AllowHexSpecifier);//new BigInteger(-2324254325223);
-        var hex = "8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9";// number.ToString("x");
-        string encodedString = new string('0', 64 - hex.Length) + hex;
-        Debug.Log(encodedString);
-
-        Debug.Log("start");
-        var valueBytes = ((BigInteger)10).ToByteArray();
-
-        Debug.Log("testbyte length:" + valueBytes.Length);
-        foreach (var b in valueBytes)
+            1,
+            2,
+            3
+        };
+        //turn list to tuple
+        object testObj = testlist.Cast<object>().ToList();
+        List<object> valueTuple = (List<object>)testObj;
+        foreach(object value in valueTuple)
         {
-            Debug.Log("byte :" + b);
+            Debug.Log(value);
         }
+        int[] testArray= { 1, 2, 3 };
+        Debug.Log(testArray.GetType().IsArray);
+        ArrayCoder arrayCoder = new ArrayCoder();
+        string encoded = arrayCoder.EncodeToString(testlist);
+        Debug.Log(encoded);*/
         
-
-        /*HttpRpcClient client = new HttpRpcClient("http://localhost:9090/");
-        RpcRequest request = new RpcRequest(1, "sum",new object[] { 1, 2, 3 });
-         RpcResponse result = await client.SendRequest(request);
-        Debug.Log("result : " + result.result);*/
     }
 
 

@@ -20,21 +20,49 @@ namespace SequenceSharp.ABI
             throw new System.NotImplementedException();
         }
 
+        /// <summary>
+        /// Encode signed integer, unsigend integer call EncodeUnsigned
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
         public byte[] Encode(object number)
         {
 
             //The BigInteger structure does not include constructors with a parameter of type Byte, Int16, SByte, or UInt16. However, the Int32 type supports the implicit conversion of 8-bit and 16-bit signed and unsigned integers to signed 32-bit integers.
 
-            byte[] encodedInt = EncodeSignedInt((BigInteger)number, 64);
-            // Make sure Big Endian
+            byte[] encoded = EncodeSignedInt((BigInteger)number, 32);
+            // TODO: Make sure Big Endian
             /*if (BitConverter.IsLittleEndian)
             {
-                Array.Reverse(encodedInt); // not 100% sure, check later
+                Array.Reverse(encodedInt); 
             }*/
 
 
-            return encodedInt;
+            return encoded;
 
+        }
+
+        public byte[] EncodeUnsigned(object number)
+        {
+            byte[] encoded = EncodeUnsignedInt(new BigInteger((int)number), 32);
+            return encoded;
+        }
+
+        public string EncodeToString(object number)
+        {
+            string encoded = EncodeSignedIntString(new BigInteger((int)number), 64);
+            return encoded;
+        }
+
+        public string EncodeUnsignedToString(object number)
+        {
+            string encoded = EncodeUnsignedIntString((BigInteger)number, 64);
+            return encoded;
+        }
+
+        public string DecodeToString(byte[] encoded)
+        {
+            throw new System.NotImplementedException();
         }
 
         public bool IsSupportedType()
@@ -50,6 +78,13 @@ namespace SequenceSharp.ABI
         /// <returns></returns>
         public byte[] EncodeSignedInt(BigInteger number, int length)
         {
+            string encodedString = EncodeSignedIntString(number, length * 2);
+            byte[] encoded = SequenceCoder.HexStringToByteArray(encodedString);
+            return encoded;
+        }
+
+        public string EncodeSignedIntString(BigInteger number, int length)
+        {
             var hex = number.ToString("x");
             string encodedString;
             if (number.Sign > 0)
@@ -60,8 +95,7 @@ namespace SequenceSharp.ABI
             {
                 encodedString = new string('f', length - hex.Length) + hex;
             }
-            byte[] encoded = SequenceCoder.HexStringToByteArray(encodedString);
-            return encoded;
+            return encodedString;
         }
 
         /// <summary>
@@ -71,11 +105,16 @@ namespace SequenceSharp.ABI
         /// <returns></returns>
         public byte[] EncodeUnsignedInt(BigInteger number, int length)
         {
-            var hex = number.ToString("x");
-            string encodedString = new string('0', length - hex.Length) + hex;
-
+            string encodedString = EncodeUnsignedIntString(number, length * 2);
             byte[] encoded = SequenceCoder.HexStringToByteArray(encodedString);
             return encoded;
+        }
+
+        public string EncodeUnsignedIntString(BigInteger number, int length)
+        {
+            var hex = number.ToString("x");
+            string encodedString = new string('0', length - hex.Length) + hex;
+            return encodedString;
         }
 
 
