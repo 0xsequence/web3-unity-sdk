@@ -6,7 +6,7 @@ using System.Numerics;
 using System.Text;
 using Org.BouncyCastle.Crypto.Digests;
 using System.Security.Cryptography;
-
+using Newtonsoft.Json.Linq;
 
 namespace SequenceSharp.ABI
 {
@@ -45,6 +45,77 @@ namespace SequenceSharp.ABI
         public static object DecodeParameter(string abi, byte[] encoded)
         {
             return new object{ };
+        }
+
+        public static List<object> GetParameterTypesFromABI(string abi)
+        {
+            List<object> parameterTypes = new List<object>();
+            // Parse ABI JSON string
+            JObject abiJson = JObject.Parse(abi);
+
+            // Access properties of ABI JSON
+            string name = (string)abiJson["name"];
+            JArray inputs = (JArray)abiJson["inputs"];
+
+            foreach (JObject input in inputs)
+            {
+                string inputName = (string)input["name"];
+                string inputType = (string)input["type"];
+                object type = GetParameterTypeByName(inputType);
+                parameterTypes.Add(type);
+            }
+            
+            return parameterTypes;
+
+        }
+
+        private static object GetParameterTypeByName(string paramName)
+        {
+            switch(paramName)
+            {
+                case "uint256":
+                    return ABIType.NUMBER;
+                case "string":
+                    return ABIType.STRING;
+                case "bytes":
+                    return ABIType.BYTES;
+                case "bool":
+                    return ABIType.BOOLEAN;
+                case "address":
+                    return ABIType.ADDRESS;
+                default:
+                    break;
+            }
+
+            if(paramName.Contains("[]"))
+            {
+                switch (paramName)
+                {
+                    case "uint256[]":
+                        List<ABIType> numberList = new List<ABIType>(new ABIType[] { ABIType.NUMBER });
+                        return numberList;
+
+                    case "string[]":
+                        List<ABIType> stringList = new List<ABIType>(new ABIType[] { ABIType.STRING });
+                        return stringList;
+
+                    case "bytes[]":
+                        List<ABIType> byteList = new List<ABIType>(new ABIType[] { ABIType.BYTES });
+                        return byteList;
+
+                    case "bool[]":
+                        List<ABIType> boolList = new List<ABIType>(new ABIType[] { ABIType.BOOLEAN });
+                        return boolList;
+
+                    case "address[]":
+                        List<ABIType> addressList = new List<ABIType>(new ABIType[] { ABIType.ADDRESS });
+                        return addressList;
+
+                    default:
+                        break;
+                }
+            }
+            return "";
         }
 
         // Implemented based on  https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md
