@@ -14,9 +14,10 @@ namespace SequenceSharp.ABI
     public class ArrayCoder : ICoder
     {
         TupleCoder _tupleCoder = new TupleCoder();
-        public object Decode(byte[] encoded)
+        public List<object> Decode(byte[] encoded, List<object> types)
         {
-            throw new System.NotImplementedException();
+            string encodedString = SequenceCoder.ByteArrayToHexString(encoded);
+            return DecodeFromString(encodedString, types);
         }
 
         public T DefaultValue<T>()
@@ -39,11 +40,9 @@ namespace SequenceSharp.ABI
             return _tupleCoder.EncodeToString(valueWrapper);
         }
 
-        public List<object> DecodeFromString(string encodedString)
+        public List<object> DecodeFromString(string encodedString, List<object> types)
         {
-            List<object> typeWrapperList = new List<object>();
-            typeWrapperList.Add(ABIType.DYNAMICARRAY);//TODO: 
-            return _tupleCoder.DecodeFromString(encodedString, typeWrapperList);
+            return _tupleCoder.DecodeFromString(encodedString, types);
         }
 
         public bool IsSupportedType()
@@ -52,6 +51,11 @@ namespace SequenceSharp.ABI
         }
 
         public byte[] Encode(object value)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        object ICoder.Decode(byte[] encoded)
         {
             throw new System.NotImplementedException();
         }

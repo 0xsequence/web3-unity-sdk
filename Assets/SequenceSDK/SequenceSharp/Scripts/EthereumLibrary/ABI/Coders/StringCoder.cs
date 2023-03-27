@@ -10,7 +10,7 @@ namespace SequenceSharp.ABI
         {
             string encodedString = SequenceCoder.ByteArrayToHexString(encoded);
             string decodedString = DecodeFromString(encodedString);
-            return SequenceCoder.HexStringToByteArray(decodedString);
+            return decodedString;
         }
 
         public T DefaultValue<T>()

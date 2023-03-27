@@ -54,7 +54,7 @@ namespace SequenceSharp.ABI
                 if (encodedString[i] == '0') trailingZero++;
                 else break;
             }
-            string byteStr = encodedString.Substring(64, encodedString.Length - trailingZero);
+            string byteStr = encodedString.Substring(64, encodedString.Length - trailingZero-64);
 
             return byteStr;
         }

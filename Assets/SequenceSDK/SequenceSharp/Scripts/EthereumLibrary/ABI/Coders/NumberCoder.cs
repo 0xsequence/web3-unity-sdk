@@ -8,9 +8,29 @@ namespace SequenceSharp.ABI
     {
         public object Decode(byte[] encoded)
         {
-            //Trim 0s
-            string encodedString = SequenceCoder.ByteArrayToHexString(encoded);
-            return DecodeFromString(encodedString);
+            int encodedLength = encoded.Length;
+            byte[] decoded = new byte[encodedLength];
+            //check sign
+            if(Convert.ToInt32(encoded[0])<0)
+            {
+                //reverse two's complement
+                
+                for (int i = 0; i< encodedLength - 1;i++)
+                {                    
+                    byte onesComplement = (byte)~encoded[i];
+                    decoded[i] = onesComplement;
+                }
+                byte lastOnesComplement = (byte)~encoded[encodedLength - 1];
+                decoded[encodedLength - 1] = (byte)(lastOnesComplement + 1);
+            }
+            else
+            {
+                decoded = encoded;
+            }
+            string decodedString = SequenceCoder.ByteArrayToHexString(decoded);
+            
+            return DecodeFromString(decodedString);
+
         }
 
         public T DefaultValue<T>()
@@ -27,7 +47,7 @@ namespace SequenceSharp.ABI
         {
 
             //The BigInteger structure does not include constructors with a parameter of type Byte, Int16, SByte, or UInt16. However, the Int32 type supports the implicit conversion of 8-bit and 16-bit signed and unsigned integers to signed 32-bit integers.
-
+            
             byte[] encoded = EncodeSignedInt((BigInteger)number, 32);
             // TODO: Make sure Big Endian
             /*if (BitConverter.IsLittleEndian)
@@ -48,7 +68,21 @@ namespace SequenceSharp.ABI
 
         public string EncodeToString(object number)
         {
-            string encoded = EncodeSignedIntString(new BigInteger((int)number), 64);
+            BigInteger bgNumber;
+            if(number.GetType() == typeof(int))
+            {
+                bgNumber = new BigInteger((int)number);
+
+            }
+            else if(number.GetType() == typeof(uint))
+            {
+                bgNumber = new BigInteger((uint)number);
+            }
+            else
+            {
+                bgNumber = (BigInteger)number;
+            }
+            string encoded = EncodeSignedIntString(bgNumber, 64);
             return encoded;
         }
 
@@ -60,9 +94,10 @@ namespace SequenceSharp.ABI
 
         public object DecodeFromString(string encodedString)
         {
-            var trimmedString = encodedString.TrimStart(new char[] { '0' });
-            BigInteger decodedNumber = BigInteger.Parse(trimmedString);
+            BigInteger decodedNumber = BigInteger.Parse(encodedString, System.Globalization.NumberStyles.HexNumber);
             return decodedNumber;
+            
+            
         }
 
         public bool IsSupportedType()

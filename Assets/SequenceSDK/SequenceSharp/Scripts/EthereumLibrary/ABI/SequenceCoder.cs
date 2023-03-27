@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Numerics;
 using System.Text;
+using Org.BouncyCastle.Crypto.Digests;
 
 namespace SequenceSharp.ABI
 {
@@ -43,30 +45,60 @@ namespace SequenceSharp.ABI
             return new object{ };
         }
 
+        //https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md
+        public static string AddressChecksum(string address)
+        {
+
+            return "";
+        }
+
 
         // Hex string to byte array and vice versa
         // Ref:
         //https://stackoverflow.com/questions/311165/how-do-you-convert-a-byte-array-to-a-hexadecimal-string-and-vice-versa
 
-        public static byte[] HexStringToByteArray(string hex)
+        public static byte[] HexStringToByteArray(string hexString)
         {
-            if (hex.StartsWith("0x"))
-            {
-                hex = hex.Remove(0, 2);
-            }
-            int NumberChars = hex.Length;
-            byte[] bytes = new byte[NumberChars / 2];
-            for (int i = 0; i < NumberChars; i += 2)
-                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
-            return bytes;
-        }
 
+            if (hexString.StartsWith("0x"))
+            {
+                hexString = hexString.Remove(0, 2);
+            }
+
+            byte firstByte = Convert.ToByte(hexString.Substring(0, 2), 16);
+            int firstInt = Convert.ToInt32(firstByte);
+            if (firstInt < 0)
+            {
+                int numberChars = hexString.Length;
+                byte[] bytes = new byte[numberChars / 2];
+                int curr = 0;
+                for (int i = 0; i < numberChars-1; i += 2)
+                {
+                    curr = Convert.ToInt32(hexString.Substring(i, 2), 16);
+                    bytes[i / 2] = Convert.ToByte(~curr);
+                }
+                curr = Convert.ToInt32(hexString.Substring(numberChars - 1, 2), 16);
+                bytes[(numberChars - 1) / 2] = Convert.ToByte(~curr + 1);
+                return bytes;
+            }
+            else
+            {
+                int numberChars = hexString.Length;
+                byte[] bytes = new byte[numberChars / 2];
+                for (int i = 0; i < numberChars; i += 2)
+                    bytes[i / 2] = Convert.ToByte(hexString.Substring(i, 2), 16);
+                return bytes;
+            }
+            
+        }
+         
         public static string ByteArrayToHexString(byte[] ba)
         {
             StringBuilder hex = new StringBuilder(ba.Length * 2);
             foreach (byte b in ba)
                 hex.AppendFormat("{0:x2}", b);
             return hex.ToString();
+
         }
 
         public static ABIType GetParameterType(object param)
@@ -77,7 +109,7 @@ namespace SequenceSharp.ABI
             {
                 return ABIType.BOOLEAN;
             }
-            else if (param.GetType() == typeof(int)|| param.GetType() == typeof(uint))
+            else if (param.GetType() == typeof(BigInteger)||param.GetType() == typeof(int)|| param.GetType() == typeof(uint))
             {
                 return ABIType.NUMBER;
             }

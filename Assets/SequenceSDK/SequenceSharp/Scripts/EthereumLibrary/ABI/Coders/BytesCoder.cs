@@ -13,6 +13,7 @@ namespace SequenceSharp.ABI
         public object Decode(byte[] encoded)
         {
             string encodedStr = SequenceCoder.ByteArrayToHexString(encoded);
+
             return SequenceCoder.HexStringToByteArray(DecodeFromString(encodedStr));
         }
 
@@ -44,8 +45,7 @@ namespace SequenceSharp.ABI
 
         public string DecodeFromString(string encodedString)
         {
-            
-            string fixedStr = encodedString.Substring(64, encodedString.Length);
+            string fixedStr = encodedString.Substring(64, encodedString.Length - 64);
             return _fixedBytesCoder.DecodeFromString(fixedStr);
         }
 
