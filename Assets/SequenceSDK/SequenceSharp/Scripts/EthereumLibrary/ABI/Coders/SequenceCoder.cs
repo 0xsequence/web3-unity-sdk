@@ -1,11 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Numerics;
 using System.Text;
 using Org.BouncyCastle.Crypto.Digests;
-using System.Security.Cryptography;
 using Newtonsoft.Json.Linq;
 
 namespace SequenceSharp.ABI
