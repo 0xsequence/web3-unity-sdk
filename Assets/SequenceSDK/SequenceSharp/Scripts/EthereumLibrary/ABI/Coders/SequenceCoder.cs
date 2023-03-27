@@ -5,6 +5,8 @@ using System.Globalization;
 using System.Numerics;
 using System.Text;
 using Org.BouncyCastle.Crypto.Digests;
+using System.Security.Cryptography;
+
 
 namespace SequenceSharp.ABI
 {
@@ -45,11 +47,64 @@ namespace SequenceSharp.ABI
             return new object{ };
         }
 
-        //https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md
+        // Implemented based on  https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md
         public static string AddressChecksum(string address)
         {
+            if (address.StartsWith("0x"))
+            {
+                address = address.Substring(2);
+            }
+            string hashedAddress = KeccakHash(address);
+            string checksumAddress = "";
+            int idx = 0;
+            foreach(char c in address)
+            {
+                if("0123456789".Contains(c))
+                {
+                    checksumAddress += c;
+                }
+                else if("abcdef".Contains(c))
+                {
+                    int hashedAddressNibble = Convert.ToInt32(hashedAddress[idx].ToString(), 16);
+                    
+                    if(hashedAddressNibble > 7)
+                    {
+                        checksumAddress += Char.ToUpper(c);
+                    }
+                    else
+                    {
+                        checksumAddress += c;
 
-            return "";
+                    }
+                }
+                else
+                {
+                    throw new Exception($"Unrecognized hex character '{c}' at position {idx}");
+                }
+                idx++;
+            }
+            return "0x" + checksumAddress;
+        }
+
+        public static string FunctionSelector(string functionSignature)
+        {
+            string hashed = KeccakHash(functionSignature);
+            hashed = hashed.Substring(0, 8);
+            return "0x" + hashed;
+        }
+
+        public static string KeccakHash(string input)
+        {
+
+            var keccak256 = new KeccakDigest(256);
+            byte[] inputBytes = Encoding.ASCII.GetBytes(input);
+            keccak256.BlockUpdate(inputBytes, 0, inputBytes.Length);
+            byte[] result = new byte[keccak256.GetByteLength()];
+            keccak256.DoFinal(result, 0);
+
+            string hashString = BitConverter.ToString(result, 0,32);
+            hashString = hashString.Replace("-", "").ToLowerInvariant();
+            return hashString;
         }
 
 
@@ -189,5 +244,6 @@ namespace SequenceSharp.ABI
                 return true;
             return false;
         }
+
     }
 }

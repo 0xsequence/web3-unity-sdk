@@ -12,7 +12,8 @@ namespace SequenceSharp.ABI
         public object Decode(byte[] encoded)
         {
             string encodedString = SequenceCoder.ByteArrayToHexString(encoded);
-            return DecodeFromString(encodedString);
+            string decoded = SequenceCoder.AddressChecksum(DecodeFromString(encodedString));
+            return decoded;
         }
 
         public T DefaultValue<T>()
