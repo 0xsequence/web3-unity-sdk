@@ -6,10 +6,10 @@ using SequenceSharp.RPC;
 
 namespace SequenceSharp.WALLET
 {
-    public class SequenceWallet : BaseWallet
+    public class Wallet : BaseWallet
     {
         Provider provider;
-        WalletProvider wallet;
+        WalletProvider walletProvider;
        public Task Encrypt()
         {
             throw new System.NotImplementedException();
