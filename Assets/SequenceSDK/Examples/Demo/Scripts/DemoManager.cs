@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
-
 public class DemoManager : MonoBehaviour
 {
     [SerializeField]
@@ -313,6 +312,7 @@ public class DemoManager : MonoBehaviour
 
     public async void Connect()
     {
+        
         var connectDetails = await wallet.Connect(
             new ConnectOptions { app = "Demo Unity Dapp" }
         );
@@ -430,7 +430,11 @@ public class DemoManager : MonoBehaviour
 
                 var txsWithNames = history.transactions.SelectMany(tx =>
                     tx.transfers.Select(t => (
+#if UNITY_2021_3_OR_NEWER
                         name: GetTokenName(web3, t.contractType, t.contractAddress, t.tokenIds != null ? t.tokenIds[0] : null),
+#else
+                        name: GetTokenName(web3, t.contractType, t.contractAddress, t.tokenIds?[0]),
+#endif
                         t, tx.timestamp
                     ))
                 ).ToArray();

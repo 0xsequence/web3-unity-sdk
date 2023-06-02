@@ -18,6 +18,7 @@ using Vuplex.WebView;
 using System.Linq;
 using System.Threading;
 using System.Net.Sockets;
+using System;
 #endif
 #else
 using System.Runtime.InteropServices;
@@ -217,7 +218,11 @@ namespace SequenceSharp
                 // random deep link, we don't care
                 return;
             }
+#if UNITY_2021_3_OR_NEWER
             var authParam = link.Split("://mobile.skyweaver.net/auth#");
+#else
+            var authParam = link.Split("://mobile.skyweaver.net/auth#".ToCharArray());
+#endif
             if (authParam.Length != 2)
             {
                 _SequenceDebugLogError("Invalid deep link " + link);
@@ -228,7 +233,7 @@ namespace SequenceSharp
             _walletWindow.WebView.ExecuteJavaScript(authUrl);
         }
 #endif
-        public async void Start()
+            public async void Start()
         {
 
             await Initialize(providerConfig);
@@ -248,7 +253,16 @@ namespace SequenceSharp
             }
             else
             {
+#if UNITY_2021_3_OR_NEWER
                 return await File.ReadAllTextAsync(path);
+#else
+                string content;
+                using (StreamReader reader = new StreamReader(path))
+                {
+                    content = await reader.ReadToEndAsync();
+                }
+                return content;
+#endif
             }
         }
 
@@ -358,9 +372,9 @@ namespace SequenceSharp
                 var credsText = await LoadFileFromStreamingAssets("sequence/httpBasicAuth.json");
                 creds = JsonConvert.DeserializeObject<Dictionary<string, HttpBasicAuthCreds>>(credsText);
             }
-            catch
+            catch(Exception e)
             {
-                _SequenceDebugLog("No HTTP Basic Auth credentials provided.");
+                _SequenceDebugLog("No HTTP Basic Auth credentials provided. " + e );
             }
             if (creds != null)
             {

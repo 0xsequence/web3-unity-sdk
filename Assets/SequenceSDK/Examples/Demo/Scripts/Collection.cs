@@ -102,17 +102,33 @@ public class Collection : MonoBehaviour
             var type = ContractType.UNKNOWN;
             try
             {
+#if UNITY_2021_3_OR_NEWER
                 type = Enum.Parse<ContractType>(contractInfo.type);
+#else
+                Enum.TryParse<ContractType>(contractInfo.type, out type);
+#endif
             }
             catch
             {
                 // ok!
             }
-
-            BigInteger? tokenID =
-                (tokenMetadata != null)
+#if UNITY_2021_3_OR_NEWER
+                BigInteger? tokenID =
+                    (tokenMetadata != null)
                     ? tokenMetadata.tokenId
                     : null;
+#else
+            BigInteger? tokenID;
+
+            if (tokenMetadata != null)
+            {
+                tokenID = tokenMetadata.tokenId;
+            }
+            else
+            {
+                tokenID = null;
+            }
+#endif
             var newCatGo = Instantiate(categoryTemplate, tokensRoot);
             var newCategory = newCatGo.GetComponent<Category>();
 

@@ -1,7 +1,9 @@
+#if UNITY_2021_3_OR_NEWER
 #if UNITY_EDITOR
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+
 class BuildSequenceHTML
 {
 
@@ -50,4 +52,5 @@ class BuildSequenceHTML
         File.WriteAllText(sequenceHTMLGeneratedPath, combined);
     }
 }
+#endif
 #endif
