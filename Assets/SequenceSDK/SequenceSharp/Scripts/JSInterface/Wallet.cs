@@ -18,6 +18,7 @@ using Vuplex.WebView;
 using System.Linq;
 using System.Threading;
 using System.Net.Sockets;
+using System;
 #endif
 #else
 using System.Runtime.InteropServices;
@@ -31,6 +32,7 @@ namespace SequenceSharp
     /// Put this inside a Canvas to position and scale the wallet.
     /// In WebGL builds, the wallet will be a browser popup, and this GameObject will not render anything.
     /// </summary>
+    [RequireComponent(typeof(MainThread))]
     public class Wallet : MonoBehaviour
     {
         private const int WINDOWS_IPC_PORT = 52836;
@@ -133,7 +135,7 @@ namespace SequenceSharp
             _internalWebView = Web.CreateWebView();
 
             Application.deepLinkActivated += DeepLinkCallback;
-            
+
 #if UNITY_STANDALONE_WIN
             // Run a TCP server on Windows standalone to get the auth token from the other instance.
             /**
@@ -217,7 +219,11 @@ namespace SequenceSharp
                 // random deep link, we don't care
                 return;
             }
+#if UNITY_2021_3_OR_NEWER
             var authParam = link.Split("://mobile.skyweaver.net/auth#");
+#else
+            var authParam = link.Split("://mobile.skyweaver.net/auth#".ToCharArray());
+#endif
             if (authParam.Length != 2)
             {
                 _SequenceDebugLogError("Invalid deep link " + link);
@@ -248,7 +254,16 @@ namespace SequenceSharp
             }
             else
             {
+#if UNITY_2021_3_OR_NEWER
                 return await File.ReadAllTextAsync(path);
+#else
+                string content;
+                using (StreamReader reader = new StreamReader(path))
+                {
+                    content = await reader.ReadToEndAsync();
+                }
+                return content;
+#endif
             }
         }
 
@@ -277,8 +292,11 @@ namespace SequenceSharp
             internalWebViewWithPopups.SetPopupMode(PopupMode.NotifyWithoutLoading);
             internalWebViewWithPopups.PopupRequested += (sender, eventArgs) =>
             {
-                _walletWindow.WebView.LoadUrl(eventArgs.Url);
-                _ShowWallet();
+                MainThread.wkr.AddJob(() =>
+                {
+                    _walletWindow.WebView.LoadUrl(eventArgs.Url);
+                    _ShowWallet();
+                });
             };
 
             _internalWebView.MessageEmitted += (sender, eventArgs) =>
@@ -358,9 +376,9 @@ namespace SequenceSharp
                 var credsText = await LoadFileFromStreamingAssets("sequence/httpBasicAuth.json");
                 creds = JsonConvert.DeserializeObject<Dictionary<string, HttpBasicAuthCreds>>(credsText);
             }
-            catch
+            catch (Exception e)
             {
-                _SequenceDebugLog("No HTTP Basic Auth credentials provided.");
+                _SequenceDebugLog("No HTTP Basic Auth credentials provided. " + e);
             }
             if (creds != null)
             {
