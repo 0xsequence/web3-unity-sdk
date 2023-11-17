@@ -9,7 +9,15 @@ internal class MainThread : MonoBehaviour
 
     void Awake()
     {
-        wkr = this;
+        if (wkr == null)
+        {
+            wkr = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     void Update()
