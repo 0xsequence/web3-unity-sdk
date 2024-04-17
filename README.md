@@ -1,5 +1,7 @@
 # Web3 Unity SDK
 
+*Notice*: This SDK has been deprecated and is no longer being actively supported. Please see our new [Unity SDK](https://github.com/0xsequence/sequence-unity) and [documentation](https://docs.sequence.xyz/sdk/unity/overview)!
+
 The Sequence Unity SDK provides full Sequence Wallet & Indexer integration for your Unity Games.
 
 This SDK follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`). While we're still in `0.x.y` builds, API breaking changes can be made at any time. After `1.0.0`, breaking changes will always cause a `major` version increment, non-breaking new features will cause a `minor` version increment, and bugfixes will cause a `patch` version increment.
